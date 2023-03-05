@@ -1,0 +1,6 @@
+.history {
+  display: inline-block;
+  /* flex-direction: column; */
+  width: 300px;
+  border: 2px solid;
+}

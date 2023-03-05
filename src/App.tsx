@@ -1,13 +1,13 @@
-import restaurants from '@data/restaurants.json'; // 런타임에서 절대경로 적용 안됨(왜지)
+import MainPage from '@pages/MainPage';
 
-function App() {
+const App = () => {
   return (
     <>
-      {restaurants.map((restaurant, index) => (
-        <p key={index}>{JSON.stringify(restaurant)}</p>
-      ))}
+      <head></head>
+      <MainPage />
+      <footer></footer>
     </>
   );
-}
+};
 
 export default App;

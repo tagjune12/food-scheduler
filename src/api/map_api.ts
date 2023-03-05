@@ -1,0 +1,3 @@
+const dynamicMap = () => {};
+
+export { dynamicMap };
