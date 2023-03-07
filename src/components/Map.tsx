@@ -15,20 +15,21 @@ const Map = () => {
       zoom: 16, // default
     });
 
-    let marker: naver.maps.Marker;
-
-    restaurants.forEach((restaurant) => {
+    restaurants.forEach((restaurant, index) => {
       const { position } = restaurant;
       const markerPosition: naver.maps.LatLng = new naver.maps.LatLng(
-        parseInt(position.y), // y
-        parseInt(position.x), // x
+        parseFloat(position.y), // y
+        parseFloat(position.x), // x
       );
 
-      marker = new naver.maps.Marker({
+      const marker = new naver.maps.Marker({
         position: markerPosition,
         map: map,
       });
+
+      console.log(index);
     });
+
     // const marker = new naver.maps.Marker({
     //   position: center,
     //   map: map,
