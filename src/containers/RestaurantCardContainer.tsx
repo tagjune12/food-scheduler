@@ -1,4 +1,4 @@
-import restaurants from '@data/restaurants.json'; // 런타임에서 절대경로 적용 안됨(왜지)
+import restaurants from '@data/restaurants.json'; 
 import RestaurantCard from '@components/RestaurantCard';
 import '@containers/RestaurantCardContainer.css';
 
