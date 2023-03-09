@@ -38,7 +38,10 @@ const Map = () => {
     restaurants.forEach((restaurant, index) => {
       infoWindows.push(
         new naver.maps.InfoWindow({
-          content: '<div id="info-window">테스트<div/>',
+          // content: `<div id="info-window" onclick='console.log("clicked")'>테스트<div/>`,
+          content: `<div id="info-window">
+            <button>버튼버튼</button>
+          <div/>`,
         }),
       );
       // infoWindows.at(-1)?.open(map, markers[index]);
@@ -55,12 +58,20 @@ const Map = () => {
         infoWindows[i].open(map, markers[i]);
         console.log('marker is clicked');
       });
-
-      // 이벤트 리스너 붙여도 빌드하면 안붙어있음
-      naver.maps.Event.addListener(infoWindows[i], 'click', () => {
-        console.log('info window is clicked');
-      });
     }
+
+    // infoWindows[0].open(map, markers[0]);
+    naver.maps.Event.addListener(infoWindows[0], 'click', () => {
+      console.log('info window is clicked');
+    });
+
+    // naver.maps.Event.addDOMListener(
+    //   document.querySelector('#info-window')!,
+    //   'click',
+    //   () => {
+    //     console.log('info window is clicked');
+    //   },
+    // );
 
     console.log('useEffect is work');
   }, []);
@@ -69,6 +80,11 @@ const Map = () => {
     width: '100vw',
     height: '100vh',
   };
+
+  // // 이벤트 리스너 붙여도 빌드하면 안붙어있음
+  // document.querySelector('#info-window')!.addEventListener('click', () => {
+  //   console.log('info window is clicked');
+  // });
 
   return (
     <>
