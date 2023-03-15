@@ -11,7 +11,7 @@ type Restaurant = {
 
 type RestaurantCardProps = {
   restaurant: Restaurant;
-  isHistory: boolean;
+  isHistory?: boolean;
 };
 
 const RestaurantCard = ({ restaurant, isHistory }: RestaurantCardProps) => {

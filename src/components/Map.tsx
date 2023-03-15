@@ -1,8 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import '@components/Map.css';
-// import { Helmet } from 'react-helmet';
 import restaurants from '@data/restaurants.json';
-import RestaurantCard from '@components/RestaurantCard';
+// import RestaurantCard from '@components/RestaurantCard';
+import CustomOverlay from '@utils/custom_overlay';
+import { renderToString } from 'react-dom/server';
+import RestaurantCardContainer from '@containers/RestaurantCardContainer';
 
 const Map = () => {
   useEffect(() => {
@@ -17,7 +19,7 @@ const Map = () => {
       zoom: 16, // default
     });
 
-    const markers: naver.maps.Marker[] = [];
+    const infoWindowString = renderToString(<RestaurantCardContainer />);
 
     restaurants.forEach((restaurant) => {
       const { position } = restaurant;
@@ -26,54 +28,26 @@ const Map = () => {
         parseFloat(position.x), // x
       );
       // 지도위에 좌표 설정
-      markers.push(
-        new naver.maps.Marker({
+      const marker: naver.maps.Marker = new naver.maps.Marker({
+        position: markerPosition,
+        map: map,
+      });
+
+      marker.setMap(map);
+
+      naver.maps.Event.addListener(marker, 'click', () => {
+        console.log('infoWindowString', infoWindowString);
+        const customOverlay = new CustomOverlay(infoWindowString, {
           position: markerPosition,
           map: map,
-        }),
-      );
-    });
-    const infoWindows: naver.maps.InfoWindow[] = [];
+        });
 
-    restaurants.forEach((restaurant, index) => {
-      infoWindows.push(
-        new naver.maps.InfoWindow({
-          // content: `<div id="info-window" onclick='console.log("clicked")'>테스트<div/>`,
-          content: `<div id="info-window">
-            <button>버튼버튼</button>
-          <div/>`,
-        }),
-      );
-      // infoWindows.at(-1)?.open(map, markers[index]);
-    });
-
-    // 정보창은 하나밖에 활성화가 안된다
-    // 여러개 띄우고 싶으면 오버레이로 구현해야함
-    infoWindows[0]?.open(map, markers[0]);
-    // infoWindows[1]?.open(map, markers[1]);
-    // infoWindows[2]?.open(map, markers[2]);
-
-    for (let i = 0; i < markers.length; i++) {
-      naver.maps.Event.addListener(markers[i], 'click', () => {
-        infoWindows[i].open(map, markers[i]);
-        console.log('marker is clicked');
+        // customOverlay.onAdd();
+        customOverlay.setMap(map);
+        console.log('clicked', customOverlay.getPosition());
+        console.log('clicked', customOverlay);
       });
-    }
-
-    // infoWindows[0].open(map, markers[0]);
-    naver.maps.Event.addListener(infoWindows[0], 'click', () => {
-      console.log('info window is clicked');
     });
-
-    // naver.maps.Event.addDOMListener(
-    //   document.querySelector('#info-window')!,
-    //   'click',
-    //   () => {
-    //     console.log('info window is clicked');
-    //   },
-    // );
-
-    console.log('useEffect is work');
   }, []);
 
   const mapStyle = {

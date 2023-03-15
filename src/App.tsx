@@ -3,7 +3,7 @@ import MainPage from '@pages/MainPage';
 const App = () => {
   return (
     <>
-      <head></head>
+      <header></header>
       <MainPage />
       <footer></footer>
     </>

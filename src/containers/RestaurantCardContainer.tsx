@@ -3,7 +3,7 @@ import RestaurantCard from '@components/RestaurantCard';
 import '@containers/RestaurantCardContainer.css';
 
 type RestaurantCardContainerProps = {
-  isHistory: boolean;
+  isHistory?: boolean;
 };
 
 const RestaurantCardContainer = ({
