@@ -1,8 +1,8 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import '@components/Map.css';
-// import { Helmet } from 'react-helmet';
 import restaurants from '@data/restaurants.json';
-import RestaurantCard from '@components/RestaurantCard';
+import { renderToString } from 'react-dom/server';
+import InfoWindow from '@components/commons/InfoWindow';
 
 const Map = () => {
   useEffect(() => {
@@ -12,66 +12,56 @@ const Map = () => {
       127.1115201, // x
     );
     // 중앙 좌표를 중심으로 하는 지도 생성
-    const map: naver.maps.Map = new naver.maps.Map('map', {
+    const naverMap: naver.maps.Map = new naver.maps.Map('map', {
       center: center,
       zoom: 16, // default
     });
 
     const markers: naver.maps.Marker[] = [];
+    const infoWindows: naver.maps.InfoWindow[] = [];
 
     restaurants.forEach((restaurant) => {
       const { position } = restaurant;
-      const markerPosition: naver.maps.LatLng = new naver.maps.LatLng(
+      const restaurantPostion: naver.maps.LatLng = new naver.maps.LatLng(
         parseFloat(position.y), // y
         parseFloat(position.x), // x
       );
       // 지도위에 좌표 설정
       markers.push(
         new naver.maps.Marker({
-          position: markerPosition,
-          map: map,
+          position: restaurantPostion,
+          map: naverMap,
         }),
       );
-    });
-    const infoWindows: naver.maps.InfoWindow[] = [];
-
-    restaurants.forEach((restaurant, index) => {
+      const contentString: string = renderToString(<InfoWindow />);
       infoWindows.push(
         new naver.maps.InfoWindow({
-          // content: `<div id="info-window" onclick='console.log("clicked")'>테스트<div/>`,
-          content: `<div id="info-window">
-            <button>버튼버튼</button>
-          <div/>`,
+          content: contentString,
         }),
       );
-      // infoWindows.at(-1)?.open(map, markers[index]);
     });
+
+    markers.push(
+      new naver.maps.Marker({
+        position: center,
+        map: naverMap,
+      }),
+    );
 
     // 정보창은 하나밖에 활성화가 안된다
     // 여러개 띄우고 싶으면 오버레이로 구현해야함
-    infoWindows[0]?.open(map, markers[0]);
-    // infoWindows[1]?.open(map, markers[1]);
-    // infoWindows[2]?.open(map, markers[2]);
+    // infoWindows.at(-1)?.open(naverMap, markers.at(-1));
 
     for (let i = 0; i < markers.length; i++) {
       naver.maps.Event.addListener(markers[i], 'click', () => {
-        infoWindows[i].open(map, markers[i]);
+        infoWindows[i].open(naverMap, markers[i]);
         console.log('marker is clicked');
       });
     }
 
-    // infoWindows[0].open(map, markers[0]);
-    naver.maps.Event.addListener(infoWindows[0], 'click', () => {
-      console.log('info window is clicked');
+    naver.maps.Event.addListener(naverMap, 'click', () => {
+      infoWindows.at(-1)?.close(); // 일부 정보창에 대해서 작동을 안함 로직을 바꿔야됨
     });
-
-    // naver.maps.Event.addDOMListener(
-    //   document.querySelector('#info-window')!,
-    //   'click',
-    //   () => {
-    //     console.log('info window is clicked');
-    //   },
-    // );
 
     console.log('useEffect is work');
   }, []);
@@ -80,11 +70,6 @@ const Map = () => {
     width: '100vw',
     height: '100vh',
   };
-
-  // // 이벤트 리스너 붙여도 빌드하면 안붙어있음
-  // document.querySelector('#info-window')!.addEventListener('click', () => {
-  //   console.log('info window is clicked');
-  // });
 
   return (
     <>

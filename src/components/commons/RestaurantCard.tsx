@@ -11,10 +11,10 @@ type Restaurant = {
 
 type RestaurantCardProps = {
   restaurant: Restaurant;
-  isHistory: boolean;
+  period?: number;
 };
 
-const RestaurantCard = ({ restaurant, isHistory }: RestaurantCardProps) => {
+const RestaurantCard = ({ restaurant, period }: RestaurantCardProps) => {
   return (
     <div
       style={{
@@ -24,10 +24,10 @@ const RestaurantCard = ({ restaurant, isHistory }: RestaurantCardProps) => {
     >
       <img src="#" alt="사진" />
       <h3>타이틀</h3>
-      {isHistory && (
+      {period && (
         <>
           <div>
-            <progress value={15} max={30} />
+            <progress value={15} max={period} />
           </div>
           <div>
             {restaurant.tags.map((tag, index) => (
