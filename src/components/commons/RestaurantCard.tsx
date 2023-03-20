@@ -1,13 +1,4 @@
-// import Button from 'react-bootstrap/Button';
-// import Card from 'react-bootstrap/Card';
-
-type Restaurant = {
-  name: string;
-  tags: string[];
-  address: string;
-  period: number;
-  visit: string;
-};
+import { Restaurant } from 'types';
 
 type RestaurantCardProps = {
   restaurant: Restaurant;

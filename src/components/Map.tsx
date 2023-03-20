@@ -1,10 +1,12 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import '@components/Map.css';
 import restaurants from '@data/restaurants.json';
 import { renderToString } from 'react-dom/server';
 import InfoWindow from '@components/commons/InfoWindow';
 
 const Map = () => {
+  const opened = useRef<number | null>(0);
+
   useEffect(() => {
     // 지도 중앙좌표 설정
     const center: naver.maps.LatLng = new naver.maps.LatLng(
@@ -33,7 +35,9 @@ const Map = () => {
           map: naverMap,
         }),
       );
-      const contentString: string = renderToString(<InfoWindow />);
+      const contentString: string = renderToString(
+        <InfoWindow data={restaurant} />,
+      );
       infoWindows.push(
         new naver.maps.InfoWindow({
           content: contentString,
@@ -41,26 +45,34 @@ const Map = () => {
       );
     });
 
-    markers.push(
-      new naver.maps.Marker({
-        position: center,
-        map: naverMap,
-      }),
-    );
+    // markers.push(
+    //   new naver.maps.Marker({
+    //     position: center,
+    //     map: naverMap,
+    //   }),
+    // );
+    new naver.maps.Marker({
+      position: center,
+      map: naverMap,
+    });
 
     // 정보창은 하나밖에 활성화가 안된다
     // 여러개 띄우고 싶으면 오버레이로 구현해야함
-    // infoWindows.at(-1)?.open(naverMap, markers.at(-1));
-
     for (let i = 0; i < markers.length; i++) {
       naver.maps.Event.addListener(markers[i], 'click', () => {
-        infoWindows[i].open(naverMap, markers[i]);
-        console.log('marker is clicked');
+        if (opened.current !== i) {
+          infoWindows[i].open(naverMap, markers[i]);
+          opened.current = i;
+        }
+        console.log('marker is clicked', i);
       });
     }
 
     naver.maps.Event.addListener(naverMap, 'click', () => {
-      infoWindows.at(-1)?.close(); // 일부 정보창에 대해서 작동을 안함 로직을 바꿔야됨
+      if (opened.current !== null) {
+        infoWindows[opened.current].close();
+      }
+      console.log(opened.current);
     });
 
     console.log('useEffect is work');
