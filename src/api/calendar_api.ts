@@ -16,7 +16,18 @@ async function getAuth() {
   const loginUrl = `https://accounts.google.com/o/oauth2/v2/auth?${queryStr}`;
 
   try {
-    const response = await axios.get(loginUrl);
+    const config = {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+      },
+    };
+
+    const response = await axios.get(loginUrl, {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        Origin: 'http://localhost:4000',
+      },
+    });
     console.log(response);
   } catch (e) {
     alert(e);
