@@ -3,7 +3,19 @@ type Restaurant = {
   tags: string[];
   address: string;
   period: number;
+  position?: Object;
   visit: string;
 };
 
-export type { Restaurant };
+type HistoryType = {
+  [prop: string]: string;
+};
+
+type JSONResponse = {
+  [prop: string]: any;
+};
+type NestObjType = {
+  [key: string]: Object;
+};
+
+export type { Restaurant, HistoryType, JSONResponse, NestObjType };

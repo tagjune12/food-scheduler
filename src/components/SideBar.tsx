@@ -2,10 +2,15 @@ import TodayRestaurant from '@components/TodayRestaurant';
 import History from '@components/History';
 import '@components/History.css';
 import { useState } from 'react';
-import Candidates from '@components/Candidates';
+import { HistoryType } from 'types';
+import Calendar from './Calendar';
 
-const SideBar = () => {
-  const [isHistory, setIsHistory] = useState(false);
+type SideBarProps = {
+  history: HistoryType;
+};
+
+const SideBar = ({ history }: SideBarProps) => {
+  const [isHistory, setIsHistory] = useState(true);
 
   const onClick = () => {
     setIsHistory((isHistory) => !isHistory);
@@ -22,8 +27,15 @@ const SideBar = () => {
         헤더
         <button onClick={onClick}>쿨타임 버튼</button>
       </div>
-      <TodayRestaurant />
-      {isHistory ? <History /> : <Candidates />}
+
+      {isHistory ? (
+        <>
+          <TodayRestaurant />
+          <History history={history} />
+        </>
+      ) : (
+        <Calendar />
+      )}
     </div>
   );
 };

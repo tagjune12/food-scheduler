@@ -1,38 +1,25 @@
 import qs from 'qs';
 import axios from 'axios';
 
-const CLIENT_ID = process.env.REACT_APP_GOOGLECALENDAR_CLIENT_ID;
-const CALENDAR_ID = `ltjktnet12@gmail.com`;
-const MAX_TIME = `2023-03-01T00:00:00Z`;
-const MIN_TIME = `2023-03-31T00:00:00Z`;
+function getCurHistory(
+  access_token: string,
+  startTime: string,
+  endTime: string,
+): Promise<any> {
+  const CALENDAR_ID = 'ltjktnet12@gmail.com';
+  const CALENDAR_URI = `https://www.googleapis.com/calendar/v3/calendars/${CALENDAR_ID}/events?timeMin=${startTime}&timeMax=${endTime}`;
 
-async function getAuth() {
-  const queryStr = qs.stringify({
-    client_id: CLIENT_ID,
-    redirect_uri: 'http://localhost:3000',
-    response_type: 'token',
-    scope: 'https://www.googleapis.com/auth/calendar',
-  });
-  const loginUrl = `https://accounts.google.com/o/oauth2/v2/auth?${queryStr}`;
+  return axios(CALENDAR_URI, {
+    headers: {
+      Authorization: 'Bearer ' + access_token,
+    },
+  }).then((response) => response.data);
 
-  try {
-    const config = {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
-    };
-
-    const response = await axios.get(loginUrl, {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        Origin: 'http://localhost:4000',
-      },
-    });
-    console.log(response);
-  } catch (e) {
-    alert(e);
-    console.log(e);
-  }
+  // return fetch(CALENDAR_URI, {
+  //   headers: {
+  //     Authorization: 'Bearer ' + access_token,
+  //   },
+  // }).then((response) => response.json());
 }
 
-export { getAuth };
+export { getCurHistory };
