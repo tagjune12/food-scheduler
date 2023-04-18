@@ -18,4 +18,14 @@ type NestObjType = {
   [key: string]: Object;
 };
 
-export type { Restaurant, HistoryType, JSONResponse, NestObjType };
+type StringKeyObj = {
+  [key: string]: any;
+};
+
+export type {
+  Restaurant,
+  HistoryType,
+  JSONResponse,
+  NestObjType,
+  StringKeyObj,
+};

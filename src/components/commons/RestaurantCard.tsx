@@ -2,18 +2,17 @@ import { Restaurant } from 'types';
 
 type RestaurantCardProps = {
   restaurant: Restaurant;
+  visit?: string;
   period?: number;
   onBtnClick?: () => void;
 };
 
 const RestaurantCard = ({
   restaurant,
+  visit,
   period,
   onBtnClick,
 }: RestaurantCardProps) => {
-  console.log(restaurant);
-  console.log(restaurant.tags);
-  console.log(restaurant.tags?.map((value) => value));
   return (
     <div
       style={{
@@ -23,7 +22,7 @@ const RestaurantCard = ({
     >
       {/* 식당이름 */}
       <h3>{restaurant.name}</h3>
-      <div>{restaurant.visit}</div>
+      <div>{visit ?? '없음'}</div>
       <div>
         <progress value={15} max={period} />
       </div>
