@@ -4,15 +4,19 @@ type RestaurantCardProps = {
   restaurant: Restaurant;
   visit?: string;
   period?: number;
-  onBtnClick?: () => void;
+  setTodayRestaurant?: (arg: Restaurant) => void;
 };
 
 const RestaurantCard = ({
   restaurant,
   visit,
   period,
-  onBtnClick,
+  setTodayRestaurant,
 }: RestaurantCardProps) => {
+  const onBtnClick = () => {
+    setTodayRestaurant!(restaurant);
+  };
+
   return (
     <div
       style={{
@@ -36,7 +40,11 @@ const RestaurantCard = ({
           </div>
         }
       </div>
-      <button onClick={onBtnClick}>오늘은 이거다</button>
+      {setTodayRestaurant ? (
+        <button onClick={onBtnClick}>오늘은 이거다</button>
+      ) : (
+        <></>
+      )}
     </div>
   );
 };

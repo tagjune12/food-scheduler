@@ -2,16 +2,16 @@ import React from 'react';
 import '@pages/MainPage.css';
 import Map from '@components/Map';
 import SideBar from '@components/SideBar';
-import { HistoryType } from 'types';
+// import { HistoryType } from 'types';
 
-type MainPageProps = {
-  history: HistoryType;
-};
+// type MainPageProps = {
+//   history: HistoryType;
+// };
 
-const MainPage = ({ history }: MainPageProps) => {
+const MainPage = () => {
   return (
     <div className="main-page">
-      <SideBar history={history} />
+      <SideBar />
       <Map />
     </div>
   );

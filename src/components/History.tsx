@@ -1,14 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import RestaurantCard from '@components/commons/RestaurantCard';
 import restaurants from '@data/restaurants.json';
 import last_visit_data from '@data/restaurants copy.json';
 import { HistoryType, Restaurant, StringKeyObj } from 'types';
+// import { HistoryContext } from '@src/App';
+import { HistoryContext } from '../App'; // 절대경로 적용 문제 발생
 
 type HistoryProps = {
-  history: HistoryType;
+  setTodayRestaurant: (arg: Restaurant) => void;
 };
 
-const History = ({ history }: HistoryProps) => {
+const History = ({ setTodayRestaurant }: HistoryProps) => {
+  /*
   // const [data, setData] = useState<Object[]>([]);
 
   // useEffect(() => {
@@ -19,10 +22,8 @@ const History = ({ history }: HistoryProps) => {
   //   // );
   //   // console.log('응애ㅐㅐㅐㅐㅐㅐㅐㅐㅐ', data);
   // }, [history]);
-
-  const addRestaurant = () => {
-    console.log(`log from addRestaurant`);
-  };
+  */
+  const history = useContext(HistoryContext);
 
   return (
     <div>
@@ -33,7 +34,7 @@ const History = ({ history }: HistoryProps) => {
             key={restaurant.name}
             restaurant={restaurant}
             visit={history[restaurant.name]}
-            onBtnClick={addRestaurant}
+            setTodayRestaurant={setTodayRestaurant}
           />
         );
       })}

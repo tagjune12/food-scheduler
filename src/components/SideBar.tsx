@@ -2,15 +2,19 @@ import TodayRestaurant from '@components/TodayRestaurant';
 import History from '@components/History';
 import '@components/History.css';
 import { useState } from 'react';
-import { HistoryType } from 'types';
+import { Restaurant } from 'types';
 import Calendar from './Calendar';
+import RestaurantCard from '@components/commons/RestaurantCard';
 
-type SideBarProps = {
-  history: HistoryType;
-};
+// type SideBarProps = {
+//   history: HistoryType;
+// };
 
-const SideBar = ({ history }: SideBarProps) => {
-  const [isHistory, setIsHistory] = useState(true);
+const SideBar = () => {
+  const [isHistory, setIsHistory] = useState<boolean>(true);
+  const [todayRestaurant, setTodayRestaurant] = useState<Restaurant | null>(
+    null,
+  );
 
   const onClick = () => {
     setIsHistory((isHistory) => !isHistory);
@@ -30,8 +34,8 @@ const SideBar = ({ history }: SideBarProps) => {
 
       {isHistory ? (
         <>
-          <TodayRestaurant />
-          <History history={history} />
+          <TodayRestaurant restaurant={todayRestaurant} />
+          <History setTodayRestaurant={setTodayRestaurant} />
         </>
       ) : (
         <Calendar />

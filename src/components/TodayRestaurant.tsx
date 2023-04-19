@@ -1,9 +1,9 @@
 import RestaurantCard from '@components/commons/RestaurantCard';
 import { Restaurant } from 'types';
 
-interface props {
-  restaurant?: Restaurant;
-}
+type props = {
+  restaurant: Restaurant | null;
+};
 
 const TodayRestaurant = ({ restaurant }: props) => {
   return (
