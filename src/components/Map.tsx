@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from 'react';
-import '@components/Map.css';
 import restaurants from '@data/restaurants.json';
 import { renderToString } from 'react-dom/server';
 import InfoWindow from '@components/commons/InfoWindow';
+import '@components/Map.scss';
 
 const Map = () => {
   const opened = useRef<number | null>(0);
@@ -45,12 +45,6 @@ const Map = () => {
       );
     });
 
-    // markers.push(
-    //   new naver.maps.Marker({
-    //     position: center,
-    //     map: naverMap,
-    //   }),
-    // );
     new naver.maps.Marker({
       position: center,
       map: naverMap,
@@ -63,6 +57,10 @@ const Map = () => {
         if (opened.current !== i) {
           infoWindows[i].open(naverMap, markers[i]);
           opened.current = i;
+          // InfoWindow에 있는 요소에 EventListener 부착
+          document.querySelector('.test')!.addEventListener('click', () => {
+            // 이벤트 로직
+          });
         }
         console.log('marker is clicked', i);
       });
@@ -78,15 +76,10 @@ const Map = () => {
     console.log('useEffect is work');
   }, []);
 
-  const mapStyle = {
-    width: '100vw',
-    height: '100vh',
-  };
-
   return (
-    <>
-      <div id="map" className="naver-map" style={mapStyle} />
-    </>
+    <div>
+      <div id="map" className="naver-map" />
+    </div>
   );
 };
 

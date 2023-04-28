@@ -1,17 +1,12 @@
 import React from 'react';
-import '@pages/MainPage.css';
 import Map from '@components/Map';
 import SideBar from '@components/SideBar';
-// import { HistoryType } from 'types';
+import { AppStoreType } from '@src/types';
 
-// type MainPageProps = {
-//   history: HistoryType;
-// };
-
-const MainPage = () => {
+const MainPage = ({ state }: AppStoreType) => {
   return (
     <div className="main-page">
-      <SideBar />
+      <SideBar state={state} />
       <Map />
     </div>
   );

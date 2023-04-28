@@ -1,50 +1,38 @@
-import { Restaurant } from 'types';
+import { Restaurant } from '@src/types';
+import '@components/commons/RestaurantCard.scss';
+import { UseDispatch } from '@src/App';
+import { useContext } from 'react';
 
 type RestaurantCardProps = {
   restaurant: Restaurant;
   visit?: string;
   period?: number;
-  setTodayRestaurant?: (arg: Restaurant) => void;
 };
 
-const RestaurantCard = ({
-  restaurant,
-  visit,
-  period,
-  setTodayRestaurant,
-}: RestaurantCardProps) => {
+const RestaurantCard = ({ restaurant, period, visit }: RestaurantCardProps) => {
+  const dispatch = useContext(UseDispatch);
+
   const onBtnClick = () => {
-    setTodayRestaurant!(restaurant);
+    dispatch({ type: 'selectRestaurant', payload: { ...restaurant } });
   };
 
   return (
-    <div
-      style={{
-        width: '100px',
-        margin: 0,
-      }}
-    >
-      {/* 식당이름 */}
+    <div className="card-container">
       <h3>{restaurant.name}</h3>
       <div>{visit ?? '없음'}</div>
-      <div>
+      <div className="progress-wrapper">
         <progress value={15} max={period} />
       </div>
-      {/* 식당 태그 */}
-      <div>
-        {
-          <div>
-            {restaurant.tags.map((tag, index) => (
-              <p key={index}>{tag}</p>
-            ))}
-          </div>
-        }
-      </div>
-      {setTodayRestaurant ? (
-        <button onClick={onBtnClick}>오늘은 이거다</button>
-      ) : (
-        <></>
-      )}
+      {
+        <div className="tag-container">
+          {restaurant.tags?.map((tag, index) => (
+            <p key={index} className="tag">
+              {tag}
+            </p>
+          ))}
+        </div>
+      }
+      <button onClick={onBtnClick}>오늘은 이거다</button>
     </div>
   );
 };

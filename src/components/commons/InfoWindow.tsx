@@ -1,9 +1,4 @@
-import React from 'react';
-import { Restaurant } from 'types';
-
-// type props = {
-//   data: Restaurant;
-// };
+import { Restaurant } from '@src/types';
 
 const InfoWindow = ({ data }: { data: Restaurant }) => {
   return (
@@ -11,6 +6,7 @@ const InfoWindow = ({ data }: { data: Restaurant }) => {
       <div>{data.name}</div>
       <div>{data.tags}</div>
       <div>{data.period}</div>
+      <button className="test">일정 추가하기</button>
     </div>
   );
 };

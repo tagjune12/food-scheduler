@@ -8,11 +8,11 @@ type Restaurant = {
 };
 
 type HistoryType = {
-  [prop: string]: string;
+  [key: string]: string;
 };
 
 type JSONResponse = {
-  [prop: string]: any;
+  [key: string]: any;
 };
 type NestObjType = {
   [key: string]: Object;
@@ -22,10 +22,17 @@ type StringKeyObj = {
   [key: string]: any;
 };
 
+type AppStoreType = {
+  state: {
+    [key: string]: any;
+  };
+};
+
 export type {
   Restaurant,
   HistoryType,
   JSONResponse,
   NestObjType,
   StringKeyObj,
+  AppStoreType,
 };

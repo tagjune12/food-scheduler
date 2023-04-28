@@ -1,4 +1,3 @@
-import qs from 'qs';
 import axios from 'axios';
 
 function getCurHistory(
@@ -14,12 +13,6 @@ function getCurHistory(
       Authorization: 'Bearer ' + access_token,
     },
   }).then((response) => response.data);
-
-  // return fetch(CALENDAR_URI, {
-  //   headers: {
-  //     Authorization: 'Bearer ' + access_token,
-  //   },
-  // }).then((response) => response.json());
 }
 
 export { getCurHistory };

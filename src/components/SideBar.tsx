@@ -1,20 +1,13 @@
 import TodayRestaurant from '@components/TodayRestaurant';
 import History from '@components/History';
-import '@components/History.css';
 import { useState } from 'react';
-import { Restaurant } from 'types';
 import Calendar from './Calendar';
-import RestaurantCard from '@components/commons/RestaurantCard';
+import '@components/SideBar.scss';
 
-// type SideBarProps = {
-//   history: HistoryType;
-// };
+import { AppStoreType } from '@src/types';
 
-const SideBar = () => {
-  const [isHistory, setIsHistory] = useState<boolean>(true);
-  const [todayRestaurant, setTodayRestaurant] = useState<Restaurant | null>(
-    null,
-  );
+const SideBar = ({ state }: AppStoreType) => {
+  const [isHistory, setIsHistory] = useState<boolean>(false);
 
   const onClick = () => {
     setIsHistory((isHistory) => !isHistory);
@@ -23,23 +16,15 @@ const SideBar = () => {
 
   return (
     <div className="side-bar">
-      <div
-        style={{
-          width: '100%',
-        }}
-      >
-        헤더
-        <button onClick={onClick}>쿨타임 버튼</button>
+      <div>
+        <button onClick={onClick}>달력 모달버튼</button>
       </div>
 
-      {isHistory ? (
-        <>
-          <TodayRestaurant restaurant={todayRestaurant} />
-          <History setTodayRestaurant={setTodayRestaurant} />
-        </>
-      ) : (
-        <Calendar />
-      )}
+      {isHistory && <Calendar />}
+      <>
+        <TodayRestaurant restaurant={state.todayRestaurant} />
+        <History histories={state.histories} />
+      </>
     </div>
   );
 };
