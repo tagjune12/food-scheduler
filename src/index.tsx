@@ -8,12 +8,6 @@ const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement,
 );
 
-// declare global {
-//   interface Window {
-//     naver: any;
-//   }
-// }
-
 root.render(
   <React.StrictMode>
     <App />

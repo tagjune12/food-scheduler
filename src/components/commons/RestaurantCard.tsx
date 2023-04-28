@@ -1,7 +1,8 @@
-import { Restaurant } from '@src/types';
 import '@components/commons/RestaurantCard.scss';
+import { Restaurant } from '@src/types';
 import { UseDispatch } from '@src/App';
 import { useContext } from 'react';
+import { insertEvent } from '@api/calendar_api';
 
 type RestaurantCardProps = {
   restaurant: Restaurant;
@@ -14,6 +15,7 @@ const RestaurantCard = ({ restaurant, period, visit }: RestaurantCardProps) => {
 
   const onBtnClick = () => {
     dispatch({ type: 'selectRestaurant', payload: { ...restaurant } });
+    insertEvent(restaurant.name, new Date());
   };
 
   return (

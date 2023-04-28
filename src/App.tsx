@@ -3,6 +3,7 @@ import { useEffect, createContext, useReducer } from 'react';
 import { getCurHistory } from '@api/calendar_api';
 import { HistoryType, JSONResponse, StringKeyObj } from '@src/types';
 import qs from 'qs';
+// import { access_token } from '@src/App';
 
 const queryStr = qs.stringify({
   client_id: process.env.REACT_APP_GOOGLECALENDAR_CLIENT_ID,
@@ -13,17 +14,19 @@ const queryStr = qs.stringify({
 const loginUrl = `https://accounts.google.com/o/oauth2/v2/auth?${queryStr}`;
 
 export const UseDispatch = createContext<Function>(() => {});
+export const access_token = qs.parse(
+  window.location.hash.substring(1),
+).access_token;
+
+if (!access_token) {
+  window.location.href = loginUrl;
+}
 
 const App = () => {
-  const { access_token } = qs.parse(window.location.hash.substring(1));
-
-  if (!access_token) {
-    window.location.href = loginUrl;
-  }
-
   const initialState = {
     histories: {},
     todayRestaurant: {},
+    access_token: null,
   };
   const reducer = (prevState: Object, action: StringKeyObj) => {
     switch (action.type) {
@@ -32,7 +35,7 @@ const App = () => {
           ...prevState,
           histories: { ...action.payload },
         };
-        console.log('check the action', action, result);
+        // console.log('check the action', action, result);
         return result;
       }
 
@@ -40,6 +43,15 @@ const App = () => {
         const result = {
           ...prevState,
           todayRestaurant: { ...action.payload },
+        };
+
+        return result;
+      }
+
+      case 'setAccessToken': {
+        const result = {
+          ...prevState,
+          access_token: action.payload,
         };
 
         return result;
@@ -62,11 +74,7 @@ const App = () => {
     ).toISOString();
 
     const callCalendarAPI = async () => {
-      const response = await getCurHistory(
-        access_token as string,
-        timeMin,
-        timeMax,
-      );
+      const response = await getCurHistory(timeMin, timeMax);
       // console.log('FETCH', response);
       const items: Array<Object> = response.items;
 
@@ -81,6 +89,7 @@ const App = () => {
       );
       console.log(items, nameAndDate);
       // setHistories(nameAndDate);
+
       dispatch({ type: 'setHistory', payload: nameAndDate });
     };
     try {
