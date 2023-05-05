@@ -15,14 +15,14 @@ const TodayRestaurant = ({ restaurant }: props) => {
       `${today.getFullYear()}-${today
         .getMonth()
         .toString()
-        .padStart(2, '0')}-${today.getDate()}`,
+        .padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`,
     );
   }, []);
 
   return (
     <div>
       {Object.keys(restaurant as Object).length > 0 ? (
-        <RestaurantCard restaurant={restaurant} visit={visit} />
+        <RestaurantCard restaurant={restaurant} visitDate={visit} />
       ) : (
         <div>예정 없음</div>
       )}

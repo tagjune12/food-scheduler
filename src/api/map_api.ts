@@ -1,3 +1,0 @@
-const dynamicMap = () => {};
-
-export { dynamicMap };

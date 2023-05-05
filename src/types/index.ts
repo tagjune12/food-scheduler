@@ -8,7 +8,10 @@ type Restaurant = {
 };
 
 type HistoryType = {
-  [key: string]: string;
+  [key: string]: {
+    date: string;
+    eventId: string;
+  };
 };
 
 type JSONResponse = {

@@ -1,39 +1,35 @@
 import '@components/commons/RestaurantCard.scss';
 import { Restaurant } from '@src/types';
-import { UseDispatch } from '@src/App';
+// import { UseDispatch } from '@src/App';
 import { useContext, useState } from 'react';
-import { insertEvent } from '@api/calendar_api';
 import Modal from '@components/commons/Modal';
 
 type RestaurantCardProps = {
   restaurant: Restaurant;
-  visit?: string;
-  period?: number;
+  visitDate?: string;
 };
 
-const RestaurantCard = ({ restaurant, period, visit }: RestaurantCardProps) => {
-  const dispatch = useContext(UseDispatch);
+const RestaurantCard = ({ restaurant, visitDate }: RestaurantCardProps) => {
+  // const dispatch = useContext(UseDispatch);
   const [showModal, setShowModal] = useState<boolean>(false);
 
   const onBtnClick = () => {
-    dispatch({ type: 'selectRestaurant', payload: { ...restaurant } });
-    insertEvent(restaurant.name, new Date());
+    // dispatch({ type: 'selectRestaurant', payload: { ...restaurant } });
+    // insertEvent(restaurant.name, new Date());
+    setShowModal(true);
   };
 
   return (
     <>
       {showModal && (
-        <Modal
-          insertSchedule={() => {}}
-          updateSchedule={() => {}}
-          hideModal={setShowModal}
-        />
+        <Modal restaurant={restaurant} setShowModal={setShowModal} />
       )}
       <div className="card-container">
         <h3>{restaurant.name}</h3>
-        <div>{visit ?? '없음'}</div>
+        <div>{visitDate ?? '없음'}</div>
         <div className="progress-wrapper">
-          <progress value={15} max={period} />
+          <progress value={15} max={30} />
+          {/*max 다른 값으로 바꿀것*/}
         </div>
         {
           <div className="tag-container">

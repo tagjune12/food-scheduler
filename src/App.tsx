@@ -1,6 +1,6 @@
 import MainPage from '@pages/MainPage';
 import { useEffect, createContext, useReducer } from 'react';
-import { getCurHistory } from '@api/calendar_api';
+import { getHistory } from '@src/lib/api/calendar_api';
 import { HistoryType, JSONResponse, StringKeyObj } from '@src/types';
 import qs from 'qs';
 // import { access_token } from '@src/App';
@@ -74,14 +74,15 @@ const App = () => {
     ).toISOString();
 
     const callCalendarAPI = async () => {
-      const response = await getCurHistory(timeMin, timeMax);
+      const response = await getHistory(timeMin, timeMax);
       // console.log('FETCH', response);
       const items: Array<Object> = response.items;
 
       const nameAndDate = items.reduce(
         (result: HistoryType, item: JSONResponse): HistoryType => {
           const key = item.summary; // 일정 이름(식당 이름)
-          const value = item.start.date; // 일정 이름(식당 이름)
+          // const value = [item.start.date, item.id]; // 일정 날짜, 이벤트ID
+          const value = { date: item.start.date, eventId: item.id }; // 일정 날짜, 이벤트ID
           result[key] = value;
           return result;
         },

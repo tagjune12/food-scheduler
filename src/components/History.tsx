@@ -1,17 +1,17 @@
 import RestaurantCard from '@components/commons/RestaurantCard';
 import restaurants from '@data/restaurants.json';
+import { HistoryType } from '@src/types';
 
-const History = ({ histories }: { histories: any }) => {
+const History = ({ histories }: { histories: HistoryType }) => {
   return (
     <div className="history-container">
       <div className="restaurant-card-container">
-        {restaurants.map((restaurant, index) => {
+        {restaurants.map((restaurant) => {
           return (
             <RestaurantCard
               key={restaurant.name}
               restaurant={restaurant}
-              visit={histories[restaurant.name]}
-              period={30}
+              visitDate={histories[restaurant.name]?.date}
             />
           );
         })}
