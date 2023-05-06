@@ -1,7 +1,8 @@
-import { useContext, useState } from 'react';
-import { NestObjType, Restaurant, JSONResponse } from '@src/types';
+import { useContext } from 'react';
+import { Restaurant, JSONResponse } from '@src/types';
 import { UseDispatch } from '@src/App';
 import { getHistory, insertEvent, updateEvent } from '@lib/api/calendar_api';
+import '@components/commons/Modal.scss';
 
 type ModalProps = {
   restaurant: Restaurant;
@@ -11,13 +12,27 @@ type ModalProps = {
 const Modal = ({ restaurant, setShowModal }: ModalProps) => {
   const dispatch = useContext(UseDispatch);
   const insertTodayRestaurant = () => {
-    dispatch({ type: 'selectRestaurant', payload: { ...restaurant } });
-    insertEvent(restaurant.name, new Date());
-    setShowModal(false);
+    try {
+      insertEvent(restaurant.name, new Date()).then(() => {
+        dispatch({ type: 'selectRestaurant', payload: { ...restaurant } });
+        setShowModal(false);
+      });
+    } catch (error) {
+      alert('일정 추가에 실패했습니다.');
+      console.log(error);
+    }
   };
 
   const updateTodayRestaurant = (todayEvent: JSONResponse) => {
-    updateEvent(restaurant.name, todayEvent.id, new Date());
+    try {
+      updateEvent(restaurant.name, todayEvent.id, new Date()).then(() => {
+        dispatch({ type: 'selectRestaurant', payload: { ...restaurant } });
+        setShowModal(false);
+      });
+    } catch (error) {
+      alert('일정 업데이트에 실패했습니다.');
+      console.log(error);
+    }
   };
 
   const onSaveBtnClickListener = async () => {
@@ -35,12 +50,19 @@ const Modal = ({ restaurant, setShowModal }: ModalProps) => {
   };
 
   return (
-    <div>
-      <h2>저장</h2>
-      <button onClick={hideModal}>X</button>
-      <p>정말 이대로 저장하시겠습니까?</p>
-      <button onClick={onSaveBtnClickListener}>예</button>
-      <button onClick={hideModal}>아니오</button>
+    <div className="modal-wrapper">
+      <div className="modal-container">
+        <button className="close-btn" onClick={hideModal}>
+          X
+        </button>
+        <h2 className="title">저장</h2>
+        <p>정말 이대로 저장하시겠습니까?</p>
+        <div>{restaurant.name}</div>
+        <div className="btn-container">
+          <button onClick={onSaveBtnClickListener}>예</button>
+          <button onClick={hideModal}>아니오</button>
+        </div>
+      </div>
     </div>
   );
 };

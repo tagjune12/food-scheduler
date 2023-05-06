@@ -6,7 +6,7 @@ const InfoWindow = ({ data }: { data: Restaurant }) => {
       <div>{data.name}</div>
       <div>{data.tags}</div>
       <div>{data.period}</div>
-      <button className="test">일정 추가하기</button>
+      <button className="add-event-btn">일정 추가하기</button>
     </div>
   );
 };

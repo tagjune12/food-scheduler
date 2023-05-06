@@ -1,32 +1,24 @@
 import RestaurantCard from '@components/commons/RestaurantCard';
 import { Restaurant } from '@src/types';
 import { useEffect, useState } from 'react';
+import { getNumTypeToday } from '@lib/util';
 
 type props = {
   restaurant: Restaurant;
 };
 
 const TodayRestaurant = ({ restaurant }: props) => {
-  const [visit, setVisit] = useState<string>();
-
-  useEffect(() => {
-    const today = new Date();
-    setVisit(
-      `${today.getFullYear()}-${today
-        .getMonth()
-        .toString()
-        .padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`,
-    );
-  }, []);
+  const [visit, setVisit] = useState<{
+    year: number;
+    month: number;
+    date: number;
+  }>(getNumTypeToday());
 
   return (
-    <div>
-      {Object.keys(restaurant as Object).length > 0 ? (
-        <RestaurantCard restaurant={restaurant} visitDate={visit} />
-      ) : (
-        <div>예정 없음</div>
-      )}
-    </div>
+    <>
+      <h3>{`${visit.month}월${visit.date}일`} 팀점은</h3>
+      {restaurant.name ? <div>일정있음</div> : '어디로 가지...?'}
+    </>
   );
 };
 

@@ -1,0 +1,34 @@
+.modal-wrapper{
+  position:fixed;
+  top:0;
+  left:0;
+  width: 100vw;
+  height:1000vh;
+  width: 100vw;
+  height:100vh;
+  z-index: 10;
+  display:flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0,0,0,0.4);
+
+  // 모달창
+  .modal-container{
+    position:absolute;
+    width:20rem;
+    height: 30rem;
+    background-color: white;
+
+    .close-btn{
+      float:right;
+    }
+
+    .title{
+      text-align: center;
+    }
+
+    .btn-container{
+      margin:auto;
+    }
+  }
+}

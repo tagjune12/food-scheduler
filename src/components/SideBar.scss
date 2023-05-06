@@ -1,7 +1,14 @@
 .side-bar{
   display:inline-block;
   float: left;
-  width:30rem;
+  width:30%;
+  max-width: 350px;
   height: 100vh;
   overflow: scroll;
+  position:fixed;
+  top:0;
+  left:0;
+  z-index: 5;
+  background-color: white;
+  overflow-x: hidden;
 }

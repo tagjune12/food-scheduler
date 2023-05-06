@@ -34,7 +34,7 @@ function getHistory(startTime?: string, endTime?: string): Promise<any> {
     .then((response) => response.data);
 }
 
-function insertEvent(name: string, visitDate: Date) {
+async function insertEvent(name: string, visitDate: Date) {
   const targetUri = `${BASE_URL}`;
   const [startYear, startMonth, startDate]: number[] = [
     visitDate.getFullYear(),
@@ -79,7 +79,7 @@ function insertEvent(name: string, visitDate: Date) {
     .then((response) => console.log(response.data));
 }
 
-function updateEvent(name: string, eventId: string, visitDate: Date) {
+async function updateEvent(name: string, eventId: string, visitDate: Date) {
   const targetUri = `${BASE_URL}/${eventId}`;
   const [startYear, startMonth, startDate] = [
     visitDate.getFullYear(),
