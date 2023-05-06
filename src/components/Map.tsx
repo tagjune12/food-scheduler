@@ -47,10 +47,10 @@ const Map = () => {
       );
     });
 
-    new naver.maps.Marker({
-      position: center,
-      map: naverMap,
-    });
+    // new naver.maps.Marker({
+    //   position: center,
+    //   map: naverMap,
+    // });
 
     // 정보창은 하나밖에 활성화가 안된다
     // 여러개 띄우고 싶으면 오버레이로 구현해야함
@@ -63,8 +63,14 @@ const Map = () => {
           document
             .querySelector('.add-event-btn')!
             .addEventListener('click', () => {
-              // 이벤트 로직
+              // 모달창 띄우기
               dispatch({ type: 'showModal', payload: restaurants[i] });
+            });
+          document
+            .querySelector('.info-window-container .close-btn')!
+            .addEventListener('click', () => {
+              // info창 닫기
+              infoWindows[i].close();
             });
         }
         console.log('marker is clicked', i);

@@ -21,10 +21,9 @@ const SideBar = ({ state }: AppStoreType) => {
       </div>
 
       {isHistory && <Calendar />}
-      <>
-        <TodayRestaurant restaurant={state.todayRestaurant} />
-        <History histories={state.histories} />
-      </>
+
+      <TodayRestaurant restaurant={state.todayRestaurant} />
+      <History histories={state.histories} />
     </div>
   );
 };

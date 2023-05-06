@@ -1,9 +1,8 @@
 import '@components/commons/RestaurantCard.scss';
 import { Restaurant } from '@src/types';
-// import { UseDispatch } from '@src/App';
 import { useContext, useState } from 'react';
-import Modal from '@components/commons/Modal';
 import { UseDispatch } from '@src/App';
+import { getNumTypeToday } from '@lib/util';
 
 type RestaurantCardProps = {
   restaurant: Restaurant;
@@ -13,6 +12,33 @@ type RestaurantCardProps = {
 const RestaurantCard = ({ restaurant, visitDate }: RestaurantCardProps) => {
   const dispatch = useContext(UseDispatch);
 
+  const getDiffDate = (visitDate: string): number => {
+    const today = getNumTypeToday();
+    const visit = (() => {
+      const temp = visitDate.split('-');
+
+      return {
+        year: parseInt(temp[0]),
+        month: parseInt(temp[1]),
+        date: parseInt(temp[2]),
+      };
+    })();
+
+    const diffMs =
+      new Date(today.year, today.month, today.date).getTime() -
+      new Date(visit.year, visit.month, visit.date).getTime();
+
+    console.log(
+      restaurant.name,
+      ':',
+      today,
+      visit,
+      diffMs / (1000 * 60 * 60 * 24),
+    );
+
+    return diffMs / (1000 * 60 * 60 * 24);
+  };
+
   const onBtnClick = () => {
     dispatch({ type: 'showModal', payload: restaurant });
   };
@@ -21,10 +47,13 @@ const RestaurantCard = ({ restaurant, visitDate }: RestaurantCardProps) => {
     <>
       <div className="card-container">
         <h3>{restaurant.name}</h3>
-        <div>{visitDate ?? '없음'}</div>
+        <div>
+          {visitDate
+            ? `${getDiffDate(visitDate)}일전 방문`
+            : '최근 방문한적 없음'}
+        </div>
         <div className="progress-wrapper">
-          <progress value={15} max={30} />
-          {/*max 다른 값으로 바꿀것*/}
+          <progress value={visitDate ? getDiffDate(visitDate) : 0} max={28} />
         </div>
         {
           <div className="tag-container">

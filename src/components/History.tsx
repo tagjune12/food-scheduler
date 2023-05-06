@@ -1,6 +1,7 @@
 import RestaurantCard from '@components/commons/RestaurantCard';
 import restaurants from '@data/restaurants.json';
 import { HistoryType } from '@src/types';
+import '@components/History.scss';
 
 const History = ({ histories }: { histories: HistoryType }) => {
   return (
