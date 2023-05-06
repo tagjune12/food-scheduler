@@ -17,7 +17,7 @@ const TodayRestaurant = ({ restaurant }: props) => {
   return (
     <>
       <h3>{`${visit.month}월${visit.date}일`} 팀점은</h3>
-      {restaurant.name ? <div>일정있음</div> : '어디로 가지...?'}
+      {restaurant.name ? <div>{restaurant.name}</div> : '어디로 가지...?'}
     </>
   );
 };

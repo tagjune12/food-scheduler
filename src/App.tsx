@@ -3,7 +3,6 @@ import { useEffect, createContext, useReducer } from 'react';
 import { getHistory } from '@src/lib/api/calendar_api';
 import { HistoryType, JSONResponse, StringKeyObj } from '@src/types';
 import qs from 'qs';
-// import { access_token } from '@src/App';
 
 const queryStr = qs.stringify({
   client_id: process.env.REACT_APP_GOOGLECALENDAR_CLIENT_ID,
@@ -27,6 +26,10 @@ const App = () => {
     histories: {},
     todayRestaurant: {},
     access_token: null,
+    modal: {
+      isVisible: false,
+      target: null,
+    },
   };
   const reducer = (prevState: Object, action: StringKeyObj) => {
     switch (action.type) {
@@ -35,7 +38,7 @@ const App = () => {
           ...prevState,
           histories: { ...action.payload },
         };
-        // console.log('check the action', action, result);
+
         return result;
       }
 
@@ -52,6 +55,30 @@ const App = () => {
         const result = {
           ...prevState,
           access_token: action.payload,
+        };
+
+        return result;
+      }
+
+      case 'showModal': {
+        const result = {
+          ...prevState,
+          modal: {
+            isVisible: true,
+            target: { ...action.payload },
+          },
+        };
+
+        return result;
+      }
+
+      case 'hideModal': {
+        const result = {
+          ...prevState,
+          modal: {
+            isVisible: false,
+            target: null,
+          },
         };
 
         return result;
@@ -81,15 +108,12 @@ const App = () => {
       const nameAndDate = items.reduce(
         (result: HistoryType, item: JSONResponse): HistoryType => {
           const key = item.summary; // 일정 이름(식당 이름)
-          // const value = [item.start.date, item.id]; // 일정 날짜, 이벤트ID
           const value = { date: item.start.date, eventId: item.id }; // 일정 날짜, 이벤트ID
           result[key] = value;
           return result;
         },
         {},
       );
-      console.log(items, nameAndDate);
-      // setHistories(nameAndDate);
 
       dispatch({ type: 'setHistory', payload: nameAndDate });
     };

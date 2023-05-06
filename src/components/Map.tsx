@@ -1,11 +1,13 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import restaurants from '@data/restaurants.json';
 import { renderToString } from 'react-dom/server';
 import InfoWindow from '@components/commons/InfoWindow';
 import '@components/Map.scss';
+import { UseDispatch } from '@src/App';
 
 const Map = () => {
   const opened = useRef<number | null>(0);
+  const dispatch = useContext(UseDispatch);
 
   useEffect(() => {
     // 지도 중앙좌표 설정
@@ -58,9 +60,12 @@ const Map = () => {
           infoWindows[i].open(naverMap, markers[i]);
           opened.current = i;
           // InfoWindow에 있는 요소에 EventListener 부착
-          document.querySelector('.test')!.addEventListener('click', () => {
-            // 이벤트 로직
-          });
+          document
+            .querySelector('.add-event-btn')!
+            .addEventListener('click', () => {
+              // 이벤트 로직
+              dispatch({ type: 'showModal', payload: restaurants[i] });
+            });
         }
         console.log('marker is clicked', i);
       });

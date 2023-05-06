@@ -3,6 +3,7 @@ import { Restaurant } from '@src/types';
 // import { UseDispatch } from '@src/App';
 import { useContext, useState } from 'react';
 import Modal from '@components/commons/Modal';
+import { UseDispatch } from '@src/App';
 
 type RestaurantCardProps = {
   restaurant: Restaurant;
@@ -10,20 +11,14 @@ type RestaurantCardProps = {
 };
 
 const RestaurantCard = ({ restaurant, visitDate }: RestaurantCardProps) => {
-  // const dispatch = useContext(UseDispatch);
-  const [showModal, setShowModal] = useState<boolean>(false);
+  const dispatch = useContext(UseDispatch);
 
   const onBtnClick = () => {
-    // dispatch({ type: 'selectRestaurant', payload: { ...restaurant } });
-    // insertEvent(restaurant.name, new Date());
-    setShowModal(true);
+    dispatch({ type: 'showModal', payload: restaurant });
   };
 
   return (
     <>
-      {showModal && (
-        <Modal restaurant={restaurant} setShowModal={setShowModal} />
-      )}
       <div className="card-container">
         <h3>{restaurant.name}</h3>
         <div>{visitDate ?? '없음'}</div>

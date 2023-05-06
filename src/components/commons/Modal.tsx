@@ -6,16 +6,16 @@ import '@components/commons/Modal.scss';
 
 type ModalProps = {
   restaurant: Restaurant;
-  setShowModal: Function;
 };
 
-const Modal = ({ restaurant, setShowModal }: ModalProps) => {
+const Modal = ({ restaurant }: ModalProps) => {
   const dispatch = useContext(UseDispatch);
+
   const insertTodayRestaurant = () => {
     try {
       insertEvent(restaurant.name, new Date()).then(() => {
         dispatch({ type: 'selectRestaurant', payload: { ...restaurant } });
-        setShowModal(false);
+        dispatch({ type: 'hideModal' });
       });
     } catch (error) {
       alert('일정 추가에 실패했습니다.');
@@ -27,7 +27,7 @@ const Modal = ({ restaurant, setShowModal }: ModalProps) => {
     try {
       updateEvent(restaurant.name, todayEvent.id, new Date()).then(() => {
         dispatch({ type: 'selectRestaurant', payload: { ...restaurant } });
-        setShowModal(false);
+        dispatch({ type: 'hideModal' });
       });
     } catch (error) {
       alert('일정 업데이트에 실패했습니다.');
@@ -46,7 +46,7 @@ const Modal = ({ restaurant, setShowModal }: ModalProps) => {
   };
 
   const hideModal = () => {
-    setShowModal(false);
+    dispatch({ type: 'hideModal' });
   };
 
   return (
