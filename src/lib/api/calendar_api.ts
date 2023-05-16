@@ -74,9 +74,10 @@ async function insertEvent(name: string, visitDate: Date) {
       Authorization: 'Bearer ' + access_token,
     },
   };
-  axios
-    .post(targetUri, body, config)
-    .then((response) => console.log(response.data));
+  return axios.post(targetUri, body, config).then((response) => {
+    console.log(response.data);
+    return response.data;
+  });
 }
 
 async function updateEvent(name: string, eventId: string, visitDate: Date) {
@@ -115,9 +116,18 @@ async function updateEvent(name: string, eventId: string, visitDate: Date) {
       Authorization: 'Bearer ' + access_token,
     },
   };
-  axios
-    .put(targetUri, body, config)
-    .then((response) => console.log('Patch:', response.data));
+  axios.put(targetUri, body, config);
 }
 
-export { getHistory, insertEvent, updateEvent };
+function deleteEvent(eventId: string) {
+  const targetUri = `${BASE_URL}/${eventId}`;
+  const config = {
+    headers: {
+      Authorization: 'Bearer ' + access_token,
+    },
+  };
+
+  return axios.delete(targetUri, config);
+}
+
+export { getHistory, insertEvent, updateEvent, deleteEvent };
