@@ -56,12 +56,16 @@ const RestaurantCard = ({ restaurant, visitDate }: RestaurantCardProps) => {
           <progress value={visitDate ? getDiffDate(visitDate) : 0} max={28} />
         </div>
         {
-          <div className="tag-container">
-            {restaurant.tags?.map((tag, index) => (
-              <p key={index} className="tag">
-                {tag}
-              </p>
-            ))}
+          <div id="tags">
+            {/* <button>{'<'}</button> */}
+            <div className="tag-container">
+              {restaurant.tags?.map((tag, index) => (
+                <div key={index} className="tag">
+                  {tag}
+                </div>
+              ))}
+            </div>
+            {/* <button>{'>'}</button> */}
           </div>
         }
         <button onClick={onBtnClick}>오늘은 이거다</button>

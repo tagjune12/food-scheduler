@@ -3,7 +3,7 @@
   border-radius: 1rem;
   margin: 2rem 1rem;
   padding: 1rem 2rem;
-
+  
   &:hover {
     background-color: beige;
   }
@@ -14,15 +14,20 @@
     }
   }
 
-  .tag-container{
-    .tag{
-      display:inline-block;
-      border: 2px solid black;
-      border-radius: 1rem;
-      padding: 1rem;
-      margin: 5px 1rem;
-      &:first-child{
-        margin-left:0;
+  #tags{
+    .tag-container{
+      white-space: nowrap;
+      overflow-x: scroll;
+  
+      .tag{
+        display:inline-block;
+        border: 2px solid black;
+        border-radius: 1rem;
+        padding: 1rem;
+        margin: 5px 1rem;
+        &:first-child{
+          margin-left:0;
+        }
       }
     }
   }

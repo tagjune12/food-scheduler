@@ -13,8 +13,9 @@ import interactionPlugin from '@fullcalendar/interaction';
 import { setInitializeEvents, createEventId } from '@lib/event-utils';
 import { EventInput } from '@fullcalendar/core';
 import { insertEvent, deleteEvent, updateEvent } from '@lib/api/calendar_api';
+import '@components/Calendar.scss';
 
-const Calendar = () => {
+const Calendar = ({ closeCalendar }: { closeCalendar: () => void }) => {
   // const [currentEvents, setCurrentEvents] = useState<EventApi[]>();
   const [initailEvents, setInitEvents] = useState<EventInput[]>();
 
@@ -108,29 +109,42 @@ const Calendar = () => {
   }, []);
 
   return (
-    <div>
-      {initailEvents && (
-        <FullCalendar
-          plugins={[dayGridPlugin, interactionPlugin]}
-          headerToolbar={{
-            left: 'prev',
-            center: 'title',
-            right: 'next today',
-          }}
-          initialView="dayGridMonth"
-          // initialEvents={INITIAL_EVENTS} // alternatively, use the `events` setting to fetch from a feed
-          initialEvents={initailEvents} // alternatively, use the `events` setting to fetch from a feed
-          editable={true}
-          selectable={true}
-          selectMirror={true}
-          dayMaxEvents={true}
-          select={handleDateSelect}
-          eventContent={renderEventContent} // custom render function
-          eventClick={handleEventClick}
-          eventDrop={handleEventDrop}
-          // eventsSet={handleEvents} // called after events are initialized/added/changed/removed
-        />
-      )}
+    <div className="calendar-wrapper">
+      <div className="calendar-container">
+        {initailEvents && (
+          <FullCalendar
+            customButtons={{
+              closeButton: {
+                text: 'X',
+                click: () => {
+                  closeCalendar();
+                },
+              },
+            }}
+            plugins={[dayGridPlugin, interactionPlugin]}
+            headerToolbar={{
+              left: 'prev',
+              center: 'title',
+              right: 'next closeButton',
+            }}
+            initialView="dayGridMonth"
+            // initialEvents={INITIAL_EVENTS} // alternatively, use the `events` setting to fetch from a feed
+            initialEvents={initailEvents} // alternatively, use the `events` setting to fetch from a feed
+            editable={true}
+            selectable={true}
+            selectMirror={true}
+            dayMaxEvents={true}
+            select={handleDateSelect}
+            eventContent={renderEventContent} // custom render function
+            eventClick={handleEventClick}
+            eventDrop={handleEventDrop}
+            // aspectRatio={1.3} // cell의 크기 조절
+            handleWindowResize={true}
+            contentHeight={600}
+            // eventsSet={handleEvents} // called after events are initialized/added/changed/removed
+          />
+        )}
+      </div>
     </div>
   );
 };
