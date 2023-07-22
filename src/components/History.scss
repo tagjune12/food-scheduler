@@ -1,7 +1,13 @@
-.restaurant-card-container{
+@import '@components/commons/variables';
+@import '@components/commons/mixins';
+
+.restaurant-card-container {
   // margin-top: 15rem;
   // overflow: hidden auto;
-  height: 100vh;
+  // height: 100vh;
+  height: 80vh;
   width: 30vw;
   overflow-y: scroll;
+
+  @include mixin-scrollbar;
 }

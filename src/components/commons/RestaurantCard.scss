@@ -1,34 +1,61 @@
+@import '@components/commons/variables';
+@import '@components/commons/mixins';
+
 .card-container {
-  border: 2px solid tomato;
+  border: 2px solid rgba($color: $--main-color1, $alpha: 1.0);
   border-radius: 1rem;
   margin: 2rem 1rem;
   padding: 1rem 2rem;
-  
-  &:hover {
-    background-color: beige;
-  }
 
   .progress-wrapper {
     progress {
-      height:2rem;
+      height:1rem;
+      // accent-color: $--main-color2; // appearance를 사용하는 경우
+      appearance: none;
+      &::-webkit-progress-bar{
+        border-radius:10px;
+        border: 2px solid $--border-color1;
+        background-color: rgba($color: #ffffff, $alpha: 1.0);
+        
+        
+      }
+      &::-webkit-progress-value{
+        border-radius:10px;
+        background-color: $--main-color2;;
+      }
     }
   }
 
   #tags{
     .tag-container{
       white-space: nowrap;
-      overflow-x: scroll;
-  
+      overflow-x: hidden;
+      
+      @include mixin-scrollbar;
+
       .tag{
         display:inline-block;
-        border: 2px solid black;
-        border-radius: 1rem;
-        padding: 1rem;
-        margin: 5px 1rem;
+        border: 2px solid $--main-color2;
+        border-radius: 0.7rem;
+        padding: 0.6rem;
+        margin: 5px 0.6rem;
         &:first-child{
           margin-left:0;
         }
       }
+    }
+  }
+
+  button{
+    @include mixin-btn;
+    font-size: 1.2em;
+    border-radius: 5px;
+    border-width: 2px;
+    border-color: rgba($color: $--main-color1, $alpha: 1.0);
+    // color: white;
+    // background-color: rgba($color: $--main-color1, $alpha: 1.0)
+    &:hover{
+      background-color: rgba($color: $--main-color1, $alpha: 0.7)
     }
   }
 }

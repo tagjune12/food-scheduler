@@ -1,0 +1,35 @@
+@mixin mixin-scrollbar{
+    // 스크롤바 SCSS
+    &::-webkit-scrollbar {
+      width: 8px;
+      /* 스크롤바의 너비 */
+    }
+  
+    &::-webkit-scrollbar-thumb {
+      /* 스크롤바의 길이 */
+      height: 30%;
+      /* 스크롤바의 색상 */
+      // background: #217af4;
+      background-color: $--main-color1;
+  
+      border-radius: 10px;
+    }
+  
+    &::-webkit-scrollbar-track {
+      /*스크롤바 뒷 배경 색상*/
+      // background: rgba(33, 122, 244, .1);
+      background-color: rgba($color:$--main-color2, $alpha: 0.6);
+    }
+}
+
+@mixin mixin-btn{
+  display:block;
+  background-color: white;
+  border: none;
+  color: $--main-color1;
+  font-size: 1.5rem;
+  border: 1px solid $--border-color1;
+  &:hover{
+    cursor: pointer;
+  }
+}

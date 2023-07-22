@@ -3,8 +3,12 @@ import History from '@components/History';
 import { useRef, useState, useEffect } from 'react';
 import Calendar from '@components/Calendar';
 import '@components/SideBar.scss';
-
 import { AppStoreType } from '@src/types';
+import {
+  BsCalendarPlusFill,
+  BsArrowLeftShort,
+  BsArrowRightShort,
+} from 'react-icons/bs';
 
 const SidebarButton = ({
   isOpenMenu,
@@ -21,13 +25,15 @@ const SidebarButton = ({
     <>
       <div className="sidebar-btn-container" ref={sideBarBtnRef}>
         <div className="sidebar-btn">
-          <button onClick={showCalendar}>달력 모달버튼</button>
+          <button onClick={showCalendar}>
+            <BsCalendarPlusFill />
+          </button>
           <button
             onClick={() => {
               setIsOpenMenu((prev) => !prev);
             }}
           >
-            {isOpenMenu ? '<' : '>'}
+            {isOpenMenu ? <BsArrowLeftShort /> : <BsArrowRightShort />}
           </button>
         </div>
       </div>
