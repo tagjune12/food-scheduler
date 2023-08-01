@@ -1,7 +1,14 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import React, {
+  useContext,
+  useEffect,
+  useRef,
+  MouseEvent,
+  PointerEvent,
+} from 'react';
 import restaurants from '@data/restaurants.json';
 import { renderToString } from 'react-dom/server';
 import InfoWindow from '@components/commons/InfoWindow';
+import RestaurantCard from '@components/commons/RestaurantCard';
 import '@components/Map.scss';
 import { UseDispatch } from '@src/App';
 
@@ -38,7 +45,8 @@ const Map = () => {
         }),
       );
       const contentString: string = renderToString(
-        <InfoWindow data={restaurant} />,
+        // <InfoWindow data={restaurant} />,
+        <RestaurantCard restaurant={restaurant} onMap={true} />,
       );
       infoWindows.push(
         new naver.maps.InfoWindow({
@@ -61,16 +69,23 @@ const Map = () => {
           opened.current = i;
           // InfoWindow에 있는 요소에 EventListener 부착
           document
+            // .querySelector('.add-event-btn')!
             .querySelector('.add-event-btn')!
             .addEventListener('click', () => {
               // 모달창 띄우기
               dispatch({ type: 'showModal', payload: restaurants[i] });
             });
           document
-            .querySelector('.info-window-container .close-btn')!
-            .addEventListener('click', () => {
+            // .querySelector('.info-window-container .close-btn')!
+            .querySelector('.card-container .close-btn')!
+            .addEventListener('click', (event: unknown): void => {
               // info창 닫기
-              infoWindows[i].close();
+              // infoWindows[i].close();
+              const mouseEvent: PointerEvent = event as PointerEvent;
+              console.log(
+                mouseEvent?.nativeEvent.offsetX,
+                mouseEvent?.nativeEvent.offsetY,
+              );
             });
         }
         console.log('marker is clicked', i);

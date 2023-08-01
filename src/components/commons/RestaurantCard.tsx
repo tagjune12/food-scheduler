@@ -15,9 +15,14 @@ import { getNumTypeToday } from '@lib/util';
 type RestaurantCardProps = {
   restaurant: Restaurant;
   visitDate?: string;
+  onMap?: boolean;
 };
 
-const RestaurantCard = ({ restaurant, visitDate }: RestaurantCardProps) => {
+const RestaurantCard = ({
+  restaurant,
+  visitDate,
+  onMap,
+}: RestaurantCardProps) => {
   const dispatch = useContext(UseDispatch);
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -103,6 +108,7 @@ const RestaurantCard = ({ restaurant, visitDate }: RestaurantCardProps) => {
     <>
       <div className="card-container">
         <h3>{restaurant.name}</h3>
+        {onMap && <button className="close-btn">❌</button>}
         <div>
           {visitDate
             ? `${getDiffDate(visitDate)}일전 방문`
@@ -131,7 +137,9 @@ const RestaurantCard = ({ restaurant, visitDate }: RestaurantCardProps) => {
             {/* <button>{'>'}</button> */}
           </div>
         }
-        <button onClick={onBtnClick}>오늘은 이거다</button>
+        <button className="add-event-btn" onClick={onBtnClick}>
+          오늘은 이거다
+        </button>
       </div>
     </>
   );
