@@ -131,7 +131,9 @@ const RestaurantCard = ({ restaurant, visitDate }: RestaurantCardProps) => {
             {/* <button>{'>'}</button> */}
           </div>
         }
-        <button onClick={onBtnClick}>오늘은 이거다</button>
+        <button className="add-event-btn" onClick={onBtnClick}>
+          오늘은 이거다
+        </button>
       </div>
     </>
   );

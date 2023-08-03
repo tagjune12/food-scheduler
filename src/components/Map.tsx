@@ -2,11 +2,12 @@ import React, { useContext, useEffect, useRef } from 'react';
 import restaurants from '@data/restaurants.json';
 import { renderToString } from 'react-dom/server';
 import InfoWindow from '@components/commons/InfoWindow';
+import RestaurantCard from '@components/commons/RestaurantCard';
 import '@components/Map.scss';
 import { UseDispatch } from '@src/App';
 
 const Map = () => {
-  const opened = useRef<number | null>(0);
+  const opened = useRef<number | null>(null);
   const dispatch = useContext(UseDispatch);
 
   useEffect(() => {
@@ -38,7 +39,8 @@ const Map = () => {
         }),
       );
       const contentString: string = renderToString(
-        <InfoWindow data={restaurant} />,
+        // <InfoWindow data={restaurant} />,
+        <RestaurantCard restaurant={restaurant} />,
       );
       infoWindows.push(
         new naver.maps.InfoWindow({
@@ -56,30 +58,68 @@ const Map = () => {
     // 여러개 띄우고 싶으면 오버레이로 구현해야함
     for (let i = 0; i < markers.length; i++) {
       naver.maps.Event.addListener(markers[i], 'click', () => {
-        if (opened.current !== i) {
-          infoWindows[i].open(naverMap, markers[i]);
-          opened.current = i;
-          // InfoWindow에 있는 요소에 EventListener 부착
-          document
-            .querySelector('.add-event-btn')!
-            .addEventListener('click', () => {
-              // 모달창 띄우기
-              dispatch({ type: 'showModal', payload: restaurants[i] });
-            });
-          document
-            .querySelector('.info-window-container .close-btn')!
-            .addEventListener('click', () => {
-              // info창 닫기
-              infoWindows[i].close();
-            });
+        console.log('marker is clicked', i, 'current: ', opened.current);
+        if (opened.current !== i && opened.current != null) {
+          infoWindows[opened.current].close();
+          // infoWindows[i].open(naverMap, markers[i]);
+          // opened.current = i;
+          // // InfoWindow에 있는 요소에 EventListener 부착
+          // const addEventBtn: HTMLDivElement | HTMLButtonElement | null =
+          //   document.querySelector('.add-event-btn');
+          // if (addEventBtn) {
+          //   addEventBtn.addEventListener('click', () => {
+          //     // 모달창 띄우기
+          //     dispatch({ type: 'showModal', payload: restaurants[i] });
+          //     // infoWindows[i].open(naverMap);
+          //   });
+          // }
+          // const closeInfoWindowBtn: HTMLDivElement | HTMLButtonElement | null =
+          //   document.querySelector('.info-window-container .close-btn');
+
+          // if (closeInfoWindowBtn) {
+          //   closeInfoWindowBtn.addEventListener('click', () => {
+          //     // info창 닫기
+          //     infoWindows[i].close();
+          //   });
+          // }
         }
-        console.log('marker is clicked', i);
+
+        if (opened.current === i) {
+          infoWindows[opened.current].close();
+          opened.current = null;
+
+          return;
+        }
+
+        infoWindows[i].open(naverMap, markers[i]);
+        opened.current = i;
+        // InfoWindow에 있는 요소에 EventListener 부착
+        const addEventBtn: HTMLDivElement | HTMLButtonElement | null =
+          document.querySelector('.add-event-btn');
+        if (addEventBtn) {
+          addEventBtn.addEventListener('click', () => {
+            // 모달창 띄우기
+            dispatch({ type: 'showModal', payload: restaurants[i] });
+            // infoWindows[i].open(naverMap);
+          });
+        }
+        const closeInfoWindowBtn: HTMLDivElement | HTMLButtonElement | null =
+          document.querySelector('.info-window-container .close-btn');
+
+        if (closeInfoWindowBtn) {
+          closeInfoWindowBtn.addEventListener('click', () => {
+            // info창 닫기
+            infoWindows[i].close();
+          });
+        }
       });
     }
 
     naver.maps.Event.addListener(naverMap, 'click', () => {
       if (opened.current !== null) {
+        // dispatch({ type: 'showModal' });
         infoWindows[opened.current].close();
+        opened.current = null;
       }
       console.log(opened.current);
     });
