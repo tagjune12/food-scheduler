@@ -5,6 +5,7 @@ import InfoWindow from '@components/commons/InfoWindow';
 import RestaurantCard from '@components/commons/RestaurantCard';
 import '@components/Map.scss';
 import { UseDispatch } from '@src/App';
+import CustomOverlay from '@lib/CustomInfoWindow';
 
 const Map = () => {
   const opened = useRef<number | null>(null);
@@ -45,6 +46,9 @@ const Map = () => {
       infoWindows.push(
         new naver.maps.InfoWindow({
           content: contentString,
+          borderColor: 'none',
+          disableAnchor: true,
+          backgroundColor: 'none',
         }),
       );
     });
@@ -90,7 +94,6 @@ const Map = () => {
 
           return;
         }
-
         infoWindows[i].open(naverMap, markers[i]);
         opened.current = i;
         // InfoWindow에 있는 요소에 EventListener 부착
