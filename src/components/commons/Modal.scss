@@ -1,3 +1,6 @@
+@import '@components/commons/variables';
+// @import '@components/commons/mixins';
+
 .modal-wrapper{
   position:fixed;
   top:0;
@@ -14,19 +17,52 @@
   .modal-container{
     position:absolute;
     width:20rem;
-    height: 30rem;
+    height: 16rem;
     background-color: white;
+    display:flex;
+    flex-direction: column;
 
     .close-btn{
-      float:right;
+      // float:right;
+      margin-left: auto;
+      font-size: x-large;
+      color: $--main-color1;
+      padding-top: 5px;
+      padding-right: 5px;
+      &:hover{
+        cursor: pointer;
+      }
     }
 
     .title{
       text-align: center;
     }
 
+    p{
+      text-align: center;
+      margin: 0;
+    }
+
+    .name{
+      text-align: center;
+      margin: auto;
+      font-size: larger;
+    }
+
     .btn-container{
       margin:auto;
+      .yes, .no{
+        height:2rem;        
+        margin-left: 10px;
+        margin-right: 10px;
+        width:5rem;
+        background-color: $--main-color2;
+        border:none;
+        &:hover{
+          cursor: pointer;
+          background-color: $--main-color1;
+        } 
+      }
     }
   }
 }

@@ -2,6 +2,7 @@ import { useContext } from 'react';
 import { Restaurant, JSONResponse } from '@src/types';
 import { UseDispatch } from '@src/App';
 import { getHistory, insertEvent, updateEvent } from '@lib/api/calendar_api';
+import { ImCancelCircle } from 'react-icons/im';
 import '@components/commons/Modal.scss';
 
 type ModalProps = {
@@ -52,15 +53,19 @@ const Modal = ({ restaurant }: ModalProps) => {
   return (
     <div className="modal-wrapper">
       <div className="modal-container">
-        <button className="close-btn" onClick={hideModal}>
-          X
-        </button>
+        {/* <button className="close-btn" onClick={hideModal}>
+        </button> */}
+        <ImCancelCircle className="close-btn" onClick={hideModal} />
         <h2 className="title">저장</h2>
-        <p>정말 이대로 저장하시겠습니까?</p>
-        <div>{restaurant.name}</div>
+        <p>정말 여기로 갈까?</p>
+        <div className="name">{restaurant.name}</div>
         <div className="btn-container">
-          <button onClick={onSaveBtnClickListener}>예</button>
-          <button onClick={hideModal}>아니오</button>
+          <button className="yes" onClick={onSaveBtnClickListener}>
+            예
+          </button>
+          <button className="no" onClick={hideModal}>
+            아니오
+          </button>
         </div>
       </div>
     </div>
