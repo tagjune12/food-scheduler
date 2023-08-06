@@ -4,9 +4,10 @@
 .card-container {
   border: 2px solid rgba($color: $--main-color1, $alpha: 1.0);
   border-radius: 1rem;
-  margin: 2rem 1rem;
+  // margin: 2rem 1rem;
   padding: 1rem 2rem;
   background-color: rgb(255,255,255);
+  max-width: 190px;
 
   .progress-wrapper {
     progress {
@@ -30,10 +31,14 @@
   #tags{
     .tag-container{
       white-space: nowrap;
-      overflow-x: hidden;
-      
+      overflow-x: scroll;
+    
       @include mixin-scrollbar;
-
+      &::-webkit-scrollbar {
+        /* 스크롤바의 너비 */
+        height: 8px;
+      }
+      margin-bottom: 5px;
       .tag{
         display:inline-block;
         border: 2px solid $--main-color2;

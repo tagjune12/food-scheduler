@@ -9,11 +9,14 @@ const History = ({ histories }: { histories: HistoryType }) => {
       <div className="restaurant-card-container">
         {restaurants.map((restaurant) => {
           return (
-            <RestaurantCard
-              key={restaurant.name}
-              restaurant={restaurant}
-              visitDate={histories[restaurant.name]?.date}
-            />
+            <>
+              <RestaurantCard
+                key={restaurant.name}
+                restaurant={restaurant}
+                visitDate={histories[restaurant.name]?.date}
+              />
+              <p></p>
+            </>
           );
         })}
       </div>

@@ -5,9 +5,10 @@
   // margin-top: 15rem;
   // overflow: hidden auto;
   // height: 100vh;
-  height: 80vh;
-  width: 30vw;
+  height: 75vh;
+  width: 20vw;
   overflow-y: scroll;
+  padding: 2rem 1rem;
 
   @include mixin-scrollbar;
 }

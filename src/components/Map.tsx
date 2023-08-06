@@ -5,7 +5,6 @@ import InfoWindow from '@components/commons/InfoWindow';
 import RestaurantCard from '@components/commons/RestaurantCard';
 import '@components/Map.scss';
 import { UseDispatch } from '@src/App';
-import CustomOverlay from '@lib/CustomInfoWindow';
 
 const Map = () => {
   const opened = useRef<number | null>(null);
@@ -40,8 +39,7 @@ const Map = () => {
         }),
       );
       const contentString: string = renderToString(
-        // <InfoWindow data={restaurant} />,
-        <RestaurantCard restaurant={restaurant} />,
+        <RestaurantCard restaurant={restaurant} onMap={true} />,
       );
       infoWindows.push(
         new naver.maps.InfoWindow({
@@ -49,53 +47,33 @@ const Map = () => {
           borderColor: 'none',
           disableAnchor: true,
           backgroundColor: 'none',
+          pixelOffset: new naver.maps.Point(0, 0),
         }),
       );
     });
-
-    // new naver.maps.Marker({
-    //   position: center,
-    //   map: naverMap,
-    // });
 
     // 정보창은 하나밖에 활성화가 안된다
     // 여러개 띄우고 싶으면 오버레이로 구현해야함
     for (let i = 0; i < markers.length; i++) {
       naver.maps.Event.addListener(markers[i], 'click', () => {
         console.log('marker is clicked', i, 'current: ', opened.current);
+        // 이전에 눌럿던것과 다른걸 누른경우
         if (opened.current !== i && opened.current != null) {
+          // 이전 정보창 닫기
           infoWindows[opened.current].close();
-          // infoWindows[i].open(naverMap, markers[i]);
-          // opened.current = i;
-          // // InfoWindow에 있는 요소에 EventListener 부착
-          // const addEventBtn: HTMLDivElement | HTMLButtonElement | null =
-          //   document.querySelector('.add-event-btn');
-          // if (addEventBtn) {
-          //   addEventBtn.addEventListener('click', () => {
-          //     // 모달창 띄우기
-          //     dispatch({ type: 'showModal', payload: restaurants[i] });
-          //     // infoWindows[i].open(naverMap);
-          //   });
-          // }
-          // const closeInfoWindowBtn: HTMLDivElement | HTMLButtonElement | null =
-          //   document.querySelector('.info-window-container .close-btn');
-
-          // if (closeInfoWindowBtn) {
-          //   closeInfoWindowBtn.addEventListener('click', () => {
-          //     // info창 닫기
-          //     infoWindows[i].close();
-          //   });
-          // }
         }
-
+        // 똑같은거 또 누르면
         if (opened.current === i) {
+          // 닫기
           infoWindows[opened.current].close();
           opened.current = null;
 
           return;
         }
+
         infoWindows[i].open(naverMap, markers[i]);
         opened.current = i;
+
         // InfoWindow에 있는 요소에 EventListener 부착
         const addEventBtn: HTMLDivElement | HTMLButtonElement | null =
           document.querySelector('.add-event-btn');
@@ -104,6 +82,7 @@ const Map = () => {
             // 모달창 띄우기
             dispatch({ type: 'showModal', payload: restaurants[i] });
             // infoWindows[i].open(naverMap);
+            console.log('모달창 띄우기');
           });
         }
         const closeInfoWindowBtn: HTMLDivElement | HTMLButtonElement | null =
@@ -113,6 +92,7 @@ const Map = () => {
           closeInfoWindowBtn.addEventListener('click', () => {
             // info창 닫기
             infoWindows[i].close();
+            console.log('모달창 끄기');
           });
         }
       });
