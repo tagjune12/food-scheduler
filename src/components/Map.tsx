@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef } from 'react';
 import restaurants from '@data/restaurants.json';
 import { renderToString } from 'react-dom/server';
-import InfoWindow from '@components/commons/InfoWindow';
+// import InfoWindow from '@components/commons/InfoWindow';
 import RestaurantCard from '@components/commons/RestaurantCard';
 import '@components/Map.scss';
 import { UseDispatch } from '@src/App';
@@ -56,7 +56,7 @@ const Map = () => {
     // 여러개 띄우고 싶으면 오버레이로 구현해야함
     for (let i = 0; i < markers.length; i++) {
       naver.maps.Event.addListener(markers[i], 'click', () => {
-        console.log('marker is clicked', i, 'current: ', opened.current);
+        // console.log('marker is clicked', i, 'current: ', opened.current);
         // 이전에 눌럿던것과 다른걸 누른경우
         if (opened.current !== i && opened.current != null) {
           // 이전 정보창 닫기
@@ -81,8 +81,6 @@ const Map = () => {
           addEventBtn.addEventListener('click', () => {
             // 모달창 띄우기
             dispatch({ type: 'showModal', payload: restaurants[i] });
-            // infoWindows[i].open(naverMap);
-            console.log('모달창 띄우기');
           });
         }
         const closeInfoWindowBtn: HTMLDivElement | HTMLButtonElement | null =
@@ -92,7 +90,7 @@ const Map = () => {
           closeInfoWindowBtn.addEventListener('click', () => {
             // info창 닫기
             infoWindows[i].close();
-            console.log('모달창 끄기');
+            // console.log('모달창 끄기');
           });
         }
       });
@@ -104,10 +102,10 @@ const Map = () => {
         infoWindows[opened.current].close();
         opened.current = null;
       }
-      console.log(opened.current);
+      // console.log(opened.current);
     });
 
-    console.log('useEffect is work');
+    // console.log('useEffect is work');
   }, []);
 
   return (

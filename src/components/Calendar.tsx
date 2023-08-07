@@ -59,7 +59,7 @@ const Calendar = ({ closeCalendar }: { closeCalendar: () => void }) => {
         deleteEvent(eventId);
         clickInfo.event.remove();
       } catch (e) {
-        console.log('일정 삭제에 실패했습니다.');
+        // console.log('일정 삭제에 실패했습니다.');
       }
     }
   };
@@ -78,12 +78,12 @@ const Calendar = ({ closeCalendar }: { closeCalendar: () => void }) => {
     try {
       if (window.confirm('일정을 변경하시겠습니까?')) {
         // updateEvent();
-        console.log(dragInfo);
-        console.log(
-          dragInfo.event.start,
-          dragInfo.event.title,
-          dragInfo.event.id,
-        );
+        // console.log(dragInfo);
+        // console.log(
+        //   dragInfo.event.start,
+        //   dragInfo.event.title,
+        //   dragInfo.event.id,
+        // );
         updateEvent(
           dragInfo.event.title,
           dragInfo.event.id,

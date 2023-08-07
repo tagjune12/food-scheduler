@@ -33,13 +33,13 @@ const RestaurantCard = ({
       new Date(today.year, today.month, today.date).getTime() -
       new Date(visit.year, visit.month, visit.date).getTime();
 
-    console.log(
-      restaurant.name,
-      ':',
-      today,
-      visit,
-      diffMs / (1000 * 60 * 60 * 24),
-    );
+    // console.log(
+    //   restaurant.name,
+    //   ':',
+    //   today,
+    //   visit,
+    //   diffMs / (1000 * 60 * 60 * 24),
+    // );
 
     return diffMs / (1000 * 60 * 60 * 24);
   };
@@ -50,7 +50,12 @@ const RestaurantCard = ({
 
   return (
     <>
-      <div className="card-container">
+      <div
+        className="card-container"
+        style={{
+          maxWidth: onMap ? '190px' : 'none',
+        }}
+      >
         <h3>{restaurant.name}</h3>
         <div>
           {visitDate

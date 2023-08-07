@@ -20,7 +20,7 @@ const Modal = ({ restaurant }: ModalProps) => {
       });
     } catch (error) {
       alert('일정 추가에 실패했습니다.');
-      console.log(error);
+      // console.log(error);
     }
   };
 
@@ -32,13 +32,13 @@ const Modal = ({ restaurant }: ModalProps) => {
       });
     } catch (error) {
       alert('일정 업데이트에 실패했습니다.');
-      console.log(error);
+      // console.log(error);
     }
   };
 
   const onSaveBtnClickListener = async () => {
     const data: JSONResponse[] = (await getHistory()).items;
-    console.log('onSaveBtnClickListener', data);
+    // console.log('onSaveBtnClickListener', data);
     if (data.length > 0) {
       updateTodayRestaurant(data[0]);
     } else {

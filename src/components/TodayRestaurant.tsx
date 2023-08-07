@@ -1,16 +1,17 @@
-import RestaurantCard from '@components/commons/RestaurantCard';
+// import RestaurantCard from '@components/commons/RestaurantCard';
 import { Restaurant } from '@src/types';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getNumTypeToday } from '@lib/util';
 import '@components/TodayRestaurant.scss';
 import { PiBowlFood } from 'react-icons/pi';
+import { BsQuestionLg } from 'react-icons/bs';
 
 type props = {
   restaurant: Restaurant;
 };
 
 const TodayRestaurant = ({ restaurant }: props) => {
-  const [visit, setVisit] = useState<{
+  const visit = useRef<{
     year: number;
     month: number;
     date: number;
@@ -18,16 +19,20 @@ const TodayRestaurant = ({ restaurant }: props) => {
 
   return (
     <div className="today-restaurant-contianer">
-      <h3 className="title">{`${visit.month}월${visit.date}일`} 팀점은</h3>
-      {restaurant.name ? (
-        <div>
-          {' '}
-          <PiBowlFood />
-          {restaurant.name}
-        </div>
-      ) : (
-        '어디로 가지...?'
-      )}
+      <h3 className="title">
+        {`${visit.current.month}월${visit.current.date}일`} 팀점은
+      </h3>
+      <div className="info-section">
+        {restaurant.name ? (
+          <div>
+            {' '}
+            <PiBowlFood />
+            {restaurant.name}
+          </div>
+        ) : (
+          <BsQuestionLg id="questionMark" />
+        )}
+      </div>
     </div>
   );
 };
