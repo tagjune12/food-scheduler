@@ -49,14 +49,10 @@ const SideBar = ({ state }: AppStoreType) => {
 
   const showCalendar = () => {
     setIsHistory((isHistory) => !isHistory);
-    // console.log(`History: ${isHistory}`);
   };
 
   const showSidebar = (isOpen: boolean) => {
-    // sideBarRef.current!.style.translate = isOpen ? '0%' : '-100%';
     sideBarRef.current!.style.display = isOpen ? 'block' : 'none';
-
-    // sideBarBtnRef.current!.style.translate = isOpen ? '0%' : '-100%';
   };
 
   useEffect(() => {
@@ -67,16 +63,26 @@ const SideBar = ({ state }: AppStoreType) => {
     <>
       {isHistory && <Calendar closeCalendar={showCalendar} />}
       <div className="sidebar">
+        <div className="sidebar-btn-container" ref={sideBarBtnRef}>
+          <div className="sidebar-btn">
+            <button onClick={showCalendar}>
+              <BsCalendarPlusFill />
+            </button>
+            <button onClick={() => setIsOpenMenu(!isOpenMenu)}>
+              {isOpenMenu ? <BsArrowLeftShort /> : <BsArrowRightShort />}
+            </button>
+          </div>
+        </div>
         <div id="schedules" ref={sideBarRef}>
+          <div className="schedule-header">
+            <h2>오늘의 식사</h2>
+          </div>
           <TodayRestaurant restaurant={state.todayRestaurant} />
+          <div className="schedule-header">
+            <h2>식사 기록</h2>
+          </div>
           <History histories={state.histories} />
         </div>
-        <SidebarButton
-          isOpenMenu={isOpenMenu}
-          sideBarBtnRef={sideBarBtnRef}
-          showCalendar={showCalendar}
-          setIsOpenMenu={setIsOpenMenu}
-        />
       </div>
     </>
   );

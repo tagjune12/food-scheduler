@@ -6,8 +6,9 @@
   // overflow: hidden auto;
   // height: 100vh;
   height: 75vh;
-  width: 20vw;
-  overflow-y: scroll;
+  // width: 100%;
+  max-width: 30vw;
+  // overflow-y: scroll;
   padding: 2rem 1rem;
 
   @include mixin-scrollbar;

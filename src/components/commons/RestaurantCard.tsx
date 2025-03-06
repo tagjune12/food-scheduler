@@ -49,38 +49,36 @@ const RestaurantCard = ({
   };
 
   return (
-    <>
-      <div
-        className="card-container"
-        style={{
-          maxWidth: onMap ? '190px' : 'none',
-        }}
-      >
-        <h3>{restaurant.name}</h3>
-        <div>
-          {visitDate
-            ? `${getDiffDate(visitDate)}일전 방문`
-            : '최근 방문한적 없음'}
-        </div>
-        <div className="progress-wrapper">
-          <progress value={visitDate ? getDiffDate(visitDate) : 0} max={28} />
-        </div>
-        {
-          <div id="tags">
-            <div className="tag-container">
-              {restaurant.tags?.map((tag, index) => (
-                <div key={index} className="tag">
-                  {tag}
-                </div>
-              ))}
-            </div>
-          </div>
-        }
-        <button className={onMap ? 'add-event-btn' : ''} onClick={onBtnClick}>
-          오늘은 이거다
-        </button>
+    <div
+      className="card-container"
+      style={{
+        maxWidth: onMap ? '190px' : 'none',
+      }}
+    >
+      <h3>{restaurant.name}</h3>
+      <div className="visit-info">
+        {visitDate
+          ? `${Math.floor(getDiffDate(visitDate))}일 전 방문`
+          : '최근 방문한적 없음'}
       </div>
-    </>
+      <div className="progress-wrapper">
+        <progress value={visitDate ? getDiffDate(visitDate) : 0} max={28} />
+      </div>
+      {restaurant.tags && restaurant.tags.length > 0 && (
+        <div id="tags">
+          <div className="tag-container">
+            {restaurant.tags.map((tag, index) => (
+              <div key={index} className="tag">
+                {tag}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      <button className={onMap ? 'add-event-btn' : ''} onClick={onBtnClick}>
+        오늘은 이거다
+      </button>
+    </div>
   );
 };
 

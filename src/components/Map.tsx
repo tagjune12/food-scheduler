@@ -24,7 +24,7 @@ const Map = () => {
 
     const markers: naver.maps.Marker[] = [];
     const infoWindows: naver.maps.InfoWindow[] = [];
-
+    console.log(restaurants.length);
     restaurants.forEach((restaurant) => {
       const { position } = restaurant;
       const restaurantPostion: naver.maps.LatLng = new naver.maps.LatLng(
@@ -51,7 +51,7 @@ const Map = () => {
         }),
       );
     });
-
+    console.log(markers);
     // 정보창은 하나밖에 활성화가 안된다
     // 여러개 띄우고 싶으면 오버레이로 구현해야함
     for (let i = 0; i < markers.length; i++) {
