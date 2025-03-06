@@ -20,7 +20,6 @@ const Modal = ({ restaurant }: ModalProps) => {
       });
     } catch (error) {
       alert('일정 추가에 실패했습니다.');
-      // console.log(error);
     }
   };
 
@@ -32,13 +31,11 @@ const Modal = ({ restaurant }: ModalProps) => {
       });
     } catch (error) {
       alert('일정 업데이트에 실패했습니다.');
-      // console.log(error);
     }
   };
 
   const onSaveBtnClickListener = async () => {
     const data: JSONResponse[] = (await getHistory()).items;
-    // console.log('onSaveBtnClickListener', data);
     if (data.length > 0) {
       updateTodayRestaurant(data[0]);
     } else {
@@ -53,18 +50,16 @@ const Modal = ({ restaurant }: ModalProps) => {
   return (
     <div className="modal-wrapper">
       <div className="modal-container">
-        {/* <button className="close-btn" onClick={hideModal}>
-        </button> */}
-        <ImCancelCircle className="close-btn" onClick={hideModal} />
-        <h2 className="title">저장</h2>
-        <p>정말 여기로 갈까?</p>
+        {/* <ImCancelCircle className="close-btn" onClick={hideModal} /> */}
+        <h2 className="title">오늘의 식당 선택</h2>
+        <p>선택하신 식당을 오늘의 식당으로 저장하시겠습니까?</p>
         <div className="name">{restaurant.name}</div>
         <div className="btn-container">
           <button className="yes" onClick={onSaveBtnClickListener}>
-            예
+            확인
           </button>
           <button className="no" onClick={hideModal}>
-            아니오
+            취소
           </button>
         </div>
       </div>

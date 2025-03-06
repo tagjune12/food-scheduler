@@ -30,7 +30,8 @@ const TodayRestaurant = ({ restaurant }: props) => {
             {restaurant.name}
           </div>
         ) : (
-          <BsQuestionLg id="questionMark" />
+          // <BsQuestionLg id="questionMark" />
+          <div>몰?루</div>
         )}
       </div>
     </div>

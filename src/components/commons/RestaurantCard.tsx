@@ -49,12 +49,7 @@ const RestaurantCard = ({
   };
 
   return (
-    <div
-      className="card-container"
-      style={{
-        maxWidth: onMap ? '190px' : 'none',
-      }}
-    >
+    <div className={`card-container ${onMap ? 'map-card' : ''}`}>
       <h3>{restaurant.name}</h3>
       <div className="visit-info">
         {visitDate
