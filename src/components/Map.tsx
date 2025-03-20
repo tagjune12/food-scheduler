@@ -1,112 +1,177 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef, useCallback } from 'react';
 import restaurants from '@data/restaurants.json';
 import { renderToString } from 'react-dom/server';
 // import InfoWindow from '@components/commons/InfoWindow';
 import RestaurantCard from '@components/commons/RestaurantCard';
 import '@components/Map.scss';
 import { UseDispatch } from '@src/App';
+import { AppStoreType, Restaurant } from '@src/types';
 
-const Map = () => {
-  const opened = useRef<number | null>(null);
+interface MapMarker {
+  marker: naver.maps.Marker;
+  infoWindow: naver.maps.InfoWindow;
+}
+
+interface MarkerStyle {
+  width: string;
+  height: string;
+  backgroundColor: string;
+}
+
+const DEFAULT_CENTER = { lat: 37.4028207, lng: 127.1115201 };
+const DEFAULT_ZOOM = 16;
+
+const MARKER_STYLE: MarkerStyle = {
+  width: '20px',
+  height: '20px',
+  backgroundColor: '#845EC2',
+};
+
+const Map = ({ state }: AppStoreType) => {
   const dispatch = useContext(UseDispatch);
+  const mapRef = useRef<naver.maps.Map | null>(null);
+  const markersRef = useRef<MapMarker[]>([]);
+  const openedMarkerRef = useRef<number | null>(null);
+
+  const createMarkerContent = useCallback(() => {
+    return `
+      <div class="custom-marker" style="
+        width: ${MARKER_STYLE.width};
+        height: ${MARKER_STYLE.height};
+        background: ${MARKER_STYLE.backgroundColor};
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        transform: translate(-50%, -50%);
+      ">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+          <path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/>
+        </svg>
+      </div>
+    `;
+  }, []);
+
+  const createInfoWindow = useCallback(
+    (restaurant: Restaurant) => {
+      console.log(state.histories);
+      return new naver.maps.InfoWindow({
+        content: renderToString(
+          <RestaurantCard
+            restaurant={restaurant}
+            onMap={true}
+            visitDate={state.histories[restaurant.name]?.date}
+          />,
+        ),
+        borderColor: 'none',
+        disableAnchor: true,
+        backgroundColor: 'none',
+        pixelOffset: new naver.maps.Point(0, 0),
+      });
+    },
+    [state.histories],
+  );
+
+  const createMarker = useCallback(
+    (position: naver.maps.LatLng) => {
+      return new naver.maps.Marker({
+        position,
+        map: mapRef.current ?? undefined,
+        icon: {
+          content: createMarkerContent(),
+          size: new naver.maps.Size(20, 20),
+          anchor: new naver.maps.Point(10, 10),
+        },
+      });
+    },
+    [createMarkerContent],
+  );
+
+  const closeCurrentInfoWindow = useCallback(() => {
+    if (openedMarkerRef.current !== null) {
+      markersRef.current[openedMarkerRef.current].infoWindow.close();
+      openedMarkerRef.current = null;
+    }
+  }, []);
+
+  const handleMarkerClick = useCallback(
+    (index: number) => {
+      const { infoWindow } = markersRef.current[index];
+
+      if (openedMarkerRef.current === index) {
+        infoWindow.close();
+        openedMarkerRef.current = null;
+        return;
+      }
+
+      closeCurrentInfoWindow();
+      infoWindow.open(mapRef.current!, markersRef.current[index].marker);
+      openedMarkerRef.current = index;
+
+      // DOM 이벤트 리스너 추가
+      const addEventBtn = document.querySelector('.add-event-btn');
+      const closeInfoWindowBtn = document.querySelector(
+        '.info-window-container .close-btn',
+      );
+
+      addEventBtn?.addEventListener('click', () => {
+        dispatch({ type: 'showModal', payload: restaurants[index] });
+      });
+
+      closeInfoWindowBtn?.addEventListener('click', closeCurrentInfoWindow);
+    },
+    [dispatch, closeCurrentInfoWindow],
+  );
 
   useEffect(() => {
-    // 지도 중앙좌표 설정
-    const center: naver.maps.LatLng = new naver.maps.LatLng(
-      37.4028207, // y
-      127.1115201, // x
+    // 지도 초기화
+    const center = new naver.maps.LatLng(
+      DEFAULT_CENTER.lat,
+      DEFAULT_CENTER.lng,
     );
-    // 중앙 좌표를 중심으로 하는 지도 생성
-    const naverMap: naver.maps.Map = new naver.maps.Map('map', {
-      center: center,
-      zoom: 16, // default
+    mapRef.current = new naver.maps.Map('map', {
+      center,
+      zoom: DEFAULT_ZOOM,
     });
 
-    const markers: naver.maps.Marker[] = [];
-    const infoWindows: naver.maps.InfoWindow[] = [];
-    console.log(restaurants.length);
-    restaurants.forEach((restaurant) => {
-      const { position } = restaurant;
-      const restaurantPostion: naver.maps.LatLng = new naver.maps.LatLng(
-        parseFloat(position.y), // y
-        parseFloat(position.x), // x
+    // 마커 생성
+    markersRef.current = restaurants.map((restaurant, index) => {
+      const position = new naver.maps.LatLng(
+        parseFloat(restaurant.position.y),
+        parseFloat(restaurant.position.x),
       );
-      // 지도위에 좌표 설정
-      markers.push(
-        new naver.maps.Marker({
-          position: restaurantPostion,
-          map: naverMap,
-        }),
+
+      const marker = createMarker(position);
+      const infoWindow = createInfoWindow(restaurant);
+
+      naver.maps.Event.addListener(marker, 'click', () =>
+        handleMarkerClick(index),
       );
-      const contentString: string = renderToString(
-        <RestaurantCard restaurant={restaurant} onMap={true} />,
-      );
-      infoWindows.push(
-        new naver.maps.InfoWindow({
-          content: contentString,
-          borderColor: 'none',
-          disableAnchor: true,
-          backgroundColor: 'none',
-          pixelOffset: new naver.maps.Point(0, 0),
-        }),
-      );
+
+      return { marker, infoWindow };
     });
-    console.log(markers);
-    // 정보창은 하나밖에 활성화가 안된다
-    // 여러개 띄우고 싶으면 오버레이로 구현해야함
-    for (let i = 0; i < markers.length; i++) {
-      naver.maps.Event.addListener(markers[i], 'click', () => {
-        // console.log('marker is clicked', i, 'current: ', opened.current);
-        // 이전에 눌럿던것과 다른걸 누른경우
-        if (opened.current !== i && opened.current != null) {
-          // 이전 정보창 닫기
-          infoWindows[opened.current].close();
-        }
-        // 똑같은거 또 누르면
-        if (opened.current === i) {
-          // 닫기
-          infoWindows[opened.current].close();
-          opened.current = null;
 
-          return;
-        }
+    // 지도 클릭 이벤트
+    naver.maps.Event.addListener(
+      mapRef.current,
+      'click',
+      closeCurrentInfoWindow,
+    );
 
-        infoWindows[i].open(naverMap, markers[i]);
-        opened.current = i;
-
-        // InfoWindow에 있는 요소에 EventListener 부착
-        const addEventBtn: HTMLDivElement | HTMLButtonElement | null =
-          document.querySelector('.add-event-btn');
-        if (addEventBtn) {
-          addEventBtn.addEventListener('click', () => {
-            // 모달창 띄우기
-            dispatch({ type: 'showModal', payload: restaurants[i] });
-          });
-        }
-        const closeInfoWindowBtn: HTMLDivElement | HTMLButtonElement | null =
-          document.querySelector('.info-window-container .close-btn');
-
-        if (closeInfoWindowBtn) {
-          closeInfoWindowBtn.addEventListener('click', () => {
-            // info창 닫기
-            infoWindows[i].close();
-            // console.log('모달창 끄기');
-          });
-        }
+    // 클린업
+    return () => {
+      markersRef.current.forEach(({ marker, infoWindow }) => {
+        marker.setMap(null);
+        infoWindow.close();
       });
-    }
-
-    naver.maps.Event.addListener(naverMap, 'click', () => {
-      if (opened.current !== null) {
-        // dispatch({ type: 'showModal' });
-        infoWindows[opened.current].close();
-        opened.current = null;
-      }
-      // console.log(opened.current);
-    });
-
-    // console.log('useEffect is work');
-  }, []);
+    };
+  }, [
+    createMarker,
+    createInfoWindow,
+    handleMarkerClick,
+    closeCurrentInfoWindow,
+  ]);
 
   return (
     <div>

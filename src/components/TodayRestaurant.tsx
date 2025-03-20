@@ -6,11 +6,11 @@ import '@components/TodayRestaurant.scss';
 import { PiBowlFood } from 'react-icons/pi';
 import { BsQuestionLg } from 'react-icons/bs';
 
-type props = {
-  restaurant: Restaurant;
-};
+interface TodayRestaurantProps {
+  restaurantName: string;
+}
 
-const TodayRestaurant = ({ restaurant }: props) => {
+const TodayRestaurant = ({ restaurantName }: TodayRestaurantProps) => {
   const visit = useRef<{
     year: number;
     month: number;
@@ -23,11 +23,11 @@ const TodayRestaurant = ({ restaurant }: props) => {
         {`${visit.current.month}월${visit.current.date}일`} 팀점은
       </h3>
       <div className="info-section">
-        {restaurant.name ? (
+        {restaurantName ? (
           <div>
             {' '}
             <PiBowlFood />
-            {restaurant.name}
+            {restaurantName}
           </div>
         ) : (
           // <BsQuestionLg id="questionMark" />

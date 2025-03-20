@@ -3,6 +3,8 @@ import { useEffect, createContext, useReducer } from 'react';
 import { getHistory } from '@src/lib/api/calendar_api';
 import { HistoryType, JSONResponse, StringKeyObj } from '@src/types';
 import qs from 'qs';
+import { getNumTypeToday } from '@lib/util';
+import PrimarySearchAppBar from '@components/Searchbar';
 
 const queryStr = qs.stringify({
   client_id: process.env.REACT_APP_GOOGLECALENDAR_CLIENT_ID,
@@ -105,10 +107,24 @@ const App = () => {
       // console.log('FETCH', response);
       const items: Array<Object> = response.items;
 
+      const today = getNumTypeToday();
+      let todayRestaurant: { [key: string]: string } = {};
+
       const nameAndDate = items.reduce(
         (result: HistoryType, item: JSONResponse): HistoryType => {
           const key = item.summary; // 일정 이름(식당 이름)
           const value = { date: item.start.date, eventId: item.id }; // 일정 날짜, 이벤트ID
+
+          if (
+            today.year.toString().padStart(2, '0') ===
+              item.start.date.split('-')[0] &&
+            today.month.toString().padStart(2, '0') ===
+              item.start.date.split('-')[1] &&
+            today.date.toString().padStart(2, '0') ===
+              item.start.date.split('-')[2]
+          ) {
+            todayRestaurant.name = key;
+          }
           result[key] = value;
           return result;
         },
@@ -116,6 +132,9 @@ const App = () => {
       );
 
       dispatch({ type: 'setHistory', payload: nameAndDate });
+      if (todayRestaurant) {
+        dispatch({ type: 'selectRestaurant', payload: todayRestaurant });
+      }
     };
     try {
       callCalendarAPI();
@@ -126,7 +145,8 @@ const App = () => {
 
   return (
     <UseDispatch.Provider value={dispatch}>
-      <header></header>
+      {/*<header></header>*/}
+      {/* <PrimarySearchAppBar /> */}
       <MainPage state={state} />
       <footer></footer>
     </UseDispatch.Provider>

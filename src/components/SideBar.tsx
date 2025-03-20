@@ -77,7 +77,7 @@ const SideBar = ({ state }: AppStoreType) => {
           <div className="schedule-header">
             <h2>오늘의 식사</h2>
           </div>
-          <TodayRestaurant restaurant={state.todayRestaurant} />
+          <TodayRestaurant restaurantName={state.todayRestaurant.name ?? ''} />
           <div className="schedule-header">
             <h2>식사 기록</h2>
           </div>
