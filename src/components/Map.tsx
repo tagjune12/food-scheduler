@@ -1,15 +1,16 @@
 import React, { useContext, useEffect, useRef, useCallback } from 'react';
-import restaurants from '@data/restaurants.json';
-import { renderToString } from 'react-dom/server';
-// import InfoWindow from '@components/commons/InfoWindow';
+// import restaurants from '@data/restaurants.json';
 import RestaurantCard from '@components/commons/RestaurantCard';
 import '@components/Map.scss';
 import { UseDispatch } from '@src/App';
 import { AppStoreType, Restaurant } from '@src/types';
+import { createRoot } from 'react-dom/client';
+import { searchLocalPlaces } from '@lib/api/kakao_api';
+import qs from 'qs';
 
 interface MapMarker {
-  marker: naver.maps.Marker;
-  infoWindow: naver.maps.InfoWindow;
+  marker: kakao.maps.Marker;
+  overlay: kakao.maps.CustomOverlay;
 }
 
 interface MarkerStyle {
@@ -19,7 +20,7 @@ interface MarkerStyle {
 }
 
 const DEFAULT_CENTER = { lat: 37.4028207, lng: 127.1115201 };
-const DEFAULT_ZOOM = 16;
+const DEFAULT_ZOOM = 3;
 
 const MARKER_STYLE: MarkerStyle = {
   width: '20px',
@@ -29,84 +30,102 @@ const MARKER_STYLE: MarkerStyle = {
 
 const Map = ({ state }: AppStoreType) => {
   const dispatch = useContext(UseDispatch);
-  const mapRef = useRef<naver.maps.Map | null>(null);
+  const mapRef = useRef<kakao.maps.Map | null>(null);
   const markersRef = useRef<MapMarker[]>([]);
   const openedMarkerRef = useRef<number | null>(null);
 
-  const createMarkerContent = useCallback(() => {
-    return `
-      <div class="custom-marker" style="
-        width: ${MARKER_STYLE.width};
-        height: ${MARKER_STYLE.height};
-        background: ${MARKER_STYLE.backgroundColor};
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-        transform: translate(-50%, -50%);
-      ">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-          <path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/>
-        </svg>
-      </div>
-    `;
-  }, []);
+  const createOverlay = useCallback(
+    (restaurant: kakao.maps.services.PlacesSearchResult) => {
+      const content = document.createElement('div');
+      const root = document.createElement('div');
+      content.appendChild(root);
 
-  const createInfoWindow = useCallback(
-    (restaurant: Restaurant) => {
-      console.log(state.histories);
-      return new naver.maps.InfoWindow({
-        content: renderToString(
-          <RestaurantCard
-            restaurant={restaurant}
-            onMap={true}
-            visitDate={state.histories[restaurant.name]?.date}
-          />,
+      const overlay = new kakao.maps.CustomOverlay({
+        position: new kakao.maps.LatLng(
+          parseFloat(restaurant.y ?? '0'),
+          parseFloat(restaurant.x ?? '0'),
         ),
-        borderColor: 'none',
-        disableAnchor: true,
-        backgroundColor: 'none',
-        pixelOffset: new naver.maps.Point(0, 0),
+        content,
+        yAnchor: 1,
+        clickable: true,
       });
+
+      // React 컴포넌트를 렌더링
+      const infoWindow = document.createElement('div');
+      root.appendChild(infoWindow);
+
+      const card = document.createElement('div');
+      infoWindow.appendChild(card);
+
+      const cardContainer = createRoot(card);
+      const cardContent = (
+        <RestaurantCard
+          restaurant={restaurant}
+          onMap={true}
+          visitDate={state.histories[restaurant.place_name]?.date}
+        />
+      );
+      cardContainer.render(cardContent);
+      // card.appendChild(cardContent);
+
+      return overlay;
     },
     [state.histories],
   );
 
   const createMarker = useCallback(
-    (position: naver.maps.LatLng) => {
-      return new naver.maps.Marker({
+    (position: kakao.maps.LatLng) => {
+      const marker = new kakao.maps.Marker({
         position,
         map: mapRef.current ?? undefined,
-        icon: {
-          content: createMarkerContent(),
-          size: new naver.maps.Size(20, 20),
-          anchor: new naver.maps.Point(10, 10),
-        },
       });
+
+      // 커스텀 이미지 설정
+      try {
+        // const markerContent = createMarkerContent();
+        // const sanitizedContent = encodeURIComponent(markerContent);
+        // const imageSrc = 'data:image/svg+xml;charset=utf-8,' + sanitizedContent;
+        const imageSrc =
+          'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png';
+
+        const imageSize = new kakao.maps.Size(30, 30); // 더 큰 크기로 조정
+        const imageOption = { offset: new kakao.maps.Point(15, 15) }; // 중심점 조정
+        const markerImage = new kakao.maps.MarkerImage(
+          imageSrc,
+          imageSize,
+          imageOption,
+        );
+        marker.setImage(markerImage);
+      } catch (error) {
+        console.error('마커 이미지 생성 오류:', error);
+        // 기본 마커 사용
+      }
+
+      return marker;
     },
-    [createMarkerContent],
+    // [createMarkerContent],
+    [],
   );
 
-  const closeCurrentInfoWindow = useCallback(() => {
+  const closeCurrentOverlay = useCallback(() => {
     if (openedMarkerRef.current !== null) {
-      markersRef.current[openedMarkerRef.current].infoWindow.close();
+      markersRef.current[openedMarkerRef.current].overlay.setMap(null);
       openedMarkerRef.current = null;
     }
   }, []);
 
   const handleMarkerClick = useCallback(
-    (index: number) => {
-      const { infoWindow } = markersRef.current[index];
+    (index: number, info: Restaurant) => {
+      const { overlay } = markersRef.current[index];
 
       if (openedMarkerRef.current === index) {
-        infoWindow.close();
+        overlay.setMap(null);
         openedMarkerRef.current = null;
         return;
       }
 
-      closeCurrentInfoWindow();
-      infoWindow.open(mapRef.current!, markersRef.current[index].marker);
+      closeCurrentOverlay();
+      overlay.setMap(mapRef.current);
       openedMarkerRef.current = index;
 
       // DOM 이벤트 리스너 추가
@@ -116,66 +135,102 @@ const Map = ({ state }: AppStoreType) => {
       );
 
       addEventBtn?.addEventListener('click', () => {
-        dispatch({ type: 'showModal', payload: restaurants[index] });
+        dispatch({ type: 'showModal', payload: info });
       });
 
-      closeInfoWindowBtn?.addEventListener('click', closeCurrentInfoWindow);
+      closeInfoWindowBtn?.addEventListener('click', closeCurrentOverlay);
     },
-    [dispatch, closeCurrentInfoWindow],
+    [dispatch, closeCurrentOverlay],
   );
 
-  useEffect(() => {
-    // 지도 초기화
-    const center = new naver.maps.LatLng(
-      DEFAULT_CENTER.lat,
-      DEFAULT_CENTER.lng,
-    );
-    mapRef.current = new naver.maps.Map('map', {
-      center,
-      zoom: DEFAULT_ZOOM,
+  const initializeMap = useCallback(async () => {
+    const container = document.getElementById('map');
+    if (!container) return;
+
+    const options = {
+      center: new kakao.maps.LatLng(DEFAULT_CENTER.lat, DEFAULT_CENTER.lng),
+      level: DEFAULT_ZOOM,
+    };
+
+    // 지도 생성
+    mapRef.current = new kakao.maps.Map(container, options);
+
+    // 카카오맵 카테고리 검색으로 식당 가져오기
+    const params = qs.stringify({
+      category_group_code: 'FD6',
+      x: DEFAULT_CENTER.lng,
+      y: DEFAULT_CENTER.lat,
+      radius: 1500,
+      page: 1,
     });
 
-    // 마커 생성
-    markersRef.current = restaurants.map((restaurant, index) => {
-      const position = new naver.maps.LatLng(
-        parseFloat(restaurant.position.y),
-        parseFloat(restaurant.position.x),
+    const restaurants = await searchLocalPlaces(params);
+
+    markersRef.current = restaurants.documents.map((restaurant, index) => {
+      const position = new kakao.maps.LatLng(
+        parseFloat(restaurant.y ?? '0'),
+        parseFloat(restaurant.x ?? '0'),
       );
+
+      const restaurantInfo: Restaurant = {
+        name: restaurant.place_name,
+        tags: restaurant.category_name
+          .split('>')
+          .filter((elem) => elem !== '음식점'),
+        address: restaurant.address_name,
+        period: 0,
+        visit: '',
+        position: {
+          x: restaurant.x,
+          y: restaurant.y,
+        },
+        place_url: restaurant.place_url,
+      };
 
       const marker = createMarker(position);
-      const infoWindow = createInfoWindow(restaurant);
+      const overlay = createOverlay(restaurant);
 
-      naver.maps.Event.addListener(marker, 'click', () =>
-        handleMarkerClick(index),
+      kakao.maps.event.addListener(marker, 'click', () =>
+        handleMarkerClick(index, restaurantInfo),
       );
 
-      return { marker, infoWindow };
+      return { marker, overlay };
     });
 
     // 지도 클릭 이벤트
-    naver.maps.Event.addListener(
-      mapRef.current,
-      'click',
-      closeCurrentInfoWindow,
-    );
+    kakao.maps.event.addListener(mapRef.current, 'click', closeCurrentOverlay);
+  }, [createMarker, createOverlay, handleMarkerClick, closeCurrentOverlay]);
 
-    // 클린업
+  useEffect(() => {
+    const loadKakaoMap = () => {
+      const script = document.createElement('script');
+      script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.REACT_APP_KAKAO_MAP_API_JS_KEY}&libraries=services&autoload=false`;
+      script.async = true;
+      script.onload = () => {
+        window.kakao.maps.load(() => {
+          initializeMap();
+        });
+      };
+      document.head.appendChild(script);
+    };
+
+    if (window.kakao && window.kakao.maps) {
+      initializeMap();
+    } else {
+      loadKakaoMap();
+    }
+
     return () => {
-      markersRef.current.forEach(({ marker, infoWindow }) => {
+      markersRef.current.forEach(({ marker, overlay }) => {
         marker.setMap(null);
-        infoWindow.close();
+        overlay.setMap(null);
       });
     };
-  }, [
-    createMarker,
-    createInfoWindow,
-    handleMarkerClick,
-    closeCurrentInfoWindow,
-  ]);
+  }, [initializeMap]);
 
   return (
     <div>
-      <div id="map" className="naver-map" />
+      <div id="map" className="kakao-map" />
     </div>
   );
 };

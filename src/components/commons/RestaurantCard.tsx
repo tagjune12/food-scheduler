@@ -5,7 +5,7 @@ import { UseDispatch } from '@src/App';
 import { getNumTypeToday } from '@lib/util';
 
 interface RestaurantCardProps {
-  restaurant: Restaurant;
+  restaurant: kakao.maps.services.PlacesSearchResult;
   visitDate?: string;
   onMap?: boolean;
 }
@@ -42,16 +42,19 @@ const RestaurantCard = ({
   };
 
   const renderTags = () => {
-    if (!restaurant.tags?.length) return null;
+    if (!restaurant.category_name?.length) return null;
 
     return (
       <div id="tags">
         <div className="tag-container">
-          {restaurant.tags.map((tag, index) => (
-            <div key={index} className="tag">
-              {tag}
-            </div>
-          ))}
+          {restaurant.category_name
+            .split('>')
+            .filter((elem) => elem !== '음식점')
+            .map((tag, index) => (
+              <div key={index} className="tag">
+                {tag}
+              </div>
+            ))}
         </div>
       </div>
     );
@@ -59,10 +62,15 @@ const RestaurantCard = ({
 
   return (
     <div className={`card-container ${onMap ? 'map-card' : ''}`}>
-      <h3>{restaurant.name}</h3>
+      <h3>{restaurant.place_name}</h3>
       <div className="visit-info">{renderVisitInfo()}</div>
       <div className="progress-wrapper">
         <progress value={visitDate ? getDiffDate(visitDate) : 0} max={28} />
+      </div>
+      <div>
+        <a href={restaurant.place_url} target="_blank" rel="noreferrer">
+          카카오맵 바로가기
+        </a>
       </div>
       {renderTags()}
       <button

@@ -3,8 +3,12 @@ type Restaurant = {
   tags: string[];
   address: string;
   period: number;
-  position?: Object;
+  position?: {
+    x: string;
+    y: string;
+  };
   visit: string;
+  place_url?: string;
 };
 
 type HistoryType = {

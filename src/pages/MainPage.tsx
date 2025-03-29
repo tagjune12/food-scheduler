@@ -6,7 +6,7 @@ import Modal from '@components/commons/Modal';
 
 const MainPage = ({ state }: AppStoreType) => {
   useEffect(() => {
-    console.log(state);
+    // console.log(state);
   }, [state]);
 
   return (
