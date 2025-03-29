@@ -12,6 +12,7 @@
     "@fullcalendar/react": "^6.1.6",
     "@mui/icons-material": "^6.4.8",
     "@mui/material": "^6.4.8",
+    "@supabase/supabase-js": "^2.49.4",
     "@types/node": "^16.18.12",
     "@types/react": "^18.0.28",
     "@types/react-bootstrap": "^0.32.32",
@@ -60,6 +61,7 @@
     "craco-alias": "^3.0.1",
     "i": "^0.3.7",
     "node-sass": "8.0",
-    "react-app-alias": "^2.2.2"
+    "react-app-alias": "^2.2.2",
+    "supabase": "^2.20.5"
   }
 }

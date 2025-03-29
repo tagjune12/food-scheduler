@@ -15,7 +15,7 @@ import AccountCircle from '@mui/icons-material/AccountCircle';
 import MailIcon from '@mui/icons-material/Mail';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import MoreIcon from '@mui/icons-material/MoreVert';
-import { searchLocalPlaces } from '@lib/api/naver_api';
+// import { searchLocalPlaces } from '@lib/api/naver_api';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -191,8 +191,8 @@ export default function PrimarySearchAppBar() {
               onKeyDown={async (e) => {
                 if (e.key === 'Enter') {
                   console.log(searchValue);
-                  const result = await searchLocalPlaces(searchValue);
-                  console.log(result);
+                  // const result = await searchLocalPlaces(searchValue);
+                  // console.log(result);
                 }
               }}
             />

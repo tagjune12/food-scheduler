@@ -7,8 +7,10 @@ type Restaurant = {
     x: string;
     y: string;
   };
-  visit: string;
+  visit?: string;
   place_url?: string;
+  id?: string;
+  distance?: string;
 };
 
 type HistoryType = {

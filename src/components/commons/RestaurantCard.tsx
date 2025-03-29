@@ -5,7 +5,7 @@ import { UseDispatch } from '@src/App';
 import { getNumTypeToday } from '@lib/util';
 
 interface RestaurantCardProps {
-  restaurant: kakao.maps.services.PlacesSearchResult;
+  restaurant: any; // Supabase 또는 카카오맵 데이터 모두 수용
   visitDate?: string;
   onMap?: boolean;
 }
@@ -49,8 +49,8 @@ const RestaurantCard = ({
         <div className="tag-container">
           {restaurant.category_name
             .split('>')
-            .filter((elem) => elem !== '음식점')
-            .map((tag, index) => (
+            .filter((elem: string) => elem !== '음식점')
+            .map((tag: string, index: number) => (
               <div key={index} className="tag">
                 {tag}
               </div>

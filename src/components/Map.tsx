@@ -7,6 +7,7 @@ import { AppStoreType, Restaurant } from '@src/types';
 import { createRoot } from 'react-dom/client';
 import { searchLocalPlaces } from '@lib/api/kakao_api';
 import qs from 'qs';
+import { getRestaurants } from '@lib/api/supabase_api';
 
 interface MapMarker {
   marker: kakao.maps.Marker;
@@ -35,15 +36,15 @@ const Map = ({ state }: AppStoreType) => {
   const openedMarkerRef = useRef<number | null>(null);
 
   const createOverlay = useCallback(
-    (restaurant: kakao.maps.services.PlacesSearchResult) => {
+    (restaurant: any) => {
       const content = document.createElement('div');
       const root = document.createElement('div');
       content.appendChild(root);
 
       const overlay = new kakao.maps.CustomOverlay({
         position: new kakao.maps.LatLng(
-          parseFloat(restaurant.y ?? '0'),
-          parseFloat(restaurant.x ?? '0'),
+          parseFloat(restaurant.longitude ?? '0'),
+          parseFloat(restaurant.latitude ?? '0'),
         ),
         content,
         yAnchor: 1,
@@ -66,7 +67,6 @@ const Map = ({ state }: AppStoreType) => {
         />
       );
       cardContainer.render(cardContent);
-      // card.appendChild(cardContent);
 
       return overlay;
     },
@@ -155,36 +155,38 @@ const Map = ({ state }: AppStoreType) => {
     // 지도 생성
     mapRef.current = new kakao.maps.Map(container, options);
 
-    // 카카오맵 카테고리 검색으로 식당 가져오기
-    const params = qs.stringify({
-      category_group_code: 'FD6',
-      x: DEFAULT_CENTER.lng,
-      y: DEFAULT_CENTER.lat,
-      radius: 1500,
-      page: 1,
-    });
+    // // 카카오맵 카테고리 검색으로 식당 가져오기
+    // const params = qs.stringify({
+    //   category_group_code: 'FD6',
+    //   x: DEFAULT_CENTER.lng,
+    //   y: DEFAULT_CENTER.lat,
+    //   radius: 1500,
+    //   page: 1,
+    // });
 
-    const restaurants = await searchLocalPlaces(params);
+    // const restaurants = await searchLocalPlaces(params);
+    const test = await getRestaurants();
+    console.log('TEST', test);
+    const restaurants = (await getRestaurants()) ?? [];
 
-    markersRef.current = restaurants.documents.map((restaurant, index) => {
+    markersRef.current = restaurants.map((restaurant, index) => {
       const position = new kakao.maps.LatLng(
-        parseFloat(restaurant.y ?? '0'),
-        parseFloat(restaurant.x ?? '0'),
+        parseFloat(restaurant.longitude ?? '0'), // y
+        parseFloat(restaurant.latitude ?? '0'), // x
       );
-
       const restaurantInfo: Restaurant = {
-        name: restaurant.place_name,
-        tags: restaurant.category_name
+        name: restaurant.place_name ?? '',
+        tags: (restaurant.category_name ?? '')
           .split('>')
           .filter((elem) => elem !== '음식점'),
-        address: restaurant.address_name,
+        address: restaurant.address_name ?? '',
         period: 0,
         visit: '',
         position: {
-          x: restaurant.x,
-          y: restaurant.y,
+          x: restaurant.latitude ?? '',
+          y: restaurant.longitude ?? '',
         },
-        place_url: restaurant.place_url,
+        place_url: restaurant.place_url ?? '',
       };
 
       const marker = createMarker(position);
