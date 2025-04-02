@@ -16,6 +16,7 @@ declare namespace kakao.maps {
     setMap(map: Map | null): void;
     setPosition(position: LatLng): void;
     setImage(image: MarkerImage): void;
+    setTitle(title: string): void;
   }
 
   export class MarkerImage {
@@ -61,7 +62,8 @@ declare namespace kakao.maps {
       target: any,
       type: string,
       handler: Function,
-    ): void;
+    ): any;
+    export function removeListener(map:any,eventType:string,listener: any): void;
   }
 
   export function load(callback: () => void): void;
@@ -149,6 +151,22 @@ declare namespace kakao.maps {
     getSouthWest(): LatLng;
     getNorthEast(): LatLng;
     contain(latlng: LatLng): boolean;
+  }
+
+  export class MarkerClusterer {
+    constructor(options: MarkerClustererOptions);
+    addMarker(marker: Marker): void;
+    addMarkers(markers: Marker[]): void;
+    removeMarker(marker: Marker): void;
+    removeMarkers(markers: Marker[]): void;
+    clear(): void;
+  }
+
+  export interface MarkerClustererOptions {
+    map: Map;
+    averageCenter?: boolean;
+    minLevel?: number;
+    disableClickZoom?: boolean;
   }
 }
 

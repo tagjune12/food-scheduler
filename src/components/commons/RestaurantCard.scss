@@ -54,6 +54,19 @@
     }
   }
 
+  & > div{
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+    #kakao-map-link {
+      text-decoration: none;
+      color: #333;
+      font-size: 14px;
+      font-weight: 500;
+      
+    }
+  }
+
+
   #tags {
     margin-bottom: 16px;
     

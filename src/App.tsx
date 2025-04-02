@@ -102,6 +102,9 @@ const App = () => {
       today.getDate(),
     ).toISOString();
 
+    console.log('timeMin', timeMin);
+    console.log('timeMax', timeMax);
+
     const callCalendarAPI = async () => {
       const response = await getHistory(timeMin, timeMax);
       // console.log('FETCH', response);
@@ -130,7 +133,7 @@ const App = () => {
         },
         {},
       );
-
+      console.log('nameAndDate', nameAndDate);
       dispatch({ type: 'setHistory', payload: nameAndDate });
       if (todayRestaurant) {
         dispatch({ type: 'selectRestaurant', payload: todayRestaurant });

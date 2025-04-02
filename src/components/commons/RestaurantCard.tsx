@@ -68,7 +68,12 @@ const RestaurantCard = ({
         <progress value={visitDate ? getDiffDate(visitDate) : 0} max={28} />
       </div>
       <div>
-        <a href={restaurant.place_url} target="_blank" rel="noreferrer">
+        <a
+          id="kakao-map-link"
+          href={restaurant.place_url}
+          target="_blank"
+          rel="noreferrer"
+        >
           카카오맵 바로가기
         </a>
       </div>
