@@ -4,17 +4,12 @@ import { useContext } from 'react';
 import { UseDispatch } from '@src/App';
 import { getNumTypeToday } from '@lib/util';
 
-interface RestaurantCardProps {
+interface MapCardProps {
   restaurant: any; // Supabase 또는 카카오맵 데이터 모두 수용
   visitDate?: string;
-  onMap?: boolean;
 }
 
-const RestaurantCard = ({
-  restaurant,
-  visitDate,
-  onMap,
-}: RestaurantCardProps) => {
+const MapCard = ({ restaurant, visitDate }: MapCardProps) => {
   const dispatch = useContext(UseDispatch);
 
   const getDiffDate = (visitDate: string): number => {
@@ -61,7 +56,7 @@ const RestaurantCard = ({
   };
 
   return (
-    <div className={`card-container ${onMap ? 'map-card' : ''}`}>
+    <div className={`card-container map-card`}>
       <h3>{restaurant.place_name}</h3>
       <div className="visit-info">{renderVisitInfo()}</div>
       <div className="progress-wrapper">
@@ -79,7 +74,7 @@ const RestaurantCard = ({
       </div>
       {renderTags()}
       <button
-        className={onMap ? 'add-event-btn' : ''}
+        className={'add-event-btn'}
         onClick={handleButtonClick}
         data-restaurant={JSON.stringify({
           name: restaurant.place_name,
@@ -96,4 +91,4 @@ const RestaurantCard = ({
   );
 };
 
-export default RestaurantCard;
+export default MapCard;

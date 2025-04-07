@@ -3,6 +3,7 @@ declare namespace kakao.maps {
     constructor(container: HTMLElement, options: MapOptions);
     setCenter(latlng: LatLng): void;
     setLevel(level: number): void;
+    setZoomable(zoomable: boolean): void;
   }
 
   export class LatLng {

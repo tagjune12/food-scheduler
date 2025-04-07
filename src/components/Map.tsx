@@ -6,14 +6,15 @@ import React, {
   useState,
 } from 'react';
 // import restaurants from '@data/restaurants.json';
-import RestaurantCard from '@components/commons/RestaurantCard';
+// import RestaurantCard from '@components/commons/RestaurantCard';
 import '@components/Map.scss';
 import { UseDispatch } from '@src/App';
 import { AppStoreType, Restaurant } from '@src/types';
 import { createRoot } from 'react-dom/client';
-import { searchLocalPlaces } from '@lib/api/kakao_api';
-import qs from 'qs';
+// import { searchLocalPlaces } from '@lib/api/kakao_api';
+// import qs from 'qs';
 import { getRestaurants, getRestaurantsWithName } from '@lib/api/supabase_api';
+import MapCard from './commons/MapCard';
 
 interface MapMarker {
   marker: kakao.maps.Marker;
@@ -43,7 +44,7 @@ const Map = ({ state }: AppStoreType) => {
   const markerClustererRef = useRef<kakao.maps.MarkerClusterer | null>(null);
   const clusterOverlayRef = useRef<kakao.maps.CustomOverlay | null>(null);
 
-  const createOverlay = useCallback(
+  const createMarkerOverlay = useCallback(
     (restaurant: any) => {
       const content = document.createElement('div');
       const root = document.createElement('div');
@@ -63,14 +64,37 @@ const Map = ({ state }: AppStoreType) => {
       const infoWindow = document.createElement('div');
       root.appendChild(infoWindow);
 
+      // 마우스 휠 이벤트 중지
+      infoWindow.addEventListener(
+        'wheel',
+        (e) => {
+          e.stopPropagation();
+          e.preventDefault();
+        },
+        { passive: false },
+      );
+
+      // 오버레이 위에서 마우스 휠 동작 시 지도 확대/축소 비활성화
+      infoWindow.addEventListener('mouseenter', () => {
+        if (mapRef.current) {
+          mapRef.current.setZoomable(false);
+        }
+      });
+
+      // 오버레이 밖으로 마우스가 나갈 때 지도 확대/축소 다시 활성화
+      infoWindow.addEventListener('mouseleave', () => {
+        if (mapRef.current) {
+          mapRef.current.setZoomable(true);
+        }
+      });
+
       const card = document.createElement('div');
       infoWindow.appendChild(card);
 
       const cardContainer = createRoot(card);
       const cardContent = (
-        <RestaurantCard
+        <MapCard
           restaurant={restaurant}
-          onMap={true}
           visitDate={state.histories[restaurant.place_name]?.date}
         />
       );
@@ -81,7 +105,7 @@ const Map = ({ state }: AppStoreType) => {
     [state.histories],
   );
 
-  const createOverlay2 = useCallback(
+  const createClustererOverlay = useCallback(
     async (cluster: any) => {
       const content = document.createElement('div');
       content.className = 'cluster-overlay';
@@ -101,18 +125,54 @@ const Map = ({ state }: AppStoreType) => {
       infoWindow.className = 'info-window-container';
       root.appendChild(infoWindow);
 
-      // 닫기 버튼 추가
-      const closeBtn = document.createElement('button');
-      closeBtn.className = 'close-btn';
-      closeBtn.textContent = '닫기';
-      closeBtn.onclick = () => {
-        // 현재 오버레이를 닫음
-        overlay.setMap(null);
-        if (clusterOverlayRef.current === overlay) {
-          clusterOverlayRef.current = null;
+      // 마우스 휠 이벤트 중지
+      infoWindow.addEventListener(
+        'wheel',
+        (e) => {
+          e.stopPropagation();
+          e.preventDefault();
+        },
+        { passive: false },
+      );
+
+      // 오버레이 위에서 마우스 휠 동작 시 지도 확대/축소 비활성화
+      infoWindow.addEventListener('mouseenter', () => {
+        if (mapRef.current) {
+          mapRef.current.setZoomable(false);
         }
-      };
-      infoWindow.appendChild(closeBtn);
+      });
+
+      // 오버레이 밖으로 마우스가 나갈 때 지도 확대/축소 다시 활성화
+      infoWindow.addEventListener('mouseleave', () => {
+        if (mapRef.current) {
+          mapRef.current.setZoomable(true);
+        }
+      });
+
+      // 지도 클릭 시 오버레이 닫기
+      kakao.maps.event.addListener(
+        mapRef.current,
+        'click',
+        function clickHandler2() {
+          // 현재 오버레이를 닫음
+          overlay.setMap(null);
+          if (clusterOverlayRef.current === overlay) {
+            clusterOverlayRef.current = null;
+          }
+
+          // 지도 확대/축소 다시 활성화
+          if (mapRef.current) {
+            mapRef.current.setZoomable(true);
+          }
+
+          // 이벤트 리스너 한 번만 실행 후 제거
+          kakao.maps.event.removeListener(
+            mapRef.current,
+            'click',
+            clickHandler2,
+          );
+        },
+      );
 
       const card = document.createElement('div');
       card.className = 'cluster-card-container';
@@ -129,13 +189,19 @@ const Map = ({ state }: AppStoreType) => {
 
       const cardContainer = createRoot(card);
       const cardContent = (
-        <div className="cluster-restaurants">
-          <h3>{restaurants.length}개의 식당</h3>
+        <div
+          className="cluster-restaurants"
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+          }}
+        >
+          {/* <h3>{restaurants.length}개의 식당</h3> */}
           {restaurants.map((restaurant, idx) => (
-            <RestaurantCard
+            <MapCard
               key={idx}
               restaurant={restaurant}
-              onMap={true}
               visitDate={
                 restaurant.place_name
                   ? state.histories[restaurant.place_name]?.date
@@ -195,6 +261,11 @@ const Map = ({ state }: AppStoreType) => {
     if (openedMarkerRef.current !== null) {
       markersRef.current[openedMarkerRef.current].overlay.setMap(null);
       openedMarkerRef.current = null;
+
+      // 지도 확대/축소 다시 활성화
+      if (mapRef.current) {
+        mapRef.current.setZoomable(true);
+      }
     }
   }, []);
 
@@ -202,6 +273,11 @@ const Map = ({ state }: AppStoreType) => {
     if (clusterOverlayRef.current) {
       clusterOverlayRef.current.setMap(null);
       clusterOverlayRef.current = null;
+
+      // 지도 확대/축소 다시 활성화
+      if (mapRef.current) {
+        mapRef.current.setZoomable(true);
+      }
     }
   }, []);
 
@@ -221,15 +297,15 @@ const Map = ({ state }: AppStoreType) => {
 
       // DOM 이벤트 리스너 추가
       const addEventBtn = document.querySelector('.add-event-btn');
-      const closeInfoWindowBtn = document.querySelector(
-        '.info-window-container .close-btn',
-      );
+      // const closeInfoWindowBtn = document.querySelector(
+      //   '.info-window-container .close-btn',
+      // );
 
       addEventBtn?.addEventListener('click', () => {
         dispatch({ type: 'showModal', payload: info });
       });
 
-      closeInfoWindowBtn?.addEventListener('click', closeCurrentOverlay);
+      // closeInfoWindowBtn?.addEventListener('click', closeCurrentOverlay);
     },
     [dispatch, closeCurrentOverlay],
   );
@@ -243,14 +319,14 @@ const Map = ({ state }: AppStoreType) => {
       // 기존 마커 오버레이도 닫기
       closeCurrentOverlay();
 
-      const overlay = await createOverlay2(cluster);
+      const overlay = await createClustererOverlay(cluster);
       overlay.setMap(mapRef.current);
 
       // 생성된 오버레이를 참조에 저장
       clusterOverlayRef.current = overlay;
 
       // 지도 클릭 시 오버레이 닫기
-      const clickListener = kakao.maps.event.addListener(
+      kakao.maps.event.addListener(
         mapRef.current,
         'click',
         function clickHandler() {
@@ -263,8 +339,26 @@ const Map = ({ state }: AppStoreType) => {
           );
         },
       );
+
+      // DOM 이벤트 리스너 추가
+      const addEventBtn = document.querySelector('.info-window-container');
+      const closeInfoWindowBtn = document.querySelector(
+        '.info-window-container .close-btn',
+      );
+
+      addEventBtn?.addEventListener('click', (e: any) => {
+        if (e.target.classList.contains('add-event-btn')) {
+          console.log(e.target.dataset.restaurant);
+          dispatch({
+            type: 'showModal',
+            payload: JSON.parse(e.target.dataset.restaurant),
+          });
+        }
+      });
+
+      closeInfoWindowBtn?.addEventListener('click', closeCurrentOverlay);
     },
-    [closeCurrentClusterOverlay, closeCurrentOverlay, createOverlay2],
+    [closeCurrentClusterOverlay, closeCurrentOverlay, createClustererOverlay],
   );
 
   const initializeMap = useCallback(async () => {
@@ -307,10 +401,10 @@ const Map = ({ state }: AppStoreType) => {
     const restaurants = (await getRestaurants()) ?? [];
 
     markersRef.current = restaurants.map((restaurant, index) => {
-      const position = new kakao.maps.LatLng(
-        parseFloat(restaurant.longitude ?? '0'), // y
-        parseFloat(restaurant.latitude ?? '0'), // x
-      );
+      // const position = new kakao.maps.LatLng(
+      //   parseFloat(restaurant.longitude ?? '0'), // y
+      //   parseFloat(restaurant.latitude ?? '0'), // x
+      // );
       const restaurantInfo: Restaurant = {
         name: restaurant.place_name ?? '',
         tags: (restaurant.category_name ?? '')
@@ -327,7 +421,7 @@ const Map = ({ state }: AppStoreType) => {
       };
 
       const marker = createMarker(restaurant);
-      const overlay = createOverlay(restaurant);
+      const overlay = createMarkerOverlay(restaurant);
 
       markerClustererRef.current?.addMarker(marker);
 
@@ -342,7 +436,7 @@ const Map = ({ state }: AppStoreType) => {
     kakao.maps.event.addListener(mapRef.current, 'click', closeCurrentOverlay);
   }, [
     createMarker,
-    createOverlay,
+    createMarkerOverlay,
     handleMarkerClick,
     handleMarkerClustererClick,
     closeCurrentOverlay,

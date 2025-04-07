@@ -1,6 +1,6 @@
 import TodayRestaurant from '@components/TodayRestaurant';
-import History from '@components/History';
-import { useRef, useState, useEffect } from 'react';
+// import History from '@components/History';
+import { useRef, useState, useEffect, Suspense, lazy } from 'react';
 import Calendar from '@components/Calendar';
 import '@components/SideBar.scss';
 import { AppStoreType } from '@src/types';
@@ -9,6 +9,7 @@ import {
   BsArrowLeftShort,
   BsArrowRightShort,
 } from 'react-icons/bs';
+import Skeleton from '@mui/material/Skeleton';
 
 const SidebarButton = ({
   isOpenMenu,
@@ -47,6 +48,8 @@ const SideBar = ({ state }: AppStoreType) => {
   const sideBarRef = useRef<HTMLDivElement>(null);
   const sideBarBtnRef = useRef<HTMLDivElement>(null);
 
+  const History = lazy(() => import('@components/History'));
+
   const showCalendar = () => {
     setIsHistory((isHistory) => !isHistory);
   };
@@ -81,7 +84,59 @@ const SideBar = ({ state }: AppStoreType) => {
           <div className="schedule-header">
             <h2>최근에 먹은거</h2>
           </div>
-          <History histories={state.histories} />
+          <Suspense
+            fallback={
+              <>
+                <Skeleton
+                  animation="wave"
+                  variant="rectangular"
+                  width={380}
+                  height={210}
+                  style={{
+                    marginBottom: 6,
+                  }}
+                />
+                <Skeleton
+                  animation="wave"
+                  variant="rectangular"
+                  width={380}
+                  height={210}
+                  style={{
+                    marginBottom: 6,
+                  }}
+                />
+                <Skeleton
+                  animation="wave"
+                  variant="rectangular"
+                  width={380}
+                  height={210}
+                  style={{
+                    marginBottom: 6,
+                  }}
+                />
+                <Skeleton
+                  animation="wave"
+                  variant="rectangular"
+                  width={380}
+                  height={210}
+                  style={{
+                    marginBottom: 6,
+                  }}
+                />
+                <Skeleton
+                  animation="wave"
+                  variant="rectangular"
+                  width={380}
+                  height={210}
+                  style={{
+                    marginBottom: 6,
+                  }}
+                />
+              </>
+            }
+          >
+            <History histories={state.histories} />
+          </Suspense>
         </div>
       </div>
     </>

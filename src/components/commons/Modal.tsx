@@ -12,6 +12,8 @@ type ModalProps = {
 const Modal = ({ restaurant }: ModalProps) => {
   const dispatch = useContext(UseDispatch);
 
+  console.log('Modal:', restaurant);
+
   const insertTodayRestaurant = () => {
     try {
       insertEvent(restaurant.name, new Date()).then(() => {

@@ -11,6 +11,7 @@ const queryStr = qs.stringify({
   redirect_uri: 'http://localhost:3000',
   response_type: 'token',
   scope: 'https://www.googleapis.com/auth/calendar',
+  // access_type: 'offline',
 });
 const loginUrl = `https://accounts.google.com/o/oauth2/v2/auth?${queryStr}`;
 
@@ -102,9 +103,6 @@ const App = () => {
       today.getDate(),
     ).toISOString();
 
-    console.log('timeMin', timeMin);
-    console.log('timeMax', timeMax);
-
     const callCalendarAPI = async () => {
       const response = await getHistory(timeMin, timeMax);
       // console.log('FETCH', response);
@@ -133,7 +131,7 @@ const App = () => {
         },
         {},
       );
-      console.log('nameAndDate', nameAndDate);
+      // console.log('nameAndDate', nameAndDate);
       dispatch({ type: 'setHistory', payload: nameAndDate });
       if (todayRestaurant) {
         dispatch({ type: 'selectRestaurant', payload: todayRestaurant });
