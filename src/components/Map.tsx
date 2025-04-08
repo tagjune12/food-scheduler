@@ -5,14 +5,11 @@ import React, {
   useCallback,
   useState,
 } from 'react';
-// import restaurants from '@data/restaurants.json';
-// import RestaurantCard from '@components/commons/RestaurantCard';
+
 import '@components/Map.scss';
 import { UseDispatch, MapInitContext } from '@src/App';
 import { AppStoreType, Restaurant } from '@src/types';
 import { createRoot } from 'react-dom/client';
-// import { searchLocalPlaces } from '@lib/api/kakao_api';
-// import qs from 'qs';
 import { getRestaurants, getRestaurantsWithName } from '@lib/api/supabase_api';
 import MapCard from './commons/MapCard';
 import Fab from '@mui/material/Fab';

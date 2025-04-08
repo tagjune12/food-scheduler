@@ -1,4 +1,3 @@
-import axios from 'axios';
 import qs from 'qs';
 import { access_token } from '@src/App';
 import { getNumTypeToday, getStringDate, isTokenValid } from '@lib/util';
@@ -14,6 +13,7 @@ const getAuthHeaders = () => {
   
   return {
     Authorization: 'Bearer ' + access_token,
+    'Content-Type': 'application/json'
   };
 };
 
@@ -23,7 +23,7 @@ const getAuthHeaders = () => {
  * @param endTime 끝나는날(포함X)(ISO string)
  * @returns
  */
-function getHistory(startTime?: string, endTime?: string): Promise<any> {
+async function getHistory(startTime?: string, endTime?: string): Promise<any> {
   const numTypeToday = getNumTypeToday();
   const query = qs.stringify({
     timeMin: startTime ?? new Date().toISOString(),
@@ -37,11 +37,21 @@ function getHistory(startTime?: string, endTime?: string): Promise<any> {
   });
   const targetUri = `${BASE_URL}?${query}`;
 
-  return axios
-    .get(targetUri, {
+  try {
+    const response = await fetch(targetUri, {
+      method: 'GET',
       headers: getAuthHeaders(),
-    })
-    .then((response) => response.data);
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Fetch error:', error);
+    throw error;
+  }
 }
 
 async function insertEvent(name: string, visitDate: Date) {
@@ -80,14 +90,24 @@ async function insertEvent(name: string, visitDate: Date) {
     },
   };
   
-  return axios
-    .post(targetUri, body, {
+  try {
+    const response = await fetch(targetUri, {
+      method: 'POST',
       headers: getAuthHeaders(),
-    })
-    .then((response) => {
-      console.log(response.data);
-      return response.data;
+      body: JSON.stringify(body)
     });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log(data);
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+    throw error;
+  }
 }
 
 async function updateEvent(name: string, eventId: string, visitDate: Date) {
@@ -123,17 +143,42 @@ async function updateEvent(name: string, eventId: string, visitDate: Date) {
     },
   };
   
-  return axios.put(targetUri, body, {
-    headers: getAuthHeaders(),
-  });
+  try {
+    const response = await fetch(targetUri, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(body)
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Fetch error:', error);
+    throw error;
+  }
 }
 
-function deleteEvent(eventId: string) {
+async function deleteEvent(eventId: string) {
   const targetUri = `${BASE_URL}/${eventId}`;
   
-  return axios.delete(targetUri, {
-    headers: getAuthHeaders(),
-  });
+  try {
+    const response = await fetch(targetUri, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    
+    return await response.text();
+  } catch (error) {
+    console.error('Fetch error:', error);
+    throw error;
+  }
 }
 
 export { getHistory, insertEvent, updateEvent, deleteEvent };
