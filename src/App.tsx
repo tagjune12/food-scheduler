@@ -22,6 +22,10 @@ const queryStr = qs.stringify({
 const loginUrl = `https://accounts.google.com/o/oauth2/v2/auth?${queryStr}`;
 
 export const UseDispatch = createContext<Function>(() => {});
+// 지도 초기화 상태를 위한 Context 생성
+export const MapInitContext = createContext<{ initialized: boolean }>({
+  initialized: false,
+});
 
 // 해시에서 토큰 파싱
 const hashParams = qs.parse(window.location.hash.substring(1));
@@ -126,6 +130,8 @@ const App = () => {
 
   const [state, dispatch] = useReducer(reducer, initialState);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  // 지도 초기화 상태
+  const [mapInitialized, setMapInitialized] = useState<boolean>(false);
 
   // 토큰 상태 확인 및 리다이렉트
   useEffect(() => {
@@ -213,16 +219,30 @@ const App = () => {
     callCalendarAPI();
   }, [access_token, isLoading]);
 
+  // 데이터 로드 완료 후 지도 초기화 상태 활성화
+  useEffect(() => {
+    if (!isLoading && !mapInitialized) {
+      // 약간의 지연 후 지도 초기화 상태 활성화 (경쟁 상태 방지)
+      const timer = setTimeout(() => {
+        setMapInitialized(true);
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading, mapInitialized]);
+
   if (isLoading) {
     return <div className="loading">로딩 중...</div>;
   }
 
   return (
     <UseDispatch.Provider value={dispatch}>
-      {/*<header></header>*/}
-      {/* <PrimarySearchAppBar /> */}
-      <MainPage state={state} />
-      <footer></footer>
+      <MapInitContext.Provider value={{ initialized: mapInitialized }}>
+        {/*<header></header>*/}
+        {/* <PrimarySearchAppBar /> */}
+        <MainPage state={state} />
+        <footer></footer>
+      </MapInitContext.Provider>
     </UseDispatch.Provider>
   );
 };

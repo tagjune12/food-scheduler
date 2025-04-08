@@ -34,7 +34,19 @@
     overflow-x: hidden;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    user-select: none; /* 텍스트 선택 방지 */
+    cursor: grab; /* 기본 커서를 grab으로 설정 */
+    position: relative; /* 스크롤 버튼 위치 지정을 위해 */
+    padding-bottom: 50px; /* 하단 버튼을 위한 여백 */
     
+    /* 드래그 중일 때 스타일 */
+    &.dragging {
+      cursor: grabbing;
+      scroll-behavior: auto;
+    }
+    
+    /* 스크롤바 스타일 */
     &::-webkit-scrollbar {
       width: 8px;
     }
@@ -51,6 +63,45 @@
     
     &::-webkit-scrollbar-thumb:hover {
       background: #999;
+    }
+    
+    /* 스크롤 버튼 컨테이너 */
+    .scroll-buttons {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end; /* 우측 정렬을 위해 flex-end 적용 */
+      gap: 10px;
+      position: fixed; /* fixed로 변경하여 항상 같은 위치에 표시 */
+      bottom: 20px; /* 하단에서 20px 떨어진 위치 */
+      right: 20px; /* 우측에서 20px 떨어진 위치 */
+      padding: 10px 0;
+      z-index: 5;
+      pointer-events: none; /* 컨테이너는 클릭 이벤트를 통과시킴 */
+      
+      .scroll-btn {
+        padding: 8px 12px;
+        border: none;
+        background-color: #845EC2;
+        color: white;
+        border-radius: 100px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background-color 0.2s, transform 0.1s;
+        pointer-events: auto; /* 버튼은 클릭 이벤트를 받음 */
+        
+        &:hover {
+          background-color: #6f4daa;
+        }
+        
+        &:active {
+          transform: scale(0.95);
+        }
+        
+        &.disabled {
+          background-color: #ccc;
+          cursor: not-allowed;
+        }
+      }
     }
     
     .close-btn {
