@@ -1,5 +1,4 @@
 import TodayRestaurant from '@components/TodayRestaurant';
-// import History from '@components/History';
 import { useRef, useState, useEffect, Suspense, lazy } from 'react';
 import Calendar from '@components/Calendar';
 import '@components/SideBar.scss';
@@ -10,37 +9,38 @@ import {
   BsArrowRightShort,
 } from 'react-icons/bs';
 import Skeleton from '@mui/material/Skeleton';
+import Divider from '@mui/material/Divider';
 
-const SidebarButton = ({
-  isOpenMenu,
-  sideBarBtnRef,
-  showCalendar,
-  setIsOpenMenu,
-}: {
-  isOpenMenu: boolean;
-  sideBarBtnRef: React.RefObject<HTMLDivElement>;
-  showCalendar: () => void;
-  setIsOpenMenu: (value: React.SetStateAction<boolean>) => void;
-}) => {
-  return (
-    <>
-      <div className="sidebar-btn-container" ref={sideBarBtnRef}>
-        <div className="sidebar-btn">
-          <button onClick={showCalendar}>
-            <BsCalendarPlusFill />
-          </button>
-          <button
-            onClick={() => {
-              setIsOpenMenu((prev) => !prev);
-            }}
-          >
-            {isOpenMenu ? <BsArrowLeftShort /> : <BsArrowRightShort />}
-          </button>
-        </div>
-      </div>
-    </>
-  );
-};
+// const SidebarButton = ({
+//   isOpenMenu,
+//   sideBarBtnRef,
+//   showCalendar,
+//   setIsOpenMenu,
+// }: {
+//   isOpenMenu: boolean;
+//   sideBarBtnRef: React.RefObject<HTMLDivElement>;
+//   showCalendar: () => void;
+//   setIsOpenMenu: (value: React.SetStateAction<boolean>) => void;
+// }) => {
+//   return (
+//     <>
+//       <div className="sidebar-btn-container" ref={sideBarBtnRef}>
+//         <div className="sidebar-btn">
+//           <button onClick={showCalendar}>
+//             <BsCalendarPlusFill />
+//           </button>
+//           <button
+//             onClick={() => {
+//               setIsOpenMenu((prev) => !prev);
+//             }}
+//           >
+//             {isOpenMenu ? <BsArrowLeftShort /> : <BsArrowRightShort />}
+//           </button>
+//         </div>
+//       </div>
+//     </>
+//   );
+// };
 
 const SideBar = ({ state }: AppStoreType) => {
   const [isHistory, setIsHistory] = useState<boolean>(false);
@@ -81,6 +81,8 @@ const SideBar = ({ state }: AppStoreType) => {
             <h2>오늘의 식사</h2>
           </div>
           <TodayRestaurant restaurantName={state.todayRestaurant.name ?? ''} />
+          <Divider />
+          &nbsp;
           <div className="schedule-header">
             <h2>최근에 먹은거</h2>
           </div>

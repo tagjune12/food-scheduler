@@ -1,10 +1,22 @@
 import axios from 'axios';
 import qs from 'qs';
 import { access_token } from '@src/App';
-import { getNumTypeToday, getStringDate } from '@lib/util';
+import { getNumTypeToday, getStringDate, isTokenValid } from '@lib/util';
 
 const CALENDAR_ID = 'ltjktnet12@gmail.com';
 const BASE_URL = `https://www.googleapis.com/calendar/v3/calendars/${CALENDAR_ID}/events`;
+
+// 인증 헤더 생성 함수 - 토큰 유효성 검사 포함
+const getAuthHeaders = () => {
+  if (!access_token || !isTokenValid()) {
+    throw new Error('유효한 인증 토큰이 없습니다.');
+  }
+  
+  return {
+    Authorization: 'Bearer ' + access_token,
+  };
+};
+
 /**
  * statTiem, endTime 입력 안되어있으면 오늘,다음날로 입력됨
  * @param startTime 시작날(ISO string)
@@ -27,9 +39,7 @@ function getHistory(startTime?: string, endTime?: string): Promise<any> {
 
   return axios
     .get(targetUri, {
-      headers: {
-        Authorization: 'Bearer ' + access_token,
-      },
+      headers: getAuthHeaders(),
     })
     .then((response) => response.data);
 }
@@ -69,15 +79,15 @@ async function insertEvent(name: string, visitDate: Date) {
         .padStart(2, '0')}`,
     },
   };
-  const config = {
-    headers: {
-      Authorization: 'Bearer ' + access_token,
-    },
-  };
-  return axios.post(targetUri, body, config).then((response) => {
-    console.log(response.data);
-    return response.data;
-  });
+  
+  return axios
+    .post(targetUri, body, {
+      headers: getAuthHeaders(),
+    })
+    .then((response) => {
+      console.log(response.data);
+      return response.data;
+    });
 }
 
 async function updateEvent(name: string, eventId: string, visitDate: Date) {
@@ -112,23 +122,18 @@ async function updateEvent(name: string, eventId: string, visitDate: Date) {
         .padStart(2, '0')}`,
     },
   };
-  const config = {
-    headers: {
-      Authorization: 'Bearer ' + access_token,
-    },
-  };
-  axios.put(targetUri, body, config);
+  
+  return axios.put(targetUri, body, {
+    headers: getAuthHeaders(),
+  });
 }
 
 function deleteEvent(eventId: string) {
   const targetUri = `${BASE_URL}/${eventId}`;
-  const config = {
-    headers: {
-      Authorization: 'Bearer ' + access_token,
-    },
-  };
-
-  return axios.delete(targetUri, config);
+  
+  return axios.delete(targetUri, {
+    headers: getAuthHeaders(),
+  });
 }
 
 export { getHistory, insertEvent, updateEvent, deleteEvent };

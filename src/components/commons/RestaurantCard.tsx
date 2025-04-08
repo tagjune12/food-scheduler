@@ -42,7 +42,7 @@ const RestaurantCard = ({
   };
 
   const renderTags = () => {
-    if (!restaurant.category_name?.length) return null;
+    if (!restaurant.category_name) return null;
 
     return (
       <div id="tags">
@@ -84,8 +84,10 @@ const RestaurantCard = ({
         data-restaurant={JSON.stringify({
           name: restaurant.place_name,
           tags: restaurant.category_name
-            .split('>')
-            .filter((elem: string) => elem !== '음식점'),
+            ? restaurant.category_name
+                .split('>')
+                .filter((elem: string) => elem !== '음식점')
+            : [],
           address: restaurant.address_name,
           period: 0,
         })}
