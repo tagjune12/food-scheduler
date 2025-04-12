@@ -11,37 +11,6 @@ import {
 import Skeleton from '@mui/material/Skeleton';
 import Divider from '@mui/material/Divider';
 
-// const SidebarButton = ({
-//   isOpenMenu,
-//   sideBarBtnRef,
-//   showCalendar,
-//   setIsOpenMenu,
-// }: {
-//   isOpenMenu: boolean;
-//   sideBarBtnRef: React.RefObject<HTMLDivElement>;
-//   showCalendar: () => void;
-//   setIsOpenMenu: (value: React.SetStateAction<boolean>) => void;
-// }) => {
-//   return (
-//     <>
-//       <div className="sidebar-btn-container" ref={sideBarBtnRef}>
-//         <div className="sidebar-btn">
-//           <button onClick={showCalendar}>
-//             <BsCalendarPlusFill />
-//           </button>
-//           <button
-//             onClick={() => {
-//               setIsOpenMenu((prev) => !prev);
-//             }}
-//           >
-//             {isOpenMenu ? <BsArrowLeftShort /> : <BsArrowRightShort />}
-//           </button>
-//         </div>
-//       </div>
-//     </>
-//   );
-// };
-
 const SideBar = ({ state }: AppStoreType) => {
   const [isHistory, setIsHistory] = useState<boolean>(false);
   const [isOpenMenu, setIsOpenMenu] = useState<boolean>(true);

@@ -17,6 +17,7 @@ const TodayRestaurant = ({ restaurantName }: { restaurantName: string }) => {
   >(undefined);
 
   useEffect(() => {
+    console.log('restaurantName', restaurantName);
     const fetchRestaurant = async () => {
       const restaurant = await getRestaurantsWithName([restaurantName]);
       console.log('restaurant', restaurant);
@@ -30,6 +31,8 @@ const TodayRestaurant = ({ restaurantName }: { restaurantName: string }) => {
           period: 0,
         };
         setTodayRestaurant(formattedRestaurant);
+      } else {
+        setTodayRestaurant(undefined);
       }
 
       console.log('todayRestaurant', todayRestaurant);

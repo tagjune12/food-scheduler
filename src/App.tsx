@@ -90,6 +90,15 @@ const App = () => {
         return result;
       }
 
+      case 'deleteEvent': {
+        const result = {
+          ...prevState,
+          todayRestaurant: {},
+        };
+
+        return result;
+      }
+
       case 'setAccessToken': {
         const result = {
           ...prevState,

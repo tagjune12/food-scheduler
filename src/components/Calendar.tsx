@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   EventApi,
   DateSelectArg,
@@ -14,10 +14,12 @@ import { setInitializeEvents, createEventId } from '@lib/event-utils';
 import { EventInput } from '@fullcalendar/core';
 import { insertEvent, deleteEvent, updateEvent } from '@lib/api/calendar_api';
 import '@components/Calendar.scss';
+import { UseDispatch } from '@src/App';
 
 const Calendar = ({ closeCalendar }: { closeCalendar: () => void }) => {
   // const [currentEvents, setCurrentEvents] = useState<EventApi[]>();
   const [initailEvents, setInitEvents] = useState<EventInput[]>();
+  const dispatch = useContext(UseDispatch);
 
   // Date Cell 클릭시 이벤트 등록
   const handleDateSelect = async (selectInfo: DateSelectArg) => {
@@ -49,15 +51,12 @@ const Calendar = ({ closeCalendar }: { closeCalendar: () => void }) => {
 
   // 일정 클릭하면 삭제할건지 뜸
   const handleEventClick = (clickInfo: EventClickArg) => {
-    if (
-      window.confirm(
-        `Are you sure you want to delete the event '${clickInfo.event.title}'`,
-      )
-    ) {
+    if (window.confirm(`일정을 삭제하시겠습니까? '${clickInfo.event.title}'`)) {
       try {
         const eventId = clickInfo.event._def.publicId;
         deleteEvent(eventId);
         clickInfo.event.remove();
+        dispatch({ type: 'deleteEvent' });
       } catch (e) {
         // console.log('일정 삭제에 실패했습니다.');
       }
@@ -77,13 +76,6 @@ const Calendar = ({ closeCalendar }: { closeCalendar: () => void }) => {
   const handleEventDrop = (dragInfo: EventDropArg) => {
     try {
       if (window.confirm('일정을 변경하시겠습니까?')) {
-        // updateEvent();
-        // console.log(dragInfo);
-        // console.log(
-        //   dragInfo.event.start,
-        //   dragInfo.event.title,
-        //   dragInfo.event.id,
-        // );
         updateEvent(
           dragInfo.event.title,
           dragInfo.event.id,
