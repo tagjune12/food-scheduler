@@ -69,15 +69,40 @@
     flex-direction: column;
     border-left: 1px solid #eaeaea;
     
-    h3 {
-      margin-top: 0;
-      margin-bottom: 1rem;
-      color: #333;
-      font-size: 1.2rem;
-      text-align: center;
-      padding-bottom: 0.5rem;
+    .restaurant-list-header {
+      // display: flex;
+      // justify-content: center;
+      // align-items: center;
+      // margin-bottom: 1rem;
       border-bottom: 2px solid #845EC2;
+
+      h3 {
+        margin-top: 0;
+        margin-bottom: 1rem;
+        color: #333;
+        font-size: 1.2rem;
+        text-align: center;
+        padding-bottom: 0.5rem;
+        margin-right: auto;
+      }
+
+      .restaurant-list-header-sort-container {
+        margin-right: auto;
+        .restaurant-list-header-sort {  
+          display: flex;
+          justify-content: right;
+          gap: 1rem;
+          align-items: center;
+          cursor: pointer;
+        }
+        .selected {
+          color: #845EC2;
+          font-weight: bold;
+        }
+      }
     }
+    
+
     
     .loading-indicator {
       text-align: center;

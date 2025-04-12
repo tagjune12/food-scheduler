@@ -13,6 +13,7 @@ export default function RestaurantList() {
   const dataPerPage = 10;
   const [page, setPage] = useState(1);
   const dispatch = useContext(UseDispatch);
+  const [sortType, setSortType] = useState<string>('name');
 
   useEffect(() => {
     // supabase에서 데이터 가져오기
@@ -20,10 +21,6 @@ export default function RestaurantList() {
       setIsLoading(true);
       try {
         const restaurants = await getRestaurants();
-        // const restaurants = await getRestaurantsWithPagination(
-        //   page,
-        //   dataPerPage,
-        // );
         setRestaurants(restaurants);
       } catch (error) {
         console.error('레스토랑 데이터 로딩 오류:', error);
@@ -52,9 +49,42 @@ export default function RestaurantList() {
     }
   };
 
+  const handleSortClick = (sortType: string) => {
+    console.log('정렬 타입:', sortType);
+    setSortType(sortType);
+    // if (restaurants) {
+    //   if (sortType === 'name') {
+    //     restaurants.sort((a, b) => a.place_name.localeCompare(b.name));
+    //   } else if (sortType === 'visit_date') {
+    //     restaurants.sort(
+    //       (a, b) =>
+    //         new Date(b.visit_date).getTime() - new Date(a.visit_date).getTime(),
+    //     );
+    //   }
+    // }
+  };
+
   return (
     <div className="restaurant-list-container">
-      <h3>식당 목록</h3>
+      <div className="restaurant-list-header">
+        <h3>식당 목록</h3>
+        <div className="restaurant-list-header-sort-container">
+          <div className="restaurant-list-header-sort">
+            <p
+              onClick={() => handleSortClick('name')}
+              className={sortType === 'name' ? 'selected' : ''}
+            >
+              이름 순
+            </p>
+            <p
+              onClick={() => handleSortClick('visit_date')}
+              className={sortType === 'visit_date' ? 'selected' : ''}
+            >
+              최근 방문일자 순
+            </p>
+          </div>
+        </div>
+      </div>
 
       {isLoading ? (
         <div className="loading-indicator">데이터를 불러오는 중...</div>
