@@ -1,6 +1,6 @@
 import TodayRestaurant from '@components/TodayRestaurant';
 import { useRef, useState, useEffect, Suspense, lazy } from 'react';
-import Calendar from '@components/Calendar';
+import Calendar from '@components/calendar/Calendar';
 import '@components/SideBar.scss';
 import { AppStoreType } from '@src/types';
 import {

@@ -1,0 +1,139 @@
+.calendar-wrapper{
+  position:fixed;
+  top:0;
+  left:0;
+  width: 100vw;
+  height:100vh;
+  z-index: 10;
+  background-color: rgba(0,0,0,0.4); 
+  display:flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.calendar-and-list-container {
+  display: flex;
+  width: 70vw;
+  max-height: 80vh;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  
+  .calendar-container{
+    background-color: white;
+    width: 50vw;
+    height: fit-content;
+    padding: 20px;
+    border-radius: 1rem 0 0 1rem;
+    margin-right: 0;
+    
+    /* FullCalendar 커스텀 스타일 */
+    .fc {
+      height: 100%;
+      
+      .fc-toolbar-title {
+        font-size: 1.2rem;
+      }
+      
+      .fc-button {
+        background-color: #845EC2;
+        border-color: #845EC2;
+        
+        &:hover {
+          background-color: darken(#845EC2, 10%);
+          border-color: darken(#845EC2, 10%);
+        }
+      }
+      
+      .fc-event {
+        cursor: pointer;
+        transition: transform 0.2s;
+        
+        &:hover {
+          transform: translateY(-2px);
+        }
+      }
+    }
+  }
+  
+  .restaurant-list-container {
+    position: relative;
+    background-color: white;
+    width: 20vw;
+    height: auto;
+    max-height: 100%;
+    padding: 20px;
+    border-radius: 0 1rem 1rem 0;
+    overflow-y: auto;
+    align-self: stretch; /* 부모 컨테이너 높이에 맞춤 */
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid #eaeaea;
+    
+    h3 {
+      margin-top: 0;
+      margin-bottom: 1rem;
+      color: #333;
+      font-size: 1.2rem;
+      text-align: center;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #845EC2;
+    }
+    
+    .loading-indicator {
+      text-align: center;
+      padding: 2rem 0;
+      color: #666;
+    }
+    
+    .no-data-message {
+      text-align: center;
+      padding: 2rem 0;
+      color: #666;
+    }
+    
+    .restaurant-items-container {
+      flex: 1;
+      overflow-y: auto;
+    }
+    
+    .restaurant-item {
+      padding: 12px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid #eaeaea;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-radius: 8px;
+      
+      &:hover {
+        background-color: #f0f0f0;
+        transform: translateY(-2px);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      
+      .place-name {
+        font-weight: bold;
+        font-size: 16px;
+        margin-bottom: 4px;
+        color: #333;
+      }
+      
+      .category-name {
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 4px;
+      }
+      
+      .visit-date {
+        color: #999;
+        font-size: 12px;
+      }
+    }
+    
+    .pagination-container {
+      margin-top: auto;
+      padding-top: 1rem;
+      display: flex;
+      justify-content: center;
+    }
+  }
+}

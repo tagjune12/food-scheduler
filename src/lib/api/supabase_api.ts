@@ -49,3 +49,24 @@ export const getRestaurantsWithName = async (names: string[]) => {
     return [];
   }
 };
+
+export const getRestaurantsWithPagination = async (page: number, dataPerPage: number) => {
+  try{
+    if (!supabase) {
+      throw new Error('Supabase client not initialized');
+    }else{
+      console.log('supabase client initialized');
+    }
+
+    const { data, error} = await supabase.from('places').select('*').eq('category_group_code', 'FD6').range(page * dataPerPage, (page + 1) * dataPerPage - 1);
+     
+    if (error) {
+      console.error('Supabase error:', error);
+      throw error;
+    }
+    return data;
+  } catch (error) {
+    console.error('Error in getRestaurants:', error);
+    return [];
+  }
+};

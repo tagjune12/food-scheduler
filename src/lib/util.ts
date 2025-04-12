@@ -48,4 +48,86 @@ function getStoredToken(): string | null {
   return localStorage.getItem('access_token');
 }
 
-export { getNumTypeToday, getStringDate, saveToken, isTokenValid, getStoredToken };
+// Kakao Places API의 PlacesSearchResult를 Restaurant 타입으로 변환하는 함수
+interface PlacesSearchResult {
+  address_name: string;
+  category_group_code: string;
+  category_group_name: string;
+  category_name: string;
+  distance: string;
+  id: string;
+  phone: string;
+  place_name: string;
+  place_url: string;
+  road_address_name: string;
+  x: string;
+  y: string;
+}
+
+// Restaurant 타입 정의 (index.d.ts와 일치해야 함)
+interface Restaurant {
+  name: string;
+  tags: string[];
+  address: string;
+  period: number;
+  position?: {
+    x: string;
+    y: string;
+  };
+  visit?: string;
+  place_url?: string;
+  id?: string;
+  distance?: string;
+}
+
+/**
+ * Kakao Maps API의 PlacesSearchResult 객체를 Restaurant 타입으로 변환합니다.
+ * @param place Kakao Places API 검색 결과 객체
+ * @param visitDate 방문 날짜 (선택 사항)
+ * @returns Restaurant 타입으로 변환된 객체
+ */
+function convertPlaceToRestaurant(place: PlacesSearchResult, visitDate?: string): Restaurant {
+  // 카테고리 이름을 > 기준으로 분리하여 태그 배열로 변환
+  const tags = place.category_name.split(' > ').filter(tag => tag.trim() !== '');
+  
+  // Restaurant 객체 생성
+  const restaurant: Restaurant = {
+    name: place.place_name,
+    tags: tags,
+    address: place.address_name || place.road_address_name,
+    period: 0, // 기본값으로 0 설정
+    position: {
+      x: place.x,
+      y: place.y
+    },
+    id: place.id,
+    place_url: place.place_url,
+    distance: place.distance
+  };
+  
+  // 방문 날짜가 제공된 경우 추가
+  if (visitDate) {
+    restaurant.visit = visitDate;
+  }
+  
+  return restaurant;
+}
+
+/**
+ * 여러 개의 PlacesSearchResult를 Restaurant 배열로 변환합니다.
+ * @param places Kakao Places API 검색 결과 객체 배열
+ * @returns Restaurant 타입 배열
+ */
+function convertPlacesToRestaurants(places: PlacesSearchResult[]): Restaurant[] {
+  return places.map(place => convertPlaceToRestaurant(place));
+}
+
+export { 
+  getNumTypeToday, 
+  getStringDate, 
+  saveToken, 
+  isTokenValid, 
+  getStoredToken,
+  convertPlaceToRestaurant,
+  convertPlacesToRestaurants
+};

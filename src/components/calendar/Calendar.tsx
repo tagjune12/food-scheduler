@@ -13,8 +13,9 @@ import interactionPlugin from '@fullcalendar/interaction';
 import { setInitializeEvents, createEventId } from '@lib/event-utils';
 import { EventInput } from '@fullcalendar/core';
 import { insertEvent, deleteEvent, updateEvent } from '@lib/api/calendar_api';
-import '@components/Calendar.scss';
+import '@components/calendar/Calendar.scss';
 import { UseDispatch } from '@src/App';
+import RestaurantList from './RestaurantList';
 
 const Calendar = ({ closeCalendar }: { closeCalendar: () => void }) => {
   // const [currentEvents, setCurrentEvents] = useState<EventApi[]>();
@@ -22,32 +23,32 @@ const Calendar = ({ closeCalendar }: { closeCalendar: () => void }) => {
   const dispatch = useContext(UseDispatch);
 
   // Date Cell 클릭시 이벤트 등록
-  const handleDateSelect = async (selectInfo: DateSelectArg) => {
-    let title = prompt('어디로 가지?');
-    let calendarApi = selectInfo.view.calendar;
+  // const handleDateSelect = async (selectInfo: DateSelectArg) => {
+  //   let title = prompt('어디로 가지?');
+  //   let calendarApi = selectInfo.view.calendar;
 
-    calendarApi.unselect(); // clear date selection
+  //   calendarApi.unselect(); // clear date selection
 
-    if (title) {
-      try {
-        const newEvent = await insertEvent(
-          title,
-          new Date(selectInfo.startStr),
-        );
-        calendarApi.addEvent({
-          id: newEvent.id,
-          title,
-          start: selectInfo.startStr,
-          end: selectInfo.endStr,
-          allDay: selectInfo.allDay,
-        });
-      } catch (e) {
-        alert('일정등록에 실패했습니다.');
-      }
+  //   if (title) {
+  //     try {
+  //       const newEvent = await insertEvent(
+  //         title,
+  //         new Date(selectInfo.startStr),
+  //       );
+  //       calendarApi.addEvent({
+  //         id: newEvent.id,
+  //         title,
+  //         start: selectInfo.startStr,
+  //         end: selectInfo.endStr,
+  //         allDay: selectInfo.allDay,
+  //       });
+  //     } catch (e) {
+  //       alert('일정등록에 실패했습니다.');
+  //     }
 
-      // item.id
-    }
-  };
+  //     // item.id
+  //   }
+  // };
 
   // 일정 클릭하면 삭제할건지 뜸
   const handleEventClick = (clickInfo: EventClickArg) => {
@@ -102,40 +103,43 @@ const Calendar = ({ closeCalendar }: { closeCalendar: () => void }) => {
 
   return (
     <div className="calendar-wrapper">
-      <div className="calendar-container">
-        {initailEvents && (
-          <FullCalendar
-            customButtons={{
-              closeButton: {
-                text: 'X',
-                click: () => {
-                  closeCalendar();
+      <div className="calendar-and-list-container">
+        <div className="calendar-container">
+          {initailEvents && (
+            <FullCalendar
+              customButtons={{
+                closeButton: {
+                  text: 'X',
+                  click: () => {
+                    closeCalendar();
+                  },
                 },
-              },
-            }}
-            plugins={[dayGridPlugin, interactionPlugin]}
-            headerToolbar={{
-              left: 'prev',
-              center: 'title',
-              right: 'next closeButton',
-            }}
-            initialView="dayGridMonth"
-            // initialEvents={INITIAL_EVENTS} // alternatively, use the `events` setting to fetch from a feed
-            initialEvents={initailEvents} // alternatively, use the `events` setting to fetch from a feed
-            editable={true}
-            selectable={true}
-            selectMirror={true}
-            dayMaxEvents={true}
-            select={handleDateSelect}
-            eventContent={renderEventContent} // custom render function
-            eventClick={handleEventClick}
-            eventDrop={handleEventDrop}
-            // aspectRatio={1.3} // cell의 크기 조절
-            handleWindowResize={true}
-            contentHeight={600}
-            // eventsSet={handleEvents} // called after events are initialized/added/changed/removed
-          />
-        )}
+              }}
+              plugins={[dayGridPlugin, interactionPlugin]}
+              headerToolbar={{
+                left: 'prev',
+                center: 'title',
+                right: 'next closeButton',
+              }}
+              initialView="dayGridMonth"
+              // initialEvents={INITIAL_EVENTS} // alternatively, use the `events` setting to fetch from a feed
+              initialEvents={initailEvents} // alternatively, use the `events` setting to fetch from a feed
+              editable={true}
+              selectable={true}
+              selectMirror={true}
+              dayMaxEvents={true}
+              // select={handleDateSelect}
+              eventContent={renderEventContent} // custom render function
+              eventClick={handleEventClick}
+              eventDrop={handleEventDrop}
+              // aspectRatio={1.3} // cell의 크기 조절
+              handleWindowResize={true}
+              contentHeight={600}
+              // eventsSet={handleEvents} // called after events are initialized/added/changed/removed
+            />
+          )}
+        </div>
+        <RestaurantList />
       </div>
     </div>
   );
