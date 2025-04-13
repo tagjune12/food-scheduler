@@ -2,6 +2,7 @@ import React, { lazy, Suspense, useEffect, useState, memo } from 'react';
 import { AppStoreType, Restaurant } from '@src/types';
 import Modal from '@components/commons/Modal';
 import { Skeleton } from '@mui/material';
+import { useModalState } from '@src/context/ModalContext';
 
 // 메모이제이션된 Map 컴포넌트
 const LazyMap = lazy(() => import('@components/Map'));
@@ -17,6 +18,7 @@ const MemoizedSideBar = memo(({ state }: AppStoreType) => (
 
 const MainPage = ({ state }: AppStoreType) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const modalState = useModalState();
 
   useEffect(() => {
     // 페이지 완전 로드 후 로딩 상태 업데이트
@@ -29,7 +31,7 @@ const MainPage = ({ state }: AppStoreType) => {
 
   return (
     <div className="main-page">
-      {state.modal.isVisible && <Modal restaurant={state.modal.target} />}
+      {modalState.isVisible && <Modal restaurant={modalState.target} />}
       <Suspense
         fallback={
           <Skeleton

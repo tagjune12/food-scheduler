@@ -3,6 +3,7 @@ import { Restaurant } from '@src/types';
 import { useContext } from 'react';
 import { UseDispatch } from '@src/App';
 import { getNumTypeToday } from '@lib/util';
+import { useModalDispatch } from '@src/context/ModalContext';
 
 interface RestaurantCardProps {
   restaurant: any; // Supabase 또는 카카오맵 데이터 모두 수용
@@ -15,7 +16,8 @@ const RestaurantCard = ({
   visitDate,
   onMap,
 }: RestaurantCardProps) => {
-  const dispatch = useContext(UseDispatch);
+  // const dispatch = useContext(UseDispatch);
+  const modalDispatch = useModalDispatch();
 
   const getDiffDate = (visitDate: string): number => {
     const today = getNumTypeToday();
@@ -33,7 +35,7 @@ const RestaurantCard = ({
   };
 
   const handleButtonClick = () => {
-    dispatch({ type: 'showModal', payload: restaurant });
+    modalDispatch({ type: 'showModal', payload: restaurant });
   };
 
   const renderVisitInfo = () => {

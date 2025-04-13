@@ -7,7 +7,6 @@ import React, {
 } from 'react';
 
 import '@components/Map.scss';
-import { UseDispatch, MapInitContext } from '@src/App';
 import { AppStoreType, Restaurant } from '@src/types';
 import { createRoot } from 'react-dom/client';
 import { getRestaurants, getRestaurantsWithName } from '@lib/api/supabase_api';
@@ -15,6 +14,8 @@ import MapCard from './commons/MapCard';
 import Fab from '@mui/material/Fab';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+import { useModalDispatch } from '@src/context/ModalContext';
+import { useMapInitState } from '@src/context/MapInitContext';
 
 interface MapMarker {
   marker: kakao.maps.Marker;
@@ -37,8 +38,11 @@ const MARKER_STYLE: MarkerStyle = {
 };
 
 const Map = ({ state }: AppStoreType) => {
-  const dispatch = useContext(UseDispatch);
-  const { initialized: appInitialized } = useContext(MapInitContext);
+  // const dispatch = useContext(UseDispatch);
+  const modalDispatch = useModalDispatch();
+  // const { initialized: appInitialized } = useContext(MapInitContext);
+  const { initialized: appInitialized } = useMapInitState();
+
   const mapRef = useRef<kakao.maps.Map | null>(null);
   const markersRef = useRef<MapMarker[]>([]);
   const openedMarkerRef = useRef<number | null>(null);
@@ -456,12 +460,12 @@ const Map = ({ state }: AppStoreType) => {
       // );
 
       addEventBtn?.addEventListener('click', () => {
-        dispatch({ type: 'showModal', payload: info });
+        modalDispatch({ type: 'showModal', payload: info });
       });
 
       // closeInfoWindowBtn?.addEventListener('click', closeCurrentOverlay);
     },
-    [dispatch, closeCurrentOverlay],
+    [modalDispatch, closeCurrentOverlay],
   );
 
   const handleMarkerClustererClick = useCallback(
@@ -501,7 +505,7 @@ const Map = ({ state }: AppStoreType) => {
 
       addEventBtn?.addEventListener('click', (e: any) => {
         if (e.target.classList.contains('add-event-btn')) {
-          dispatch({
+          modalDispatch({
             type: 'showModal',
             payload: JSON.parse(e.target.dataset.restaurant),
           });
@@ -510,7 +514,12 @@ const Map = ({ state }: AppStoreType) => {
 
       closeInfoWindowBtn?.addEventListener('click', closeCurrentOverlay);
     },
-    [closeCurrentClusterOverlay, closeCurrentOverlay, createClustererOverlay],
+    [
+      closeCurrentClusterOverlay,
+      closeCurrentOverlay,
+      createClustererOverlay,
+      modalDispatch,
+    ],
   );
 
   const loadRestaurantsAndCreateMarkers = useCallback(async () => {
@@ -624,9 +633,11 @@ const Map = ({ state }: AppStoreType) => {
   // 카카오맵 스크립트 로드 및 초기화 (한 번만 실행)
   useEffect(() => {
     // 앱 초기화가 완료되지 않았으면 지도 초기화하지 않음
+    console.log('appInitialized', appInitialized);
     if (!appInitialized) return;
 
     // 지도가 이미 초기화되었으면 재실행하지 않음
+    console.log('isMapInitialized', isMapInitialized, mapRef.current);
     if (isMapInitialized && mapRef.current) return;
 
     console.log('지도 초기화 시작 (앱 초기화 상태:', appInitialized, ')');

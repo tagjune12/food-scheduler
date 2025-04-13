@@ -10,12 +10,16 @@ import {
 } from 'react-icons/bs';
 import Skeleton from '@mui/material/Skeleton';
 import Divider from '@mui/material/Divider';
+import { useModalState } from '@src/context/ModalContext';
+import { useTodayRestaurantState } from '@src/context/TodayRestaurantContext';
+import RestaurantList from './calendar/RestaurantList';
 
 const SideBar = ({ state }: AppStoreType) => {
   const [isHistory, setIsHistory] = useState<boolean>(false);
   const [isOpenMenu, setIsOpenMenu] = useState<boolean>(true);
   const sideBarRef = useRef<HTMLDivElement>(null);
   const sideBarBtnRef = useRef<HTMLDivElement>(null);
+  const todayRestaurantState = useTodayRestaurantState();
 
   const History = lazy(() => import('@components/History'));
 
@@ -49,10 +53,12 @@ const SideBar = ({ state }: AppStoreType) => {
           <div className="schedule-header">
             <h2>오늘의 식사</h2>
           </div>
-          <TodayRestaurant restaurantName={state.todayRestaurant.name ?? ''} />
+          <TodayRestaurant
+            restaurantName={todayRestaurantState.todayRestaurant.name ?? ''}
+          />
           <Divider />
           &nbsp;
-          <div className="schedule-header">
+          {/* <div className="schedule-header">
             <h2>최근에 먹은거</h2>
           </div>
           <Suspense
@@ -107,7 +113,7 @@ const SideBar = ({ state }: AppStoreType) => {
             }
           >
             <History histories={state.histories} />
-          </Suspense>
+          </Suspense> */}
         </div>
       </div>
     </>

@@ -3,16 +3,15 @@ import { HistoryType } from '@src/types';
 import '@components/History.scss';
 import { useEffect, useState } from 'react';
 import { getRestaurantsWithName } from '@src/lib/api/supabase_api';
-
+import { useTodayRestaurantDispatch } from '@src/context/TodayRestaurantContext';
 const History = ({ histories }: { histories: HistoryType }) => {
-  console.log('histories', histories);
   const [historyRestaurants, setHistoryRestaurants] = useState<any[]>([]);
+  const todayRestaurantDispatch = useTodayRestaurantDispatch();
 
   useEffect(() => {
     const fetchHistoryRestaurants = async () => {
       const response = await getRestaurantsWithName(Object.keys(histories));
       setHistoryRestaurants(response);
-      console.log('historyRestaurants', historyRestaurants);
     };
     fetchHistoryRestaurants();
   }, [histories]);

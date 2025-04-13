@@ -16,11 +16,12 @@ import { insertEvent, deleteEvent, updateEvent } from '@lib/api/calendar_api';
 import '@components/calendar/Calendar.scss';
 import { UseDispatch } from '@src/App';
 import RestaurantList from './RestaurantList';
-
+import { useTodayRestaurantDispatch } from '@src/context/TodayRestaurantContext';
 const Calendar = ({ closeCalendar }: { closeCalendar: () => void }) => {
   // const [currentEvents, setCurrentEvents] = useState<EventApi[]>();
   const [initailEvents, setInitEvents] = useState<EventInput[]>();
-  const dispatch = useContext(UseDispatch);
+  // const dispatch = useContext(UseDispatch);
+  const todayRestaurantDispatch = useTodayRestaurantDispatch();
 
   // Date Cell 클릭시 이벤트 등록
   // const handleDateSelect = async (selectInfo: DateSelectArg) => {
@@ -57,7 +58,7 @@ const Calendar = ({ closeCalendar }: { closeCalendar: () => void }) => {
         const eventId = clickInfo.event._def.publicId;
         deleteEvent(eventId);
         clickInfo.event.remove();
-        dispatch({ type: 'deleteEvent' });
+        todayRestaurantDispatch({ type: 'deleteEvent' });
       } catch (e) {
         // console.log('일정 삭제에 실패했습니다.');
       }

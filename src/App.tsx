@@ -11,6 +11,12 @@ import {
 } from '@lib/util';
 import PrimarySearchAppBar from '@components/Searchbar';
 import './App.scss';
+import {
+  TodayRestaurantProvider,
+  useTodayRestaurantDispatch,
+} from './context/TodayRestaurantContext';
+import { ModalProvider } from './context/ModalContext';
+import { useMapInitDispatch } from './context/MapInitContext';
 
 const queryStr = qs.stringify({
   client_id: process.env.REACT_APP_GOOGLECALENDAR_CLIENT_ID,
@@ -63,12 +69,6 @@ initializeToken();
 const App = () => {
   const initialState = {
     histories: {},
-    todayRestaurant: {},
-    access_token: null,
-    modal: {
-      isVisible: false,
-      target: null,
-    },
   };
   const reducer = (prevState: Object, action: StringKeyObj) => {
     switch (action.type) {
@@ -76,57 +76,6 @@ const App = () => {
         const result = {
           ...prevState,
           histories: { ...action.payload },
-        };
-
-        return result;
-      }
-
-      case 'selectRestaurant': {
-        const result = {
-          ...prevState,
-          todayRestaurant: { ...action.payload },
-        };
-
-        return result;
-      }
-
-      case 'deleteEvent': {
-        const result = {
-          ...prevState,
-          todayRestaurant: {},
-        };
-
-        return result;
-      }
-
-      case 'setAccessToken': {
-        const result = {
-          ...prevState,
-          access_token: action.payload,
-        };
-
-        return result;
-      }
-
-      case 'showModal': {
-        const result = {
-          ...prevState,
-          modal: {
-            isVisible: true,
-            target: { ...action.payload },
-          },
-        };
-
-        return result;
-      }
-
-      case 'hideModal': {
-        const result = {
-          ...prevState,
-          modal: {
-            isVisible: false,
-            target: null,
-          },
         };
 
         return result;
@@ -141,6 +90,8 @@ const App = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   // 지도 초기화 상태
   const [mapInitialized, setMapInitialized] = useState<boolean>(false);
+  const mapInitDispatch = useMapInitDispatch();
+  const TodayRestaurantDispatch = useTodayRestaurantDispatch();
 
   // 토큰 상태 확인 및 리다이렉트
   useEffect(() => {
@@ -151,7 +102,7 @@ const App = () => {
     }
 
     // 유효한 토큰이 있으면 상태 저장
-    dispatch({ type: 'setAccessToken', payload: access_token });
+    mapInitDispatch({ type: 'setAccessToken', payload: access_token });
     setIsLoading(false);
 
     // 토큰 만료 체크 인터벌 설정
@@ -181,7 +132,6 @@ const App = () => {
     const callCalendarAPI = async () => {
       try {
         const response = await getHistory(timeMin, timeMax);
-        // console.log('FETCH', response);
         const items: Array<Object> = response.items;
 
         const today = getNumTypeToday();
@@ -207,10 +157,12 @@ const App = () => {
           },
           {},
         );
-        // console.log('nameAndDate', nameAndDate);
         dispatch({ type: 'setHistory', payload: nameAndDate });
         if (todayRestaurant) {
-          dispatch({ type: 'selectRestaurant', payload: todayRestaurant });
+          TodayRestaurantDispatch({
+            type: 'selectRestaurant',
+            payload: todayRestaurant,
+          });
         }
       } catch (error: any) {
         console.error('API 호출 오류:', error);
@@ -246,12 +198,14 @@ const App = () => {
 
   return (
     <UseDispatch.Provider value={dispatch}>
-      <MapInitContext.Provider value={{ initialized: mapInitialized }}>
-        {/*<header></header>*/}
-        {/* <PrimarySearchAppBar /> */}
-        <MainPage state={state} />
-        <footer></footer>
-      </MapInitContext.Provider>
+      {/*<header></header>*/}
+      {/* <PrimarySearchAppBar /> */}
+      <TodayRestaurantProvider>
+        <ModalProvider>
+          <MainPage state={state} />
+        </ModalProvider>
+      </TodayRestaurantProvider>
+      <footer></footer>
     </UseDispatch.Provider>
   );
 };

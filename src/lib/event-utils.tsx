@@ -26,7 +26,6 @@ async function setInitializeEvents() {
       new Date(curYear, 12, 31).toISOString(),
     )
   ).items;
-  // console.log(histories);
 
   return histories.map((calendarEvent) => ({
     id: calendarEvent.id,

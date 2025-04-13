@@ -4,21 +4,31 @@ import { UseDispatch } from '@src/App';
 import { getHistory, insertEvent, updateEvent } from '@lib/api/calendar_api';
 import { ImCancelCircle } from 'react-icons/im';
 import '@components/commons/Modal.scss';
+import { useModalDispatch, useModalState } from '@src/context/ModalContext';
+import {
+  useTodayRestaurantDispatch,
+  useTodayRestaurantState,
+} from '@src/context/TodayRestaurantContext';
 
 type ModalProps = {
   restaurant: Restaurant;
 };
 
 const Modal = ({ restaurant }: ModalProps) => {
-  const dispatch = useContext(UseDispatch);
-
-  console.log('Modal:', restaurant);
+  const modalDispatch = useModalDispatch();
+  const todayRestaurantDispatch = useTodayRestaurantDispatch();
+  const todayRestaurantState = useTodayRestaurantState();
 
   const insertTodayRestaurant = () => {
     try {
       insertEvent(restaurant.name, new Date()).then(() => {
-        dispatch({ type: 'selectRestaurant', payload: { ...restaurant } });
-        dispatch({ type: 'hideModal' });
+        console.log('todayRestaurantState1-restaurant', restaurant);
+        todayRestaurantDispatch({
+          type: 'selectRestaurant',
+          payload: { ...restaurant },
+        });
+        modalDispatch({ type: 'hideModal' });
+        console.log('todayRestaurantState1', todayRestaurantState);
       });
     } catch (error) {
       alert('일정 추가에 실패했습니다.');
@@ -28,8 +38,13 @@ const Modal = ({ restaurant }: ModalProps) => {
   const updateTodayRestaurant = (todayEvent: JSONResponse) => {
     try {
       updateEvent(restaurant.name, todayEvent.id, new Date()).then(() => {
-        dispatch({ type: 'selectRestaurant', payload: { ...restaurant } });
-        dispatch({ type: 'hideModal' });
+        console.log('todayRestaurantState2-restaurant', restaurant);
+        todayRestaurantDispatch({
+          type: 'selectRestaurant',
+          payload: { ...restaurant },
+        });
+        modalDispatch({ type: 'hideModal' });
+        console.log('todayRestaurantState2', todayRestaurantState);
       });
     } catch (error) {
       alert('일정 업데이트에 실패했습니다.');
@@ -46,7 +61,7 @@ const Modal = ({ restaurant }: ModalProps) => {
   };
 
   const hideModal = () => {
-    dispatch({ type: 'hideModal' });
+    modalDispatch({ type: 'hideModal' });
   };
 
   return (

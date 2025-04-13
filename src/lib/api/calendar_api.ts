@@ -102,7 +102,6 @@ async function insertEvent(name: string, visitDate: Date) {
     }
     
     const data = await response.json();
-    console.log(data);
     return data;
   } catch (error) {
     console.error('Fetch error:', error);
@@ -119,7 +118,6 @@ async function updateEvent(name: string, eventId: string, visitDate: Date) {
   ];
   const lastDate = new Date(startYear, startMonth, 0).getDate();
   let [endYear, endMonth, endDate] = [startYear, startMonth, startDate + 1];
-  console.log('LastDate: ', lastDate);
   if (endDate === lastDate) {
     endDate = 1;
     endMonth++;

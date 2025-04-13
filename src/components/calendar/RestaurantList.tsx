@@ -6,14 +6,16 @@ import {
 import PaginationButtons from '@components/commons/PaginationButtons';
 import { UseDispatch } from '@src/App';
 import { convertPlaceToRestaurant } from '@lib/util';
+import { useModalDispatch } from '@src/context/ModalContext';
 
 export default function RestaurantList() {
   const [restaurants, setRestaurants] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const dataPerPage = 10;
   const [page, setPage] = useState(1);
-  const dispatch = useContext(UseDispatch);
   const [sortType, setSortType] = useState<string>('name');
+  const dataPerPage = 10;
+  // const dispatch = useContext(UseDispatch);
+  const modalDispatch = useModalDispatch();
 
   useEffect(() => {
     // supabase에서 데이터 가져오기
@@ -40,7 +42,7 @@ export default function RestaurantList() {
       const restaurant = JSON.parse(restaurantItem.dataset.restaurant);
       console.log('선택된 레스토랑:', restaurant);
       // 여기에 레스토랑 선택 처리 로직 추가
-      dispatch({
+      modalDispatch({
         type: 'showModal',
         payload: convertPlaceToRestaurant(
           JSON.parse(restaurantItem.dataset.restaurant),
@@ -125,7 +127,4 @@ export default function RestaurantList() {
       )}
     </div>
   );
-}
-function dispatch(arg0: { type: string; payload: any }) {
-  throw new Error('Function not implemented.');
 }

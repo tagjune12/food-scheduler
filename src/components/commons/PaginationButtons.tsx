@@ -12,8 +12,6 @@ export default function PaginationButtons({
   btnClickListener: (page: number) => void;
 }) {
   const handleChange = (event: React.ChangeEvent<unknown>, value: number) => {
-    console.log(value);
-
     btnClickListener(value);
   };
 

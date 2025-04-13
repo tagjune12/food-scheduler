@@ -17,10 +17,8 @@ const TodayRestaurant = ({ restaurantName }: { restaurantName: string }) => {
   >(undefined);
 
   useEffect(() => {
-    console.log('restaurantName', restaurantName);
     const fetchRestaurant = async () => {
       const restaurant = await getRestaurantsWithName([restaurantName]);
-      console.log('restaurant', restaurant);
       if (restaurant.length > 0) {
         const formattedRestaurant: any = {
           place_name: restaurant[0]?.place_name || '',
@@ -34,8 +32,6 @@ const TodayRestaurant = ({ restaurantName }: { restaurantName: string }) => {
       } else {
         setTodayRestaurant(undefined);
       }
-
-      console.log('todayRestaurant', todayRestaurant);
     };
     fetchRestaurant();
   }, [restaurantName]);
