@@ -9,7 +9,7 @@ import {
   getStoredToken,
   isTokenValid,
 } from '@lib/util';
-import PrimarySearchAppBar from '@components/Searchbar';
+import PrimarySearchAppBar from '@components/sidebar/Searchbar';
 import './App.scss';
 import {
   TodayRestaurantProvider,

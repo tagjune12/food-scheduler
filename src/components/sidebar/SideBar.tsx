@@ -1,7 +1,7 @@
-import TodayRestaurant from '@components/TodayRestaurant';
+import TodayRestaurant from '@components/sidebar/TodayRestaurant';
 import { useRef, useState, useEffect, Suspense, lazy } from 'react';
 import Calendar from '@components/calendar/Calendar';
-import '@components/SideBar.scss';
+import '@components/sidebar/SideBar.scss';
 import { AppStoreType } from '@src/types';
 import {
   BsCalendarPlusFill,
@@ -10,9 +10,7 @@ import {
 } from 'react-icons/bs';
 import Skeleton from '@mui/material/Skeleton';
 import Divider from '@mui/material/Divider';
-import { useModalState } from '@src/context/ModalContext';
 import { useTodayRestaurantState } from '@src/context/TodayRestaurantContext';
-import RestaurantList from './calendar/RestaurantList';
 
 const SideBar = ({ state }: AppStoreType) => {
   const [isHistory, setIsHistory] = useState<boolean>(false);
@@ -21,7 +19,7 @@ const SideBar = ({ state }: AppStoreType) => {
   const sideBarBtnRef = useRef<HTMLDivElement>(null);
   const todayRestaurantState = useTodayRestaurantState();
 
-  const History = lazy(() => import('@components/History'));
+  const History = lazy(() => import('@components/sidebar/History'));
 
   const showCalendar = () => {
     setIsHistory((isHistory) => !isHistory);
@@ -58,7 +56,7 @@ const SideBar = ({ state }: AppStoreType) => {
           />
           <Divider />
           &nbsp;
-          {/* <div className="schedule-header">
+          <div className="schedule-header">
             <h2>최근에 먹은거</h2>
           </div>
           <Suspense
@@ -113,7 +111,8 @@ const SideBar = ({ state }: AppStoreType) => {
             }
           >
             <History histories={state.histories} />
-          </Suspense> */}
+          </Suspense>
+          {/* <History histories={state.histories} /> */}
         </div>
       </div>
     </>

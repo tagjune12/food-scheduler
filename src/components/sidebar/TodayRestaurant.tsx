@@ -2,9 +2,9 @@
 import { Restaurant } from '@src/types';
 import { useEffect, useRef, useState } from 'react';
 import { getNumTypeToday } from '@lib/util';
-import '@components/TodayRestaurant.scss';
+import '@components/sidebar/TodayRestaurant.scss';
 import { getRestaurantsWithName } from '@lib/api/supabase_api';
-import RestaurantCard from './commons/RestaurantCard';
+import RestaurantCard from '@components/commons/RestaurantCard';
 const TodayRestaurant = ({ restaurantName }: { restaurantName: string }) => {
   const visit = useRef<{
     year: number;

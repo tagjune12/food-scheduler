@@ -1,7 +1,4 @@
 import '@components/commons/RestaurantCard.scss';
-import { Restaurant } from '@src/types';
-import { useContext } from 'react';
-import { UseDispatch } from '@src/App';
 import { getNumTypeToday } from '@lib/util';
 import { useModalDispatch } from '@src/context/ModalContext';
 interface MapCardProps {

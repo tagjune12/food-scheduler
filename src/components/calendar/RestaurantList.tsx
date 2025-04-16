@@ -1,10 +1,6 @@
-import { useContext, useEffect, useState } from 'react';
-import {
-  getRestaurants,
-  getRestaurantsWithPagination,
-} from '@lib/api/supabase_api';
+import { useEffect, useState } from 'react';
+import { getRestaurants } from '@lib/api/supabase_api';
 import PaginationButtons from '@components/commons/PaginationButtons';
-import { UseDispatch } from '@src/App';
 import { convertPlaceToRestaurant } from '@lib/util';
 import { useModalDispatch } from '@src/context/ModalContext';
 
@@ -14,7 +10,6 @@ export default function RestaurantList() {
   const [page, setPage] = useState(1);
   const [sortType, setSortType] = useState<string>('name');
   const dataPerPage = 10;
-  // const dispatch = useContext(UseDispatch);
   const modalDispatch = useModalDispatch();
 
   useEffect(() => {

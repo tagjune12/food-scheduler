@@ -1,27 +1,21 @@
-import { useContext } from 'react';
 import { Restaurant, JSONResponse } from '@src/types';
-import { UseDispatch } from '@src/App';
 import { getHistory, insertEvent, updateEvent } from '@lib/api/calendar_api';
-import { ImCancelCircle } from 'react-icons/im';
 import '@components/commons/Modal.scss';
-import { useModalDispatch, useModalState } from '@src/context/ModalContext';
+import { useModalDispatch } from '@src/context/ModalContext';
 import {
   useTodayRestaurantDispatch,
   useTodayRestaurantState,
 } from '@src/context/TodayRestaurantContext';
+import { insertHistory } from '@lib/api/supabase_api';
 
-type ModalProps = {
-  restaurant: Restaurant;
-};
-
-const Modal = ({ restaurant }: ModalProps) => {
+const Modal = ({ restaurant }: { restaurant: Restaurant }) => {
   const modalDispatch = useModalDispatch();
   const todayRestaurantDispatch = useTodayRestaurantDispatch();
   const todayRestaurantState = useTodayRestaurantState();
 
   const insertTodayRestaurant = () => {
     try {
-      insertEvent(restaurant.name, new Date()).then(() => {
+      insertEvent(restaurant.name, new Date()).then((result) => {
         console.log('todayRestaurantState1-restaurant', restaurant);
         todayRestaurantDispatch({
           type: 'selectRestaurant',
@@ -29,6 +23,14 @@ const Modal = ({ restaurant }: ModalProps) => {
         });
         modalDispatch({ type: 'hideModal' });
         console.log('todayRestaurantState1', todayRestaurantState);
+        console.log('result', result);
+        insertHistory(
+          'ltjktnet12',
+          restaurant.name,
+          result.start.date,
+          result.id,
+          'day',
+        );
       });
     } catch (error) {
       alert('일정 추가에 실패했습니다.');
@@ -45,6 +47,20 @@ const Modal = ({ restaurant }: ModalProps) => {
         });
         modalDispatch({ type: 'hideModal' });
         console.log('todayRestaurantState2', todayRestaurantState);
+        // updateHistory(
+        //   'ltjktnet12',
+        //   restaurant.name,
+        //   todayEvent.start.date,
+        //   todayEvent.id,
+        //   'day',
+        // );
+        insertHistory(
+          'ltjktnet12',
+          restaurant.name,
+          todayEvent.start.date,
+          todayEvent.id,
+          'day',
+        );
       });
     } catch (error) {
       alert('일정 업데이트에 실패했습니다.');

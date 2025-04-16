@@ -15,7 +15,7 @@ import { EventInput } from '@fullcalendar/core';
 import { insertEvent, deleteEvent, updateEvent } from '@lib/api/calendar_api';
 import '@components/calendar/Calendar.scss';
 import { UseDispatch } from '@src/App';
-import RestaurantList from './RestaurantList';
+import RestaurantList from '@components/calendar/RestaurantList';
 import { useTodayRestaurantDispatch } from '@src/context/TodayRestaurantContext';
 const Calendar = ({ closeCalendar }: { closeCalendar: () => void }) => {
   // const [currentEvents, setCurrentEvents] = useState<EventApi[]>();

@@ -102,6 +102,7 @@ async function insertEvent(name: string, visitDate: Date) {
     }
     
     const data = await response.json();
+    console.log('data', data);
     return data;
   } catch (error) {
     console.error('Fetch error:', error);

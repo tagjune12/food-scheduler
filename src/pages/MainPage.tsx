@@ -11,7 +11,7 @@ const MemoizedMap = memo(({ state }: AppStoreType) => (
 ));
 
 // 메모이제이션된 SideBar 컴포넌트
-const LazySideBar = lazy(() => import('@components/SideBar'));
+const LazySideBar = lazy(() => import('@components/sidebar/SideBar'));
 const MemoizedSideBar = memo(({ state }: AppStoreType) => (
   <LazySideBar state={state} />
 ));
