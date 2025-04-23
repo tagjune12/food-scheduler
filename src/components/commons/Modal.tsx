@@ -1,17 +1,20 @@
 import { Restaurant, JSONResponse } from '@src/types';
 import { getHistory, insertEvent, updateEvent } from '@lib/api/calendar_api';
 import '@components/commons/Modal.scss';
-import { useModalDispatch } from '@src/context/ModalContext';
+import { useModalDispatch, useModalState } from '@src/context/ModalContext';
 import {
   useTodayRestaurantDispatch,
   useTodayRestaurantState,
 } from '@src/context/TodayRestaurantContext';
 import { insertHistory } from '@lib/api/supabase_api';
+import { useRef } from 'react';
 
 const Modal = ({ restaurant }: { restaurant: Restaurant }) => {
   const modalDispatch = useModalDispatch();
+  const modalState = useModalState();
   const todayRestaurantDispatch = useTodayRestaurantDispatch();
   const todayRestaurantState = useTodayRestaurantState();
+  const calendarEvent = useRef<any>(null);
 
   const insertTodayRestaurant = () => {
     try {
@@ -21,9 +24,14 @@ const Modal = ({ restaurant }: { restaurant: Restaurant }) => {
           type: 'selectRestaurant',
           payload: { ...restaurant },
         });
-        modalDispatch({ type: 'hideModal' });
+        calendarEvent.current = result;
         console.log('todayRestaurantState1', todayRestaurantState);
         console.log('result', result);
+        console.log('calendarEvent1', calendarEvent.current);
+        if (modalState.callbackFn) {
+          modalState.callbackFn(calendarEvent.current);
+        }
+        modalDispatch({ type: 'hideModal' });
         insertHistory(
           'ltjktnet12',
           restaurant.name,
@@ -39,12 +47,20 @@ const Modal = ({ restaurant }: { restaurant: Restaurant }) => {
 
   const updateTodayRestaurant = (todayEvent: JSONResponse) => {
     try {
-      updateEvent(restaurant.name, todayEvent.id, new Date()).then(() => {
+      updateEvent(restaurant.name, todayEvent.id, new Date()).then((result) => {
         console.log('todayRestaurantState2-restaurant', restaurant);
         todayRestaurantDispatch({
           type: 'selectRestaurant',
           payload: { ...restaurant },
         });
+        calendarEvent.current = result;
+        console.log('todayRestaurantState1', todayRestaurantState);
+        console.log('result', result);
+        console.log('calendarEvent2', calendarEvent.current);
+        if (modalState.callbackFn) {
+          modalState.callbackFn(calendarEvent.current);
+        }
+
         modalDispatch({ type: 'hideModal' });
         console.log('todayRestaurantState2', todayRestaurantState);
         // updateHistory(

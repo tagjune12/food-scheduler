@@ -3,17 +3,24 @@ import { createContext, Dispatch, useReducer, useContext } from 'react';
 interface ModalState {
   isVisible: boolean;
   target: any;
+  callbackFn?: () => void;
 }
 
 const initialState: ModalState = {
   isVisible: false,
   target: null,
+  callbackFn: undefined,
 };
 
 function modalReducer(prevState: ModalState, action: any) {
   switch (action.type) {
     case 'showModal': {
-      return { ...prevState, isVisible: true, target: action.payload };
+      return {
+        ...prevState,
+        isVisible: true,
+        target: action.payload,
+        callbackFn: action.callbackFn,
+      };
     }
 
     case 'hideModal': {
@@ -21,6 +28,7 @@ function modalReducer(prevState: ModalState, action: any) {
         ...prevState,
         isVisible: false,
         target: null,
+        callbackFn: undefined,
       };
 
       return result;

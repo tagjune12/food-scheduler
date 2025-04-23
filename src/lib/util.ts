@@ -7,6 +7,15 @@ function getNumTypeToday(): { year: number; month: number; date: number } {
   return { year, month, date };
 }
 
+function getStringTypeToday(): { year: string; month: string; date: string } {
+  const today: Date = new Date();
+  const year = (today.getFullYear()).toString();
+  const month = (today.getMonth() + 1).toString().padStart(2, '0');
+  const date = today.getDate().toString().padStart(2, '0');
+
+  return { year, month, date };
+}
+
 function getStringDate({
   year,
   month,
@@ -129,5 +138,6 @@ export {
   isTokenValid, 
   getStoredToken,
   convertPlaceToRestaurant,
-  convertPlacesToRestaurants
+  convertPlacesToRestaurants,
+  getStringTypeToday
 };

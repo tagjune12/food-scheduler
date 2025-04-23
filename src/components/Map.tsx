@@ -31,11 +31,11 @@ interface MarkerStyle {
 const DEFAULT_CENTER = { lat: 37.4028207, lng: 127.1115201 };
 const DEFAULT_ZOOM = 3;
 
-const MARKER_STYLE: MarkerStyle = {
-  width: '20px',
-  height: '20px',
-  backgroundColor: '#845EC2',
-};
+// const MARKER_STYLE: MarkerStyle = {
+//   width: '20px',
+//   height: '20px',
+//   backgroundColor: '#845EC2',
+// };
 
 const Map = ({ state }: AppStoreType) => {
   // const dispatch = useContext(UseDispatch);
@@ -274,29 +274,28 @@ const Map = ({ state }: AppStoreType) => {
       scrollBtnsContainer.className = 'scroll-buttons';
 
       // 위로 스크롤 버튼
-      // const scrollUpBtn = document.createElement('button');
-      // scrollUpBtn.className = 'scroll-btn scroll-up';
-      // scrollUpBtn.textContent = '↑ 위로';
-      // scrollUpBtn.setAttribute('aria-label', '위로 스크롤');
       const scrollUpBtn = document.createElement('div');
       const scrollUpBtnRoot = createRoot(scrollUpBtn);
       const scrollUpBtnContent = (
-        <Fab className="scroll-btn scroll-up" aria-label="위로 스크롤">
+        <Fab
+          className="scroll-btn scroll-up"
+          size="small"
+          aria-label="위로 스크롤"
+        >
           <ArrowDropUpIcon />
         </Fab>
       );
       scrollUpBtnRoot.render(scrollUpBtnContent);
 
       // 아래로 스크롤 버튼
-      // const scrollDownBtn = document.createElement('button');
-      // scrollDownBtn.className = 'scroll-btn scroll-down';
-      // scrollDownBtn.textContent = '↓ 아래로';
-      // scrollDownBtn.setAttribute('aria-label', '아래로 스크롤');
-
       const scrollDownBtn = document.createElement('div');
       const scrollDownBtnRoot = createRoot(scrollDownBtn);
       const scrollDownBtnContent = (
-        <Fab className="scroll-btn scroll-down" aria-label="아래로 스크롤">
+        <Fab
+          className="scroll-btn scroll-down"
+          size="small"
+          aria-label="아래로 스크롤"
+        >
           <ArrowDropDownIcon />
         </Fab>
       );

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
   EventApi,
   DateSelectArg,
@@ -16,12 +16,23 @@ import { insertEvent, deleteEvent, updateEvent } from '@lib/api/calendar_api';
 import '@components/calendar/Calendar.scss';
 import { UseDispatch } from '@src/App';
 import RestaurantList from '@components/calendar/RestaurantList';
-import { useTodayRestaurantDispatch } from '@src/context/TodayRestaurantContext';
-const Calendar = ({ closeCalendar }: { closeCalendar: () => void }) => {
-  // const [currentEvents, setCurrentEvents] = useState<EventApi[]>();
+import {
+  useTodayRestaurantDispatch,
+  useTodayRestaurantState,
+} from '@src/context/TodayRestaurantContext';
+import { getStringTypeToday } from '@lib/util';
+
+export default function Calendar({
+  closeCalendar,
+}: {
+  closeCalendar: () => void;
+}) {
+  const [currentEvents, setCurrentEvents] = useState<EventApi[]>();
   const [initailEvents, setInitEvents] = useState<EventInput[]>();
   // const dispatch = useContext(UseDispatch);
   const todayRestaurantDispatch = useTodayRestaurantDispatch();
+  const { todayRestaurant } = useTodayRestaurantState();
+  const calendarRef = useRef<FullCalendar>(null);
 
   // Date Cell 클릭시 이벤트 등록
   // const handleDateSelect = async (selectInfo: DateSelectArg) => {
@@ -48,6 +59,22 @@ const Calendar = ({ closeCalendar }: { closeCalendar: () => void }) => {
   //     }
 
   //     // item.id
+  //   }
+  // };
+
+  // 레스토랑이 선택되었을 때 호출되는 함수
+  // const handleRestaurantSelect = (restaurant) => {
+  //   setSelectedRestaurant(restaurant);
+
+  //   // 캘린더의 API에 접근해서 이벤트를 수동으로 업데이트할 수 있음
+  //   if (calendarRef.current) {
+  //     const calendarApi = calendarRef.current.getApi();
+  //     // 여기서 필요한 작업 수행
+  //     // 예: 새 이벤트 추가, 이벤트 업데이트 등
+
+  //     // 모든 이벤트를 가져와서 eventsSet 콜백 수동 트리거
+  //     const allEvents = calendarApi.getEvents();
+  //     handleEvents(allEvents);
   //   }
   // };
 
@@ -92,15 +119,20 @@ const Calendar = ({ closeCalendar }: { closeCalendar: () => void }) => {
       alert('일정 변경에 실패했습니다.');
     }
   };
-  // const handleEvents = (events: EventApi[]) => {
-  //   setCurrentEvents(events);
-  // };
+  const handleEvents = (events: EventApi[]) => {
+    console.log('events', events);
+    // setCurrentEvents(events);
+  };
+
+  const initEvents = async () => {
+    setInitEvents(await setInitializeEvents());
+    console.log('initEvents', initailEvents);
+    calendarRef.current?.getApi().refetchEvents();
+  };
 
   useEffect(() => {
-    (async () => {
-      setInitEvents(await setInitializeEvents());
-    })();
-  }, []);
+    initEvents();
+  }, [todayRestaurant]);
 
   return (
     <div className="calendar-wrapper">
@@ -108,6 +140,7 @@ const Calendar = ({ closeCalendar }: { closeCalendar: () => void }) => {
         <div className="calendar-container">
           {initailEvents && (
             <FullCalendar
+              ref={calendarRef}
               customButtons={{
                 closeButton: {
                   text: 'X',
@@ -123,7 +156,6 @@ const Calendar = ({ closeCalendar }: { closeCalendar: () => void }) => {
                 right: 'next closeButton',
               }}
               initialView="dayGridMonth"
-              // initialEvents={INITIAL_EVENTS} // alternatively, use the `events` setting to fetch from a feed
               initialEvents={initailEvents} // alternatively, use the `events` setting to fetch from a feed
               editable={true}
               selectable={true}
@@ -136,14 +168,32 @@ const Calendar = ({ closeCalendar }: { closeCalendar: () => void }) => {
               // aspectRatio={1.3} // cell의 크기 조절
               handleWindowResize={true}
               contentHeight={600}
-              // eventsSet={handleEvents} // called after events are initialized/added/changed/removed
+              eventsSet={handleEvents} // called after events are initialized/added/changed/removed
             />
           )}
         </div>
-        <RestaurantList />
+        {initailEvents && (
+          <RestaurantList
+            callbackFn={(newEvent) => {
+              if (calendarRef.current) {
+                const orgCalenderEvent = calendarRef.current
+                  .getApi()
+                  .getEventById(newEvent.id);
+                if (orgCalenderEvent) {
+                  orgCalenderEvent.remove();
+                }
+                calendarRef.current?.getApi().addEvent({
+                  id: newEvent.id,
+                  title: newEvent.summary,
+                  start: newEvent.start.date,
+                  end: newEvent.end.date,
+                  allDay: true,
+                });
+              }
+            }}
+          />
+        )}
       </div>
     </div>
   );
-};
-
-export default Calendar;
+}

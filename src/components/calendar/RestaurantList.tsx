@@ -3,8 +3,27 @@ import { getRestaurants } from '@lib/api/supabase_api';
 import PaginationButtons from '@components/commons/PaginationButtons';
 import { convertPlaceToRestaurant } from '@lib/util';
 import { useModalDispatch } from '@src/context/ModalContext';
+import FullCalendar from '@fullcalendar/react';
 
-export default function RestaurantList() {
+function ListItem({ restaurant }: { restaurant: any }) {
+  return (
+    <div
+      key={restaurant.id}
+      className="restaurant-item"
+      data-restaurant={JSON.stringify(restaurant)}
+    >
+      <div className="place-name">{restaurant.place_name}</div>
+      <div className="category-name">{restaurant.category_name}</div>
+      <div className="visit-date">{restaurant.visit_date}</div>
+    </div>
+  );
+}
+
+export default function RestaurantList({
+  callbackFn,
+}: {
+  callbackFn: (params: any) => void;
+}) {
   const [restaurants, setRestaurants] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [page, setPage] = useState(1);
@@ -42,6 +61,7 @@ export default function RestaurantList() {
         payload: convertPlaceToRestaurant(
           JSON.parse(restaurantItem.dataset.restaurant),
         ),
+        callbackFn: callbackFn,
       });
     }
   };
@@ -94,17 +114,7 @@ export default function RestaurantList() {
             {restaurants
               .slice((page - 1) * dataPerPage, page * dataPerPage)
               .map((restaurant) => (
-                <div
-                  key={restaurant.id}
-                  className="restaurant-item"
-                  data-restaurant={JSON.stringify(restaurant)}
-                >
-                  <div className="place-name">{restaurant.place_name}</div>
-                  <div className="category-name">
-                    {restaurant.category_name}
-                  </div>
-                  <div className="visit-date">{restaurant.visit_date}</div>
-                </div>
+                <ListItem key={restaurant.id} restaurant={restaurant} />
               ))}
           </div>
 
