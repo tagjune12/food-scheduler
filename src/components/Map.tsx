@@ -1,10 +1,4 @@
-import React, {
-  useContext,
-  useEffect,
-  useRef,
-  useCallback,
-  useState,
-} from 'react';
+import React, { useEffect, useRef, useCallback, useState } from 'react';
 
 import '@components/Map.scss';
 import { AppStoreType, Restaurant } from '@src/types';
@@ -22,11 +16,11 @@ interface MapMarker {
   overlay: kakao.maps.CustomOverlay;
 }
 
-interface MarkerStyle {
-  width: string;
-  height: string;
-  backgroundColor: string;
-}
+// interface MarkerStyle {
+//   width: string;
+//   height: string;
+//   backgroundColor: string;
+// }
 
 const DEFAULT_CENTER = { lat: 37.4028207, lng: 127.1115201 };
 const DEFAULT_ZOOM = 3;
@@ -38,9 +32,7 @@ const DEFAULT_ZOOM = 3;
 // };
 
 const Map = ({ state }: AppStoreType) => {
-  // const dispatch = useContext(UseDispatch);
   const modalDispatch = useModalDispatch();
-  // const { initialized: appInitialized } = useContext(MapInitContext);
   const { initialized: appInitialized } = useMapInitState();
 
   const mapRef = useRef<kakao.maps.Map | null>(null);
@@ -617,11 +609,12 @@ const Map = ({ state }: AppStoreType) => {
     kakao.maps.event.addListener(mapRef.current, 'click', closeCurrentOverlay);
 
     // 초기화 상태 업데이트
-    setIsMapInitialized(true);
     console.log('지도 초기화 완료');
 
     // 식당 데이터 로드 및 마커 생성은 별도 함수로 분리
     await loadRestaurantsAndCreateMarkers();
+
+    setIsMapInitialized(true);
   }, [
     closeCurrentOverlay,
     handleMarkerClustererClick,

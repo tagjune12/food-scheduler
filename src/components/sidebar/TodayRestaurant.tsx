@@ -5,6 +5,7 @@ import { getNumTypeToday } from '@lib/util';
 import '@components/sidebar/TodayRestaurant.scss';
 import { getRestaurantsWithName } from '@lib/api/supabase_api';
 import RestaurantCard from '@components/commons/RestaurantCard';
+import TodayRestaurantCard from './TodayRestaurantCard';
 const TodayRestaurant = ({ restaurantName }: { restaurantName: string }) => {
   const visit = useRef<{
     year: number;
@@ -43,7 +44,8 @@ const TodayRestaurant = ({ restaurantName }: { restaurantName: string }) => {
       </h3> */}
       <div className="info-section">
         {todayRestaurant ? (
-          <RestaurantCard restaurant={todayRestaurant} />
+          // <RestaurantCard restaurant={todayRestaurant} />
+          <TodayRestaurantCard restaurant={todayRestaurant} />
         ) : (
           // <TodayRestaurantCard restaurant={todayRestaurant} />
           <div className={`card-container `}>

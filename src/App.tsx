@@ -181,16 +181,16 @@ const App = () => {
   }, [access_token, isLoading]);
 
   // 데이터 로드 완료 후 지도 초기화 상태 활성화
-  useEffect(() => {
-    if (!isLoading && !mapInitialized) {
-      // 약간의 지연 후 지도 초기화 상태 활성화 (경쟁 상태 방지)
-      const timer = setTimeout(() => {
-        setMapInitialized(true);
-      }, 500);
+  // useEffect(() => {
+  //   if (!isLoading && !mapInitialized) {
+  //     // 약간의 지연 후 지도 초기화 상태 활성화 (경쟁 상태 방지)
+  //     const timer = setTimeout(() => {
+  //       setMapInitialized(true);
+  //     }, 500);
 
-      return () => clearTimeout(timer);
-    }
-  }, [isLoading, mapInitialized]);
+  //     return () => clearTimeout(timer);
+  //   }
+  // }, [isLoading, mapInitialized]);
 
   if (isLoading) {
     return <div className="loading">로딩 중...</div>;
