@@ -5,14 +5,18 @@ export default function PaginationButtons({
   dataPerPage,
   totalDataLength,
   btnClickListener,
+  restaurantListRef,
 }: {
   page: number;
   dataPerPage: number;
   totalDataLength: number;
   btnClickListener: (page: number) => void;
+  restaurantListRef: React.RefObject<HTMLDivElement>;
 }) {
   const handleChange = (event: React.ChangeEvent<unknown>, value: number) => {
     btnClickListener(value);
+    console.log('restaurantListRef', restaurantListRef.current);
+    restaurantListRef.current?.scrollTo({ top: 0 });
   };
 
   return (

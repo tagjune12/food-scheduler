@@ -16,7 +16,7 @@ export const getRestaurants = async () => {
       console.log('supabase client initialized');
     }
 
-    const { data, error} = await supabase.from('places').select('*').eq('category_group_code', 'FD6');
+    const { data, error} = await supabase.from('places').select('*').eq('category_group_code', 'FD6').order('place_name', { ascending: true });
      
     if (error) {
       console.error('Supabase error:', error);
@@ -38,6 +38,27 @@ export const getRestaurantsWithName = async (names: string[]) => {
     }
 
     const { data, error} = await supabase.from('places').select('*').eq('category_group_code', 'FD6').in('place_name', names);
+     
+    if (error) {
+      console.error('Supabase error:', error);
+      throw error;
+    }
+    return data;
+  } catch (error) {
+    console.error('Error in getRestaurants:', error);
+    return [];
+  }
+};
+
+export const searchRestaurantwithName = async (keyword: string) => {
+  try{
+    if (!supabase) {
+      throw new Error('Supabase client not initialized');
+    }else{
+      console.log('supabase client initialized');
+    }
+
+    const { data, error} = await supabase.from('places').select('*').eq('category_group_code', 'FD6').ilike('place_name', `%${keyword.trim()}%`);
      
     if (error) {
       console.error('Supabase error:', error);

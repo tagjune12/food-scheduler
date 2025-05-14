@@ -1,3 +1,6 @@
+@import '@components/commons/variables';
+@import '@components/commons/mixins';
+
 .today-restaurant-contianer{
   // height: auto;
   // border: 1px solid black;
@@ -6,20 +9,23 @@
   // border-bottom: 1px solid rgba($color: #d9d9d9, $alpha: 1.0);
 
   // margin-top: 1.5rem;
+  
+
   .title{
     text-align: center;
   }
 
-  // .info-section{
-  //   display:flex;
-  //   // justify-content: center;
-  //   align-items: center;
-  //   margin-right: auto;
+  .button-wrapper{
+    margin-top:0px;
+    display: flex;
+    justify-content: flex-end;
+  } 
 
-  //   // margin-top: auto;
-  //   // margin-bottom: auto;
-  //   #questionMark{
-  //     align-self: center;
-  //   }  
-  // }
+  .delete-button{
+    color: $--main-color1;
+    font-weight: bold;
+    &:hover{
+      cursor: pointer;
+    }
+  }
 }

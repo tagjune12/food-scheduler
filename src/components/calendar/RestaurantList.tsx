@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getRestaurants } from '@lib/api/supabase_api';
 import PaginationButtons from '@components/commons/PaginationButtons';
 import { convertPlaceToRestaurant } from '@lib/util';
 import { useModalDispatch } from '@src/context/ModalContext';
 import FullCalendar from '@fullcalendar/react';
-
+// import Searchbar from '@components/sidebar/Searchbar';
+import PrimarySearchAppBar from '@components/sidebar/Searchbar';
+import Searchbar from '@components/commons/Searchbar';
 function ListItem({ restaurant }: { restaurant: any }) {
   return (
     <div
@@ -30,6 +32,7 @@ export default function RestaurantList({
   const [sortType, setSortType] = useState<string>('name');
   const dataPerPage = 10;
   const modalDispatch = useModalDispatch();
+  const restaurantListRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // supabase에서 데이터 가져오기
@@ -66,28 +69,35 @@ export default function RestaurantList({
     }
   };
 
-  const handleSortClick = (sortType: string) => {
-    console.log('정렬 타입:', sortType);
-    setSortType(sortType);
-    // if (restaurants) {
-    //   if (sortType === 'name') {
-    //     restaurants.sort((a, b) => a.place_name.localeCompare(b.name));
-    //   } else if (sortType === 'visit_date') {
-    //     restaurants.sort(
-    //       (a, b) =>
-    //         new Date(b.visit_date).getTime() - new Date(a.visit_date).getTime(),
-    //     );
-    //   }
-    // }
-  };
+  // const handleSortClick = (sortType: string) => {
+  //   console.log('정렬 타입:', sortType);
+  //   let sortedRestaurants = [];
+  //   if (restaurants) {
+  //     if (sortType === 'name') {
+  //       sortedRestaurants = restaurants.sort((a, b) =>
+  //         a.place_name.localeCompare(b.name),
+  //       );
+  //     } else if (sortType === 'visit_date') {
+  //       sortedRestaurants = restaurants.sort(
+  //         (a, b) =>
+  //           new Date(b.visit_date).getTime() - new Date(a.visit_date).getTime(),
+  //       );
+  //     }
+  //   }
+  //   setSortType(sortType);
+  //   setRestaurants(sortedRestaurants);
+  // };
 
   return (
     <div className="restaurant-list-container">
       <div className="restaurant-list-header">
         <h3>식당 목록</h3>
+        {/* <PrimarySearchAppBar /> */}
+        <Searchbar callbackFn={setRestaurants} />
+
         <div className="restaurant-list-header-sort-container">
           <div className="restaurant-list-header-sort">
-            <p
+            {/* <p
               onClick={() => handleSortClick('name')}
               className={sortType === 'name' ? 'selected' : ''}
             >
@@ -98,7 +108,7 @@ export default function RestaurantList({
               className={sortType === 'visit_date' ? 'selected' : ''}
             >
               최근 방문일자 순
-            </p>
+            </p> */}
           </div>
         </div>
       </div>
@@ -110,6 +120,7 @@ export default function RestaurantList({
           <div
             className="restaurant-items-container"
             onClick={handleRestaurantListItemClick}
+            ref={restaurantListRef}
           >
             {restaurants
               .slice((page - 1) * dataPerPage, page * dataPerPage)
@@ -124,6 +135,7 @@ export default function RestaurantList({
               dataPerPage={dataPerPage}
               totalDataLength={restaurants.length}
               btnClickListener={setPage}
+              restaurantListRef={restaurantListRef}
             />
           </div>
         </>
