@@ -97,9 +97,16 @@ interface Restaurant {
  */
 function convertPlaceToRestaurant(place: PlacesSearchResult, visitDate?: string): Restaurant {
   // 카테고리 이름을 > 기준으로 분리하여 태그 배열로 변환
-  const tags = place.category_name.split(' > ').filter(tag => tag.trim() !== '');
+  // console.log("카테고리 이름:", place.category_name);
+  // console.log("카테고리 이름:", place.category_name.split('>'));
+  
+  // category_name이 undefined이거나 null인 경우 빈 배열을 사용
+  const tags = place.category_name 
+    ? place.category_name.split('>').map(tag => tag.trim()).filter(tag => tag !== '')
+    : [];
   
   // Restaurant 객체 생성
+
   const restaurant: Restaurant = {
     name: place.place_name,
     tags: tags,

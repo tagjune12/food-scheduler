@@ -11,6 +11,7 @@ import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import { useModalDispatch } from '@src/context/ModalContext';
 import { useMapInitState } from '@src/context/MapInitContext';
 import ListModal from './ListModal';
+import { convertPlacesToRestaurants } from '@lib/util';
 
 interface MapMarker {
   marker: kakao.maps.Marker;

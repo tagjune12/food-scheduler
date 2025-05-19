@@ -1,5 +1,5 @@
 import '@components/commons/RestaurantCard.scss';
-import { getNumTypeToday } from '@lib/util';
+import { convertPlaceToRestaurant, getNumTypeToday } from '@lib/util';
 import { useModalDispatch } from '@src/context/ModalContext';
 interface MapCardProps {
   restaurant: any; // Supabase 또는 카카오맵 데이터 모두 수용
@@ -27,7 +27,17 @@ const MapCard = ({ restaurant, visitDate }: MapCardProps) => {
   };
 
   const handleButtonClick = () => {
-    modalDispatch({ type: 'showModal', payload: restaurant });
+    console.log('restaurant', restaurant);
+    if (restaurant.name) {
+      modalDispatch({ type: 'showModal', payload: restaurant });
+    } else {
+      // const test = convertPlaceToRestaurant(restaurant);
+      // console.log('test', test);
+      modalDispatch({
+        type: 'showModal',
+        payload: convertPlaceToRestaurant(restaurant),
+      });
+    }
   };
 
   const renderVisitInfo = () => {
@@ -78,8 +88,10 @@ const MapCard = ({ restaurant, visitDate }: MapCardProps) => {
         data-restaurant={JSON.stringify({
           name: restaurant.place_name,
           tags: restaurant.category_name
-            .split('>')
-            .filter((elem: string) => elem !== '음식점'),
+            ? restaurant.category_name
+                .split('>')
+                .filter((elem: string) => elem !== '음식점')
+            : [],
           address: restaurant.address_name,
           period: 0,
         })}
