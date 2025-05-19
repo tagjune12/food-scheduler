@@ -10,6 +10,7 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import { useModalDispatch } from '@src/context/ModalContext';
 import { useMapInitState } from '@src/context/MapInitContext';
+import ListModal from './ListModal';
 
 interface MapMarker {
   marker: kakao.maps.Marker;
@@ -41,6 +42,8 @@ const Map = ({ state }: AppStoreType) => {
   const markerClustererRef = useRef<kakao.maps.MarkerClusterer | null>(null);
   const clusterOverlayRef = useRef<kakao.maps.CustomOverlay | null>(null);
   const [isMapInitialized, setIsMapInitialized] = useState<boolean>(false);
+  const [showListModal, setShowListModal] = useState<boolean>(false);
+  const [clusterRestaurants, setClusterRestaurants] = useState<any[]>([]);
 
   const createMarkerOverlay = useCallback(
     (restaurant: any) => {
@@ -105,264 +108,33 @@ const Map = ({ state }: AppStoreType) => {
 
   const createClustererOverlay = useCallback(
     async (cluster: any) => {
-      const content = document.createElement('div');
-      content.className = 'cluster-overlay';
-
-      const root = document.createElement('div');
-      content.appendChild(root);
-
-      const overlay = new kakao.maps.CustomOverlay({
-        position: cluster.getCenter(),
-        content,
-        yAnchor: 1.2,
-        clickable: true,
-      });
-
-      // React 컴포넌트를 렌더링
-      const infoWindow = document.createElement('div');
-      infoWindow.className = 'info-window-container';
-      root.appendChild(infoWindow);
-
-      // 마우스 휠 이벤트 중지
-      infoWindow.addEventListener(
-        'wheel',
-        (e) => {
-          e.stopPropagation();
-          e.preventDefault();
-        },
-        { passive: false },
-      );
-
-      // 마우스 드래그 스크롤 기능 추가
-      let isDragging = false;
-      let startY = 0;
-      let startScrollTop = 0;
-
-      // 마우스 다운 - 드래그 시작
-      infoWindow.addEventListener('mousedown', (e) => {
-        isDragging = true;
-        startY = e.clientY;
-        startScrollTop = infoWindow.scrollTop;
-        infoWindow.style.cursor = 'grabbing';
-        infoWindow.classList.add('dragging');
-      });
-
-      // 마우스 이동 - 드래그 중
-      infoWindow.addEventListener('mousemove', (e) => {
-        if (!isDragging) return;
-        e.preventDefault();
-        const deltaY = e.clientY - startY;
-        infoWindow.scrollTop = startScrollTop - deltaY;
-      });
-
-      // 마우스 업 - 드래그 종료
-      const mouseUpHandler = () => {
-        if (isDragging) {
-          isDragging = false;
-          infoWindow.style.cursor = 'grab';
-          infoWindow.classList.remove('dragging');
-        }
-      };
-
-      window.addEventListener('mouseup', mouseUpHandler);
-
-      // 마우스 리브 - 드래그 종료
-      infoWindow.addEventListener('mouseleave', () => {
-        if (isDragging) {
-          isDragging = false;
-          infoWindow.style.cursor = 'grab';
-          infoWindow.classList.remove('dragging');
-        }
-      });
-
-      // 오버레이가 닫힐 때 이벤트 리스너 정리
-      kakao.maps.event.addListener(overlay, 'remove', function () {
-        window.removeEventListener('mouseup', mouseUpHandler);
-      });
-
-      // 초기 커서 스타일 설정
-      infoWindow.style.cursor = 'grab';
-
-      // 오버레이 위에서 마우스 휠 동작 시 지도 확대/축소 비활성화
-      infoWindow.addEventListener('mouseenter', () => {
-        if (mapRef.current) {
-          mapRef.current.setZoomable(false);
-        }
-      });
-
-      // 오버레이 밖으로 마우스가 나갈 때 지도 확대/축소 다시 활성화
-      infoWindow.addEventListener('mouseleave', () => {
-        if (mapRef.current) {
-          mapRef.current.setZoomable(true);
-        }
-      });
-
-      // 지도 클릭 시 오버레이 닫기
-      kakao.maps.event.addListener(
-        mapRef.current,
-        'click',
-        function clickHandler2() {
-          // 현재 오버레이를 닫음
-          overlay.setMap(null);
-          if (clusterOverlayRef.current === overlay) {
-            clusterOverlayRef.current = null;
-          }
-
-          // 지도 확대/축소 다시 활성화
-          if (mapRef.current) {
-            mapRef.current.setZoomable(true);
-          }
-
-          // 이벤트 리스너 한 번만 실행 후 제거
-          kakao.maps.event.removeListener(
-            mapRef.current,
-            'click',
-            clickHandler2,
-          );
-        },
-      );
-
-      const card = document.createElement('div');
-      card.className = 'cluster-card-container';
-      infoWindow.appendChild(card);
-
-      // 클러스터에 포함된 마커 이름 가져오기
       const markerTitles: string[] = [];
       cluster.getMarkers().forEach((c: any) => {
         const title = c.getTitle();
         if (title) markerTitles.push(title);
       });
+      const fetchedRestaurants = await getRestaurantsWithName(markerTitles);
 
-      const restaurants = await getRestaurantsWithName(markerTitles);
+      // 수신된 데이터를 Restaurant 타입으로 변환
+      // const mappedRestaurants: Restaurant[] = fetchedRestaurants.map(
+      //   (restaurant) => ({
+      //     name: restaurant.place_name ?? '',
+      //     tags: (restaurant.category_name ?? '')
+      //       .split('>')
+      //       .filter((elem) => elem !== '음식점'),
+      //     address: restaurant.address_name ?? '',
+      //     period: 0,
+      //     visit: '',
+      //     position: {
+      //       x: restaurant.latitude ?? '',
+      //       y: restaurant.longitude ?? '',
+      //     },
+      //     place_url: restaurant.place_url ?? '',
+      //   }),
+      // );
 
-      const cardContainer = createRoot(card);
-      const cardContent = (
-        <div
-          className="cluster-restaurants"
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            justifyContent: 'center',
-          }}
-        >
-          {/* <h3>{restaurants.length}개의 식당</h3> */}
-          {restaurants.map((restaurant, idx) => (
-            <MapCard
-              key={idx}
-              restaurant={restaurant}
-              visitDate={
-                restaurant.place_name
-                  ? state.histories[restaurant.place_name]?.date
-                  : undefined
-              }
-            />
-          ))}
-        </div>
-      );
-      cardContainer.render(cardContent);
-
-      // 스크롤 버튼 추가
-      const scrollBtnsContainer = document.createElement('div');
-      scrollBtnsContainer.className = 'scroll-buttons';
-
-      // 위로 스크롤 버튼
-      const scrollUpBtn = document.createElement('div');
-      const scrollUpBtnRoot = createRoot(scrollUpBtn);
-      const scrollUpBtnContent = (
-        <Fab
-          className="scroll-btn scroll-up"
-          size="small"
-          aria-label="위로 스크롤"
-        >
-          <ArrowDropUpIcon />
-        </Fab>
-      );
-      scrollUpBtnRoot.render(scrollUpBtnContent);
-
-      // 아래로 스크롤 버튼
-      const scrollDownBtn = document.createElement('div');
-      const scrollDownBtnRoot = createRoot(scrollDownBtn);
-      const scrollDownBtnContent = (
-        <Fab
-          className="scroll-btn scroll-down"
-          size="small"
-          aria-label="아래로 스크롤"
-        >
-          <ArrowDropDownIcon />
-        </Fab>
-      );
-      scrollDownBtnRoot.render(scrollDownBtnContent);
-
-      // 버튼 컨테이너에 추가
-      scrollBtnsContainer.appendChild(scrollUpBtn);
-      scrollBtnsContainer.appendChild(scrollDownBtn);
-
-      // 정보창에 버튼 컨테이너 추가
-      infoWindow.appendChild(scrollBtnsContainer);
-
-      // 한 번에 스크롤할 크기 계산 함수
-      const calculateScrollAmount = () => {
-        // 카드 요소들 가져오기
-        const cardElements = infoWindow.querySelectorAll('.card-container');
-
-        if (cardElements.length === 0) return 0;
-
-        // 카드 요소의 높이 (마진 포함)
-        const cardHeight = cardElements[0].getBoundingClientRect().height + 15; // 15px는 margin-bottom
-
-        // 아이템 3개에 해당하는 높이 반환
-        return cardHeight * 3;
-      };
-
-      // 스크롤 버튼 활성화/비활성화 상태 업데이트
-      const updateScrollBtns = () => {
-        // 스크롤이 최상단에 있으면 위로 버튼 비활성화
-        if (infoWindow.scrollTop <= 0) {
-          scrollUpBtn.classList.add('disabled');
-        } else {
-          scrollUpBtn.classList.remove('disabled');
-        }
-
-        // 스크롤이 최하단에 있으면 아래로 버튼 비활성화
-        const maxScrollTop = infoWindow.scrollHeight - infoWindow.clientHeight;
-        if (infoWindow.scrollTop >= maxScrollTop - 5) {
-          // 5px 오차 허용
-          scrollDownBtn.classList.add('disabled');
-        } else {
-          scrollDownBtn.classList.remove('disabled');
-        }
-      };
-
-      // 스크롤 이벤트에 맞춰 버튼 상태 업데이트
-      infoWindow.addEventListener('scroll', updateScrollBtns);
-
-      // 위로 스크롤 버튼 클릭 이벤트
-      scrollUpBtn.addEventListener('click', () => {
-        const scrollAmount = calculateScrollAmount();
-        infoWindow.scrollBy({
-          top: -scrollAmount,
-          behavior: 'smooth',
-        });
-      });
-
-      // 아래로 스크롤 버튼 클릭 이벤트
-      scrollDownBtn.addEventListener('click', () => {
-        const scrollAmount = calculateScrollAmount();
-        infoWindow.scrollBy({
-          top: scrollAmount,
-          behavior: 'smooth',
-        });
-      });
-
-      // 초기 버튼 상태 설정
-      setTimeout(updateScrollBtns, 100); // 컨텐츠 렌더링 후 상태 업데이트
-
-      // 오버레이가 닫힐 때 추가 이벤트 정리
-      kakao.maps.event.addListener(overlay, 'remove', function () {
-        infoWindow.removeEventListener('scroll', updateScrollBtns);
-      });
-
-      return overlay;
+      setClusterRestaurants(fetchedRestaurants);
+      setShowListModal(true);
     },
     [state.histories],
   );
@@ -468,10 +240,10 @@ const Map = ({ state }: AppStoreType) => {
       closeCurrentOverlay();
 
       const overlay = await createClustererOverlay(cluster);
-      overlay.setMap(mapRef.current);
+      // overlay.setMap(mapRef.current);
 
-      // 생성된 오버레이를 참조에 저장
-      clusterOverlayRef.current = overlay;
+      // // 생성된 오버레이를 참조에 저장
+      // clusterOverlayRef.current = overlay;
 
       // 지도 클릭 시 오버레이 닫기
       kakao.maps.event.addListener(
@@ -691,9 +463,16 @@ const Map = ({ state }: AppStoreType) => {
   }, [isMapInitialized, loadRestaurantsAndCreateMarkers]);
 
   return (
-    <div>
-      <div id="map" className="kakao-map" />
-    </div>
+    <>
+      <div>
+        <div id="map" className="kakao-map" />
+      </div>
+      <ListModal
+        open={showListModal}
+        handleClose={() => setShowListModal(false)}
+        restaurants={clusterRestaurants}
+      />
+    </>
   );
 };
 
