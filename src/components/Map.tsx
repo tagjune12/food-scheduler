@@ -3,7 +3,12 @@ import React, { useEffect, useRef, useCallback, useState } from 'react';
 import '@components/Map.scss';
 import { AppStoreType, Restaurant } from '@src/types';
 import { createRoot } from 'react-dom/client';
-import { getRestaurants, getRestaurantsWithName } from '@lib/api/supabase_api';
+import {
+  getPlacesWithNameAndBookmarks,
+  getPlacesWithUserBookmarks,
+  getRestaurants,
+  getRestaurantsWithName,
+} from '@lib/api/supabase_api';
 import MapCard from './commons/MapCard';
 import Fab from '@mui/material/Fab';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
@@ -114,7 +119,12 @@ const Map = ({ state }: AppStoreType) => {
         const title = c.getTitle();
         if (title) markerTitles.push(title);
       });
-      const fetchedRestaurants = await getRestaurantsWithName(markerTitles);
+      // const fetchedRestaurants = await getRestaurantsWithName(markerTitles);
+      const fetchedRestaurants = await getPlacesWithNameAndBookmarks(
+        'ltjktnet12',
+        markerTitles,
+      );
+      // console.log('fetchedRestaurants', JSON.stringify(fetchedRestaurants));
 
       // 수신된 데이터를 Restaurant 타입으로 변환
       // const mappedRestaurants: Restaurant[] = fetchedRestaurants.map(
@@ -299,7 +309,10 @@ const Map = ({ state }: AppStoreType) => {
       markerClustererRef.current.clear();
 
       // 데이터 로드
-      const restaurants = (await getRestaurants()) ?? [];
+      // const restaurants = (await getRestaurants()) ?? [];
+      const restaurants =
+        (await getPlacesWithUserBookmarks('ltjktnet12')) ?? [];
+      // console.log('restaurants', JSON.stringify(restaurants));
 
       // 새 마커 생성 및 추가
       markersRef.current = restaurants.map((restaurant, index) => {

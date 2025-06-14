@@ -2,16 +2,22 @@ import '@components/commons/RestaurantCard.scss';
 import { convertPlaceToRestaurant, getNumTypeToday } from '@lib/util';
 import { useModalDispatch } from '@src/context/ModalContext';
 
+import StarOutlineIcon from '@mui/icons-material/StarOutline';
+import GradeIcon from '@mui/icons-material/Grade';
+import { deleteBookmark, insertBookmark } from '@lib/api/supabase_api';
+
 interface RestaurantCardProps {
   restaurant: any; // Supabase 또는 카카오맵 데이터 모두 수용
   visitDate?: string;
   onMap?: boolean;
+  callback?: (restaurantId: string) => void;
 }
 
 const RestaurantCard = ({
   restaurant,
   visitDate,
   onMap,
+  callback,
 }: RestaurantCardProps) => {
   // const dispatch = useContext(UseDispatch);
   const modalDispatch = useModalDispatch();
@@ -60,9 +66,25 @@ const RestaurantCard = ({
     );
   };
 
+  const handleBookmarkClick = () => {
+    // console.log('bookmark clicked', restaurant.id);
+    if (window.confirm('북마크를 취소하시겠습니까?')) {
+      callback?.(restaurant.id);
+    }
+  };
+
   return (
     <div className={`card-container ${onMap ? 'map-card' : ''}`}>
-      <h3>{restaurant.place_name}</h3>
+      <div className="title-row">
+        <h3>{restaurant.place_name}</h3>
+        <div className="bookmark-container">
+          {restaurant.bookmarked === 'N' ? (
+            <StarOutlineIcon onClick={handleBookmarkClick} />
+          ) : (
+            <GradeIcon onClick={handleBookmarkClick} />
+          )}
+        </div>
+      </div>
       <div className="visit-info">{renderVisitInfo()}</div>
       <div className="progress-wrapper">
         <progress value={visitDate ? getDiffDate(visitDate) : 0} max={28} />

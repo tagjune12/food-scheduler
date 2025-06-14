@@ -2,7 +2,11 @@ import RestaurantCard from '@components/commons/RestaurantCard';
 import { HistoryType, Restaurant } from '@src/types';
 import '@components/sidebar/History.scss';
 import { useEffect, useState } from 'react';
-import { getHistory, getRestaurantsWithName } from '@src/lib/api/supabase_api';
+import {
+  getHistory,
+  getPlacesWithUserBookmarks,
+  getRestaurantsWithName,
+} from '@src/lib/api/supabase_api';
 import { useTodayRestaurantDispatch } from '@src/context/TodayRestaurantContext';
 const History = ({ histories }: { histories: HistoryType }) => {
   const [historyRestaurants, setHistoryRestaurants] = useState<any[]>([]);
@@ -10,7 +14,8 @@ const History = ({ histories }: { histories: HistoryType }) => {
 
   useEffect(() => {
     const fetchHistory = async () => {
-      const response = await getHistory('ltjktnet12', 'desc');
+      // const response = await getHistory('ltjktnet12', 'desc');
+      const response = await getPlacesWithUserBookmarks('ltjktnet12');
       setHistoryRestaurants(response);
     };
     fetchHistory();
@@ -33,6 +38,7 @@ const History = ({ histories }: { histories: HistoryType }) => {
                   // position:restaurant.position,
                   visit: restaurant.visit_date,
                   place_url: restaurant.place_url,
+                  bookmarked: restaurant.bookmarked,
                 }}
                 visitDate={restaurant.visit_date}
               />

@@ -11,10 +11,12 @@ import {
 import Skeleton from '@mui/material/Skeleton';
 import Divider from '@mui/material/Divider';
 import { useTodayRestaurantState } from '@src/context/TodayRestaurantContext';
-
+import StarOutlineIcon from '@mui/icons-material/StarOutline';
+import { Bookmark } from '@components/sidebar/Bookmark';
 const SideBar = ({ state }: AppStoreType) => {
   const [isHistory, setIsHistory] = useState<boolean>(false);
   const [isOpenMenu, setIsOpenMenu] = useState<boolean>(true);
+  const [isBookmark, setIsBookmark] = useState<boolean>(false);
   const sideBarRef = useRef<HTMLDivElement>(null);
   const sideBarBtnRef = useRef<HTMLDivElement>(null);
   const todayRestaurantState = useTodayRestaurantState();
@@ -41,6 +43,9 @@ const SideBar = ({ state }: AppStoreType) => {
           <div className="sidebar-btn">
             <button onClick={showCalendar}>
               <BsCalendarPlusFill />
+            </button>
+            <button onClick={() => setIsBookmark(!isBookmark)}>
+              <StarOutlineIcon />
             </button>
             <button onClick={() => setIsOpenMenu(!isOpenMenu)}>
               {isOpenMenu ? <BsArrowLeftShort /> : <BsArrowRightShort />}
@@ -110,7 +115,11 @@ const SideBar = ({ state }: AppStoreType) => {
               </>
             }
           >
-            <History histories={state.histories} />
+            {isBookmark ? (
+              <Bookmark />
+            ) : (
+              <History histories={state.histories} />
+            )}
           </Suspense>
           {/* <History histories={state.histories} /> */}
         </div>

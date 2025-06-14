@@ -9,6 +9,24 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      bookmarks: {
+        Row: {
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       centers: {
         Row: {
           id: number
@@ -110,6 +128,25 @@ export type Database = {
       }
     }
     Views: {
+      call_bookmarks_with_places: {
+        Row: {
+          address_name: string | null
+          category_group_code: string | null
+          category_group_name: string | null
+          category_name: string | null
+          created_at: string | null
+          id: string | null
+          latitude: string | null
+          longitude: string | null
+          phone: string | null
+          place_name: string | null
+          place_url: string | null
+          road_address_name: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
       call_places_with_history: {
         Row: {
           address_name: string | null
@@ -125,7 +162,63 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      get_bookmarked_places: {
+        Args: { p_user_id: string }
+        Returns: {
+          id: string
+          address_name: string
+          category_group_code: string
+          category_group_name: string
+          category_name: string
+          created_at: string
+          latitude: string
+          longitude: string
+          phone: string
+          place_name: string
+          place_url: string
+          road_address_name: string
+          updated_at: string
+          bookmarked: string
+        }[]
+      }
+      get_places_with_bookmarks: {
+        Args: { p_user_id: string }
+        Returns: {
+          id: string
+          address_name: string
+          category_group_code: string
+          category_group_name: string
+          category_name: string
+          created_at: string
+          latitude: string
+          longitude: string
+          phone: string
+          place_name: string
+          place_url: string
+          road_address_name: string
+          updated_at: string
+          bookmarked: string
+        }[]
+      }
+      get_places_with_name_and_bookmarks: {
+        Args: { p_user_id: string; p_place_names: string[] }
+        Returns: {
+          id: string
+          address_name: string
+          category_group_code: string
+          category_group_name: string
+          category_name: string
+          created_at: string
+          latitude: string
+          longitude: string
+          phone: string
+          place_name: string
+          place_url: string
+          road_address_name: string
+          updated_at: string
+          bookmarked: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

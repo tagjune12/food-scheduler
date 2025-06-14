@@ -181,3 +181,120 @@ export const insertHistory = async (userId: string, placeName: string, visitDate
 //     return [];
 //   }
 // }
+
+
+export const insertBookmark = async (userId: string, placeId: string) => {
+  try{
+    if (!supabase) {
+      throw new Error('Supabase client not initialized');
+    }else{
+      console.log('supabase client initialized');
+    }
+
+    const { data, error} = await supabase.from('bookmarks').upsert({
+      user_id: userId,
+      id: placeId,
+    },{onConflict: 'user_id,id'}).select();
+  
+     
+    if (error) {
+      console.error('Supabase error:', error);
+      throw error;
+    }
+    return data;
+  } catch (error) {
+    console.error('Error in insertBookmark:', error);
+    return [];
+  }
+}
+
+export const getBookmarks = async (userId: string) => {
+  try{
+    if (!supabase) {
+      throw new Error('Supabase client not initialized');
+      }else{
+      console.log('supabase client initialized');
+    }
+
+    const { data, error} = await supabase.from('call_bookmarks_with_places').select('id,address_name,category_group_code,category_group_name,category_name,latitude,longitude,phone,place_name,place_url,road_address_name').eq('user_id', userId);
+    
+    if (error) {
+      console.error('Supabase error:', error);
+      throw error;
+    }
+    return data;
+  } catch (error) {
+    console.error('Error in getBookmarks:', error);
+    return [];
+  }
+}
+
+export const deleteBookmark = async (userId: string, placeId: string) => {
+  try{
+    if (!supabase) {
+      throw new Error('Supabase client not initialized');
+    }else{
+      console.log('supabase client initialized');
+    }
+
+    const { data, error} = await supabase.from('bookmarks').delete().eq('user_id', userId).eq('id', placeId).select();
+    
+    if (error) {
+      console.error('Supabase error:', error);
+      throw error;
+    }
+    return data;
+  } catch (error) {
+    console.error('Error in deleteBookmark:', error);
+    return [];  
+  }
+}
+
+
+export const getPlacesWithUserBookmarks = async (userId: string) => {
+  const { data, error } = await supabase
+    .rpc('get_places_with_bookmarks', { 
+      p_user_id: userId 
+    });
+  
+  if (error) {
+    throw new Error(`Failed to fetch places: ${error.message}`);
+  }
+  
+  return data;
+}
+
+export const getPlacesWithNameAndBookmarks = async (userId: string, names: string[]) => {
+  const { data, error } = await supabase
+    .rpc('get_places_with_name_and_bookmarks', { 
+      p_place_names: names,
+      p_user_id: userId,
+    });
+  
+  if (error) {
+    throw new Error(`Failed to fetch places: ${error.message}`);
+  }
+  
+  return data;
+}
+
+// export const getBookmarkedPlaces = async (userId: string) => {
+//   const { data, error } = await supabase
+//     .rpc('get_bookmarked_places', { 
+//       p_user_id: userId 
+//     });
+  
+//   if (error) {
+//     throw new Error(`Failed to fetch places: ${error.message}`);
+//   }
+  
+//   return data;
+// }
+
+// // 사용
+// try {
+//   const places = await getPlacesWithUserBookmarks('user123');
+//   console.log(places);
+// } catch (error) {
+//   console.error(error);
+// }

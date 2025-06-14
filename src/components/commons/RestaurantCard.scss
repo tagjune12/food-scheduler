@@ -20,11 +20,30 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
 
+  .title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
   h3 {
     font-size: 20px;
     font-weight: 600;
     color: #333;
-    margin: 0 0 12px 0;
+    margin: 0;
+    flex: 1;
+  }
+
+  .bookmark-container {
+    color: #ffd700;
+    margin-left: 8px;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    
+    // &:hover {
+    //   color: #ffed4e;
+    // }
   }
 
   .visit-info {
