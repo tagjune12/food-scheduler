@@ -5,6 +5,7 @@ import StarOutlineIcon from '@mui/icons-material/StarOutline';
 import GradeIcon from '@mui/icons-material/Grade';
 import { deleteBookmark, insertBookmark } from '@lib/api/supabase_api';
 import { useState } from 'react';
+import { useBookMarkActions } from '@src/context/BookMarkContext';
 
 interface MapCardProps {
   restaurant: any; // Supabase 또는 카카오맵 데이터 모두 수용
@@ -16,6 +17,7 @@ const MapCard = ({ restaurant, visitDate }: MapCardProps) => {
   // const { state } = useModalState();
   const modalDispatch = useModalDispatch();
   const [isBookmarked, setIsBookmarked] = useState(restaurant.bookmarked);
+  const { addBookmark, removeBookmark } = useBookMarkActions();
 
   const getDiffDate = (visitDate: string): number => {
     const today = getNumTypeToday();
@@ -73,10 +75,10 @@ const MapCard = ({ restaurant, visitDate }: MapCardProps) => {
   const handleBookmarkClick = async () => {
     console.log('bookmark clicked', restaurant.id);
     if (isBookmarked === 'N') {
-      await insertBookmark('ltjktnet12', restaurant.id);
+      await addBookmark('ltjktnet12', restaurant.id, restaurant);
       setIsBookmarked('Y');
     } else {
-      await deleteBookmark('ltjktnet12', restaurant.id);
+      await removeBookmark('ltjktnet12', restaurant.id);
       setIsBookmarked('N');
     }
     console.log('restaurant', restaurant, isBookmarked);

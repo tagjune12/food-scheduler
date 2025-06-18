@@ -44,9 +44,9 @@ const SideBar = ({ state }: AppStoreType) => {
             <button onClick={showCalendar}>
               <BsCalendarPlusFill />
             </button>
-            <button onClick={() => setIsBookmark(!isBookmark)}>
+            {/* <button onClick={() => setIsBookmark(!isBookmark)}>
               <StarOutlineIcon />
-            </button>
+            </button> */}
             <button onClick={() => setIsOpenMenu(!isOpenMenu)}>
               {isOpenMenu ? <BsArrowLeftShort /> : <BsArrowRightShort />}
             </button>
@@ -62,7 +62,7 @@ const SideBar = ({ state }: AppStoreType) => {
           <Divider />
           &nbsp;
           <div className="schedule-header">
-            <h2>최근에 먹은거</h2>
+            <h2>즐겨찾기</h2>
           </div>
           <Suspense
             fallback={
@@ -118,7 +118,8 @@ const SideBar = ({ state }: AppStoreType) => {
             {isBookmark ? (
               <Bookmark />
             ) : (
-              <History histories={state.histories} />
+              // <History histories={state.histories} />
+              <Bookmark />
             )}
           </Suspense>
           {/* <History histories={state.histories} /> */}
