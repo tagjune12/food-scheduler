@@ -9,12 +9,8 @@ import { useState } from 'react';
 interface MapCardProps {
   restaurant: any; // Supabase 또는 카카오맵 데이터 모두 수용
   visitDate?: string;
-  onBookmarkAdd?: (
-    userId: string,
-    placeId: string,
-    bookmarkData: any,
-  ) => Promise<void>;
-  onBookmarkRemove?: (userId: string, placeId: string) => Promise<void>;
+  onBookmarkAdd?: (placeId: string, bookmarkData: any) => Promise<void>;
+  onBookmarkRemove?: (placeId: string) => Promise<void>;
 }
 
 const MapCard = ({
@@ -85,12 +81,12 @@ const MapCard = ({
     console.log('bookmark clicked', restaurant.id);
     if (isBookmarked === 'N') {
       if (onBookmarkAdd) {
-        await onBookmarkAdd('ltjktnet12', restaurant.id, restaurant);
+        await onBookmarkAdd(restaurant.id, restaurant);
         setIsBookmarked('Y');
       }
     } else {
       if (onBookmarkRemove) {
-        await onBookmarkRemove('ltjktnet12', restaurant.id);
+        await onBookmarkRemove(restaurant.id);
         setIsBookmarked('N');
       }
     }

@@ -35,6 +35,7 @@ type AppStoreType = {
   state: {
     [key: string]: any;
   };
+  userId?: string;
 };
 
 export type {

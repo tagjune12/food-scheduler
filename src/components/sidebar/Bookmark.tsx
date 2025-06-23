@@ -36,7 +36,7 @@ export const Bookmark = () => {
     //   (bookmark) => bookmark.id !== restaurantId,
     // );
     // setBookmarks([...filteredBookmarks]);
-    await removeBookmark('ltjktnet12', restaurantId);
+    await removeBookmark(restaurantId);
   };
 
   return (

@@ -57,6 +57,21 @@ function getStoredToken(): string | null {
   return localStorage.getItem('access_token');
 }
 
+// 사용자 ID 저장 함수
+function saveUserId(userId: string): void {
+  localStorage.setItem('user_id', userId);
+}
+
+// 저장된 사용자 ID 가져오기 함수
+function getStoredUserId(): string | null {
+  return localStorage.getItem('user_id');
+}
+
+// 사용자 ID 삭제 함수
+function removeStoredUserId(): void {
+  localStorage.removeItem('user_id');
+}
+
 // Kakao Places API의 PlacesSearchResult를 Restaurant 타입으로 변환하는 함수
 interface PlacesSearchResult {
   address_name: string;
@@ -144,6 +159,9 @@ export {
   saveToken, 
   isTokenValid, 
   getStoredToken,
+  saveUserId,
+  getStoredUserId,
+  removeStoredUserId,
   convertPlaceToRestaurant,
   convertPlacesToRestaurants,
   getStringTypeToday

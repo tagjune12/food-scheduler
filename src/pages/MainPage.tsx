@@ -3,7 +3,6 @@ import { AppStoreType, Restaurant } from '@src/types';
 import Modal from '@components/commons/Modal';
 import { Skeleton } from '@mui/material';
 import { useModalState } from '@src/context/ModalContext';
-import { BookmarkProvider } from '@src/context/BookMarkContext';
 
 // 메모이제이션된 Map 컴포넌트
 const LazyMap = lazy(() => import('@components/Map'));
@@ -17,7 +16,7 @@ const MemoizedSideBar = memo(({ state }: AppStoreType) => (
   <LazySideBar state={state} />
 ));
 
-const MainPage = ({ state }: AppStoreType) => {
+const MainPage = ({ state, userId }: AppStoreType) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const modalState = useModalState();
 
@@ -31,35 +30,33 @@ const MainPage = ({ state }: AppStoreType) => {
   }, []);
 
   return (
-    <BookmarkProvider userId={'ltjktnet12'}>
-      <div className="main-page">
-        {modalState.isVisible && <Modal restaurant={modalState.target} />}
-        <Suspense
-          fallback={
-            <Skeleton
-              animation="wave"
-              variant="rectangular"
-              width="100%"
-              height="100%"
-            />
-          }
-        >
-          <MemoizedSideBar state={state} />
-        </Suspense>
-        <Suspense
-          fallback={
-            <Skeleton
-              animation="wave"
-              variant="rectangular"
-              width="100%"
-              height="100%"
-            />
-          }
-        >
-          <MemoizedMap state={state} />
-        </Suspense>
-      </div>
-    </BookmarkProvider>
+    <div className="main-page">
+      {modalState.isVisible && <Modal restaurant={modalState.target} />}
+      <Suspense
+        fallback={
+          <Skeleton
+            animation="wave"
+            variant="rectangular"
+            width="100%"
+            height="100%"
+          />
+        }
+      >
+        <MemoizedSideBar state={state} />
+      </Suspense>
+      <Suspense
+        fallback={
+          <Skeleton
+            animation="wave"
+            variant="rectangular"
+            width="100%"
+            height="100%"
+          />
+        }
+      >
+        <MemoizedMap state={state} />
+      </Suspense>
+    </div>
   );
 };
 

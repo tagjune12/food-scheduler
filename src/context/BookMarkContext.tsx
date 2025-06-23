@@ -31,6 +31,7 @@ interface BookmarkState {
   bookmarks: BookmarkItem[];
   loading: boolean;
   error: string | null;
+  userId: string;
 }
 
 // 액션 타입 정의
@@ -45,12 +46,13 @@ type BookmarkAction =
   | { type: 'REMOVE_BOOKMARK_SUCCESS'; payload: string }
   | { type: 'REMOVE_BOOKMARK_ERROR'; payload: string };
 
-// 초기 상태
-const initialState: BookmarkState = {
+// 초기 상태 (userId는 Provider에서 설정됨)
+const createInitialState = (userId: string): BookmarkState => ({
   bookmarks: [],
   loading: false,
   error: null,
-};
+  userId,
+});
 
 // 리듀서 함수
 function bookmarkReducer(
@@ -123,7 +125,10 @@ export const BookmarkProvider = ({
   children: React.ReactNode;
   userId: string;
 }) => {
-  const [state, dispatch] = useReducer(bookmarkReducer, initialState);
+  const [state, dispatch] = useReducer(
+    bookmarkReducer,
+    createInitialState(userId),
+  );
 
   // 컴포넌트 마운트 시 북마크 목록 조회
   useEffect(() => {
@@ -170,18 +175,18 @@ export const useBookMarkState = () => {
 // 액션을 사용하는 커스텀 훅
 export const useBookMarkActions = () => {
   const dispatch = useContext(BookmarkDispatchContext);
-  if (dispatch === undefined) {
+  const state = useContext(BookmarkStateContext);
+
+  if (dispatch === undefined || state === undefined) {
     throw new Error(
       'useBookMarkActions must be used within a BookmarkProvider',
     );
   }
 
+  const { userId } = state;
+
   // 북마크 추가 함수
-  const addBookmark = async (
-    userId: string,
-    placeId: string,
-    bookmarkData: BookmarkItem,
-  ) => {
+  const addBookmark = async (placeId: string, bookmarkData: BookmarkItem) => {
     dispatch({ type: 'ADD_BOOKMARK_START' });
     try {
       await insertBookmark(userId, placeId);
@@ -198,7 +203,7 @@ export const useBookMarkActions = () => {
   };
 
   // 북마크 삭제 함수
-  const removeBookmark = async (userId: string, placeId: string) => {
+  const removeBookmark = async (placeId: string) => {
     dispatch({ type: 'REMOVE_BOOKMARK_START' });
     try {
       await deleteBookmark(userId, placeId);
@@ -215,7 +220,7 @@ export const useBookMarkActions = () => {
   };
 
   // 북마크 조회 함수
-  const fetchBookmarks = async (userId: string) => {
+  const fetchBookmarks = async () => {
     dispatch({ type: 'FETCH_BOOKMARKS_START' });
     try {
       const bookmarks: BookmarkItem[] = await getBookmarks(userId);

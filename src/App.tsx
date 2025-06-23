@@ -1,5 +1,5 @@
 import MainPage from '@pages/MainPage';
-import { useEffect, createContext, useReducer, useState } from 'react';
+import { useEffect, createContext, useReducer, useState, useRef } from 'react';
 import { getHistory } from '@src/lib/api/calendar_api';
 import { HistoryType, JSONResponse, StringKeyObj } from '@src/types';
 import qs from 'qs';
@@ -8,6 +8,9 @@ import {
   saveToken,
   getStoredToken,
   isTokenValid,
+  saveUserId,
+  getStoredUserId,
+  removeStoredUserId,
 } from '@lib/util';
 import PrimarySearchAppBar from '@components/sidebar/Searchbar';
 import './App.scss';
@@ -96,7 +99,32 @@ const App = () => {
   const mapInitDispatch = useMapInitDispatch();
   const TodayRestaurantDispatch = useTodayRestaurantDispatch();
 
-  const [userInfo, setUserInfo] = useState<GoogleUserInfo | null>(null);
+  const userId = useRef<string | null>(null);
+
+  // 사용자 ID 초기화 함수
+  const initializeUserId = async () => {
+    // 먼저 localStorage에서 저장된 userId 확인
+    const storedUserId = getStoredUserId();
+    if (storedUserId) {
+      userId.current = storedUserId;
+      console.log('저장된 사용자 ID 사용:', storedUserId);
+      return;
+    }
+
+    // localStorage에 없으면 Google API에서 가져오기
+    try {
+      const userInfo = await getUserInfo();
+      console.log('사용자 정보:', userInfo);
+      const newUserId = userInfo.email?.split('@')[0];
+      if (newUserId) {
+        userId.current = newUserId;
+        saveUserId(newUserId); // localStorage에 저장
+        console.log('새로운 사용자 ID 저장:', newUserId);
+      }
+    } catch (error) {
+      console.error('사용자 정보 가져오기 실패:', error);
+    }
+  };
 
   // 토큰 상태 확인 및 리다이렉트
   useEffect(() => {
@@ -109,21 +137,8 @@ const App = () => {
     // 유효한 토큰이 있으면 상태 저장
     mapInitDispatch({ type: 'setAccessToken', payload: access_token });
 
-    // // 사용자 정보 가져오기
-    // const fetchUserInfo = async () => {
-    //   try {
-    //     const userInfo = await getUserInfo();
-    //     // setUserInfo(userInfo);
-    //     console.log('사용자 정보:', userInfo);
-    //     // 사용자 ID: userInfo.id
-    //     // 사용자 이메일: userInfo.email
-    //     // 사용자 이름: userInfo.name
-    //   } catch (error) {
-    //     console.error('사용자 정보 가져오기 실패:', error);
-    //   }
-    // };
-
-    // fetchUserInfo();
+    // 사용자 ID 초기화
+    initializeUserId();
 
     setIsLoading(false);
 
@@ -131,6 +146,8 @@ const App = () => {
     const tokenCheckInterval = setInterval(() => {
       if (!isTokenValid()) {
         console.log('토큰이 만료되어 재로그인이 필요합니다.');
+        // 저장된 사용자 ID도 삭제
+        removeStoredUserId();
         // 토큰 만료 시 로그인 페이지로 이동
         window.location.href = loginUrl;
         clearInterval(tokenCheckInterval);
@@ -222,13 +239,13 @@ const App = () => {
     <UseDispatch.Provider value={dispatch}>
       {/*<header></header>*/}
       {/* <PrimarySearchAppBar /> */}
-
-      <TodayRestaurantProvider>
-        <ModalProvider>
-          <MainPage state={state} />
-        </ModalProvider>
-      </TodayRestaurantProvider>
-
+      <BookmarkProvider userId={userId.current ?? ''}>
+        <TodayRestaurantProvider>
+          <ModalProvider>
+            <MainPage state={state} userId={userId.current ?? ''} />
+          </ModalProvider>
+        </TodayRestaurantProvider>
+      </BookmarkProvider>
       <footer></footer>
     </UseDispatch.Provider>
   );
