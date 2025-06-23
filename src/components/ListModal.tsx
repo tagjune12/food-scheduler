@@ -7,6 +7,7 @@ import { Restaurant } from '@src/types';
 import MapCard from './commons/MapCard';
 import Grid from '@mui/material/Grid';
 import { convertPlaceToRestaurant } from '@lib/util';
+import { useBookMarkActions } from '@src/context/BookMarkContext';
 
 const style = {
   position: 'absolute',
@@ -51,6 +52,8 @@ export default function ListModal({
   handleClose: () => void;
   restaurants: any[];
 }) {
+  const { addBookmark, removeBookmark } = useBookMarkActions();
+
   return (
     <Modal
       open={open}
@@ -81,6 +84,8 @@ export default function ListModal({
                     //   : undefined
                     undefined
                   }
+                  onBookmarkAdd={addBookmark}
+                  onBookmarkRemove={removeBookmark}
                 />
               </Grid>
             );

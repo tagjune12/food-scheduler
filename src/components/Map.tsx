@@ -17,7 +17,7 @@ import { useModalDispatch } from '@src/context/ModalContext';
 import { useMapInitState } from '@src/context/MapInitContext';
 import ListModal from './ListModal';
 import { convertPlacesToRestaurants } from '@lib/util';
-import { BookmarkProvider } from '@src/context/BookMarkContext';
+import { useBookMarkActions } from '@src/context/BookMarkContext';
 
 interface MapMarker {
   marker: kakao.maps.Marker;
@@ -42,6 +42,7 @@ const DEFAULT_ZOOM = 3;
 const Map = ({ state }: AppStoreType) => {
   const modalDispatch = useModalDispatch();
   const { initialized: appInitialized } = useMapInitState();
+  const { addBookmark, removeBookmark } = useBookMarkActions();
 
   const mapRef = useRef<kakao.maps.Map | null>(null);
   const markersRef = useRef<MapMarker[]>([]);
@@ -101,12 +102,12 @@ const Map = ({ state }: AppStoreType) => {
 
       const cardContainer = createRoot(card);
       const cardContent = (
-        <BookmarkProvider userId={'ltjktnet12'}>
-          <MapCard
-            restaurant={restaurant}
-            visitDate={state.histories[restaurant.place_name]?.date}
-          />
-        </BookmarkProvider>
+        <MapCard
+          restaurant={restaurant}
+          visitDate={state.histories[restaurant.place_name]?.date}
+          onBookmarkAdd={addBookmark}
+          onBookmarkRemove={removeBookmark}
+        />
       );
       cardContainer.render(cardContent);
 

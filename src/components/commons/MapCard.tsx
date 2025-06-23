@@ -5,19 +5,28 @@ import StarOutlineIcon from '@mui/icons-material/StarOutline';
 import GradeIcon from '@mui/icons-material/Grade';
 import { deleteBookmark, insertBookmark } from '@lib/api/supabase_api';
 import { useState } from 'react';
-import { useBookMarkActions } from '@src/context/BookMarkContext';
 
 interface MapCardProps {
   restaurant: any; // Supabase 또는 카카오맵 데이터 모두 수용
   visitDate?: string;
+  onBookmarkAdd?: (
+    userId: string,
+    placeId: string,
+    bookmarkData: any,
+  ) => Promise<void>;
+  onBookmarkRemove?: (userId: string, placeId: string) => Promise<void>;
 }
 
-const MapCard = ({ restaurant, visitDate }: MapCardProps) => {
+const MapCard = ({
+  restaurant,
+  visitDate,
+  onBookmarkAdd,
+  onBookmarkRemove,
+}: MapCardProps) => {
   // const dispatch = useContext(UseDispatch);
   // const { state } = useModalState();
   const modalDispatch = useModalDispatch();
   const [isBookmarked, setIsBookmarked] = useState(restaurant.bookmarked);
-  const { addBookmark, removeBookmark } = useBookMarkActions();
 
   const getDiffDate = (visitDate: string): number => {
     const today = getNumTypeToday();
@@ -75,11 +84,15 @@ const MapCard = ({ restaurant, visitDate }: MapCardProps) => {
   const handleBookmarkClick = async () => {
     console.log('bookmark clicked', restaurant.id);
     if (isBookmarked === 'N') {
-      await addBookmark('ltjktnet12', restaurant.id, restaurant);
-      setIsBookmarked('Y');
+      if (onBookmarkAdd) {
+        await onBookmarkAdd('ltjktnet12', restaurant.id, restaurant);
+        setIsBookmarked('Y');
+      }
     } else {
-      await removeBookmark('ltjktnet12', restaurant.id);
-      setIsBookmarked('N');
+      if (onBookmarkRemove) {
+        await onBookmarkRemove('ltjktnet12', restaurant.id);
+        setIsBookmarked('N');
+      }
     }
     console.log('restaurant', restaurant, isBookmarked);
   };

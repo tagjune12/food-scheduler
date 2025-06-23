@@ -17,12 +17,15 @@ import {
 } from './context/TodayRestaurantContext';
 import { ModalProvider } from './context/ModalContext';
 import { useMapInitDispatch } from './context/MapInitContext';
+import { getUserInfo, GoogleUserInfo } from '@lib/api/user_api';
+import { BookmarkProvider } from './context/BookMarkContext';
 
 const queryStr = qs.stringify({
   client_id: process.env.REACT_APP_GOOGLECALENDAR_CLIENT_ID,
   redirect_uri: 'http://localhost:3000',
   response_type: 'token',
-  scope: 'https://www.googleapis.com/auth/calendar',
+  scope:
+    'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.email',
   // access_type: 'offline',
 });
 const loginUrl = `https://accounts.google.com/o/oauth2/v2/auth?${queryStr}`;
@@ -93,6 +96,8 @@ const App = () => {
   const mapInitDispatch = useMapInitDispatch();
   const TodayRestaurantDispatch = useTodayRestaurantDispatch();
 
+  const [userInfo, setUserInfo] = useState<GoogleUserInfo | null>(null);
+
   // 토큰 상태 확인 및 리다이렉트
   useEffect(() => {
     // 토큰이 없으면 로그인 페이지로 리다이렉트
@@ -103,6 +108,23 @@ const App = () => {
 
     // 유효한 토큰이 있으면 상태 저장
     mapInitDispatch({ type: 'setAccessToken', payload: access_token });
+
+    // // 사용자 정보 가져오기
+    // const fetchUserInfo = async () => {
+    //   try {
+    //     const userInfo = await getUserInfo();
+    //     // setUserInfo(userInfo);
+    //     console.log('사용자 정보:', userInfo);
+    //     // 사용자 ID: userInfo.id
+    //     // 사용자 이메일: userInfo.email
+    //     // 사용자 이름: userInfo.name
+    //   } catch (error) {
+    //     console.error('사용자 정보 가져오기 실패:', error);
+    //   }
+    // };
+
+    // fetchUserInfo();
+
     setIsLoading(false);
 
     // 토큰 만료 체크 인터벌 설정
@@ -200,11 +222,13 @@ const App = () => {
     <UseDispatch.Provider value={dispatch}>
       {/*<header></header>*/}
       {/* <PrimarySearchAppBar /> */}
+
       <TodayRestaurantProvider>
         <ModalProvider>
           <MainPage state={state} />
         </ModalProvider>
       </TodayRestaurantProvider>
+
       <footer></footer>
     </UseDispatch.Provider>
   );

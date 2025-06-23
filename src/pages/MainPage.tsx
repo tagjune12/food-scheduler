@@ -31,7 +31,7 @@ const MainPage = ({ state }: AppStoreType) => {
   }, []);
 
   return (
-    <BookmarkProvider userId={'ltjktnet'}>
+    <BookmarkProvider userId={'ltjktnet12'}>
       <div className="main-page">
         {modalState.isVisible && <Modal restaurant={modalState.target} />}
         <Suspense
