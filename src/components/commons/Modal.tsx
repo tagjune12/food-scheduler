@@ -85,6 +85,7 @@ const Modal = ({ restaurant }: { restaurant: Restaurant }) => {
     }
   };
 
+  // 이미 등록된게 있으면 업데이트 아니면 추가
   const onSaveBtnClickListener = async () => {
     const data: JSONResponse[] = (await getHistory()).items;
     if (data.length > 0) {

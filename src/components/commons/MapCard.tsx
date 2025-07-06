@@ -105,7 +105,7 @@ const MapCard = ({
           )}
         </div>
       </div>
-      <div className="visit-info">{renderVisitInfo()}</div>
+      {/* <div className="visit-info">{renderVisitInfo()}</div> */}
       <div className="progress-wrapper">
         <progress value={visitDate ? getDiffDate(visitDate) : 0} max={28} />
       </div>

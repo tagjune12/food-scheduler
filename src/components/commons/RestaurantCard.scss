@@ -33,6 +33,9 @@
     color: #333;
     margin: 0;
     flex: 1;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    line-height: 1.4;
   }
 
   .bookmark-container {
