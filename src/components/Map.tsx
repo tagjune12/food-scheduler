@@ -17,7 +17,10 @@ import { useModalDispatch } from '@src/context/ModalContext';
 import { useMapInitState } from '@src/context/MapInitContext';
 import ListModal from './ListModal';
 import { convertPlacesToRestaurants } from '@lib/util';
-import { useBookMarkActions } from '@src/context/BookMarkContext';
+import {
+  useBookMarkActions,
+  useBookMarkState,
+} from '@src/context/BookMarkContext';
 
 interface MapMarker {
   marker: kakao.maps.Marker;
@@ -52,6 +55,7 @@ const Map = ({ state }: AppStoreType) => {
   const [isMapInitialized, setIsMapInitialized] = useState<boolean>(false);
   const [showListModal, setShowListModal] = useState<boolean>(false);
   const [clusterRestaurants, setClusterRestaurants] = useState<any[]>([]);
+  const { userId } = useBookMarkState();
 
   const createMarkerOverlay = useCallback(
     (restaurant: any) => {
@@ -59,11 +63,19 @@ const Map = ({ state }: AppStoreType) => {
       const root = document.createElement('div');
       content.appendChild(root);
 
+      const lat = parseFloat(restaurant.latitude ?? '0');
+      const lng = parseFloat(restaurant.longitude ?? '0');
+
+      // 좌표 유효성 검사
+      if (isNaN(lat) || isNaN(lng) || lat === 0 || lng === 0) {
+        console.warn(
+          `무효한 좌표로 오버레이 생성 실패: ${restaurant.place_name}`,
+        );
+        return null;
+      }
+
       const overlay = new kakao.maps.CustomOverlay({
-        position: new kakao.maps.LatLng(
-          parseFloat(restaurant.longitude ?? '0'),
-          parseFloat(restaurant.latitude ?? '0'),
-        ),
+        position: new kakao.maps.LatLng(lat, lng),
         content,
         yAnchor: 1,
         clickable: true,
@@ -125,7 +137,7 @@ const Map = ({ state }: AppStoreType) => {
       });
       // const fetchedRestaurants = await getRestaurantsWithName(markerTitles);
       const fetchedRestaurants = await getPlacesWithNameAndBookmarks(
-        'ltjktnet12',
+        userId,
         markerTitles,
       );
       // console.log('fetchedRestaurants', JSON.stringify(fetchedRestaurants));
@@ -154,12 +166,23 @@ const Map = ({ state }: AppStoreType) => {
     [state.histories],
   );
 
-  const createMarker = useCallback(
-    (restaurant: any) => {
-      const position = new kakao.maps.LatLng(
-        parseFloat(restaurant.longitude ?? '0'), // y
-        parseFloat(restaurant.latitude ?? '0'), // x
-      );
+  const createMarker = useCallback((restaurant: any) => {
+    try {
+      const lat = parseFloat(restaurant.latitude ?? '0');
+      const lng = parseFloat(restaurant.longitude ?? '0');
+
+      // 좌표 유효성 검사
+      if (isNaN(lat) || isNaN(lng) || lat === 0 || lng === 0) {
+        console.warn(`무효한 좌표로 마커 생성 실패: ${restaurant.place_name}`, {
+          latitude: restaurant.latitude,
+          longitude: restaurant.longitude,
+          parsedLat: lat,
+          parsedLng: lng,
+        });
+        return null;
+      }
+
+      const position = new kakao.maps.LatLng(lat, lng);
       const marker = new kakao.maps.Marker({
         position,
         map: mapRef.current ?? undefined,
@@ -167,14 +190,11 @@ const Map = ({ state }: AppStoreType) => {
 
       // 커스텀 이미지 설정
       try {
-        // const markerContent = createMarkerContent();
-        // const sanitizedContent = encodeURIComponent(markerContent);
-        // const imageSrc = 'data:image/svg+xml;charset=utf-8,' + sanitizedContent;
         const imageSrc =
           'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png';
 
-        const imageSize = new kakao.maps.Size(20, 20); // 더 큰 크기로 조정
-        const imageOption = { offset: new kakao.maps.Point(15, 15) }; // 중심점 조정
+        const imageSize = new kakao.maps.Size(20, 20);
+        const imageOption = { offset: new kakao.maps.Point(15, 15) };
         const markerImage = new kakao.maps.MarkerImage(
           imageSrc,
           imageSize,
@@ -188,10 +208,11 @@ const Map = ({ state }: AppStoreType) => {
       }
 
       return marker;
-    },
-    // [createMarkerContent],
-    [],
-  );
+    } catch (error) {
+      console.error(`마커 생성 오류: ${restaurant.place_name}`, error);
+      return null;
+    }
+  }, []);
 
   const closeCurrentOverlay = useCallback(() => {
     if (openedMarkerRef.current !== null) {
@@ -314,40 +335,61 @@ const Map = ({ state }: AppStoreType) => {
 
       // 데이터 로드
       // const restaurants = (await getRestaurants()) ?? [];
-      const restaurants =
-        (await getPlacesWithUserBookmarks('ltjktnet12')) ?? [];
-      // console.log('restaurants', JSON.stringify(restaurants));
+      const restaurants = (await getPlacesWithUserBookmarks(userId)) ?? [];
+      console.log('restaurants', JSON.stringify(restaurants));
 
       // 새 마커 생성 및 추가
-      markersRef.current = restaurants.map((restaurant, index) => {
-        const restaurantInfo: Restaurant = {
-          name: restaurant.place_name ?? '',
-          tags: (restaurant.category_name ?? '')
-            .split('>')
-            .filter((elem) => elem !== '음식점'),
-          address: restaurant.address_name ?? '',
-          period: 0,
-          visit: '',
-          position: {
-            x: restaurant.latitude ?? '',
-            y: restaurant.longitude ?? '',
-          },
-          place_url: restaurant.place_url ?? '',
-        };
+      markersRef.current = restaurants
+        .map((restaurant, index) => {
+          // 좌표 검증
+          const lat = parseFloat(restaurant.latitude ?? '0');
+          const lng = parseFloat(restaurant.longitude ?? '0');
 
-        const marker = createMarker(restaurant);
-        const overlay = createMarkerOverlay(restaurant);
+          if (lat === 0 || lng === 0 || isNaN(lat) || isNaN(lng)) {
+            console.warn(`잘못된 좌표 데이터: ${restaurant.place_name}`, {
+              latitude: restaurant.latitude,
+              longitude: restaurant.longitude,
+              parsedLat: lat,
+              parsedLng: lng,
+            });
+          }
 
-        // 클러스터러에 마커 추가
-        markerClustererRef.current?.addMarker(marker);
+          const restaurantInfo: Restaurant = {
+            name: restaurant.place_name ?? '',
+            tags: (restaurant.category_name ?? '')
+              .split('>')
+              .filter((elem) => elem !== '음식점'),
+            address: restaurant.address_name ?? '',
+            period: 0,
+            visit: '',
+            position: {
+              x: restaurant.longitude ?? '', // x는 경도(longitude)
+              y: restaurant.latitude ?? '', // y는 위도(latitude)
+            },
+            place_url: restaurant.place_url ?? '',
+          };
 
-        // 마커 클릭 이벤트 추가
-        kakao.maps.event.addListener(marker, 'click', () =>
-          handleMarkerClick(index, restaurantInfo),
-        );
+          const marker = createMarker(restaurant);
+          const overlay = createMarkerOverlay(restaurant);
 
-        return { marker, overlay };
-      });
+          // 마커나 오버레이가 null이면 건너뛰기
+          if (!marker || !overlay) {
+            return null;
+          }
+
+          // 클러스터러에 마커 추가
+          if (markerClustererRef.current) {
+            markerClustererRef.current.addMarker(marker);
+          }
+
+          // 마커 클릭 이벤트 추가
+          kakao.maps.event.addListener(marker, 'click', () =>
+            handleMarkerClick(index, restaurantInfo),
+          );
+
+          return { marker, overlay };
+        })
+        .filter((item) => item !== null) as MapMarker[];
 
       console.log(`${markersRef.current.length}개 마커 생성 완료`);
     } catch (error) {

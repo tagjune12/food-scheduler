@@ -22,6 +22,8 @@ import { ModalProvider } from './context/ModalContext';
 import { useMapInitDispatch } from './context/MapInitContext';
 import { getUserInfo, GoogleUserInfo } from '@lib/api/user_api';
 import { BookmarkProvider } from './context/BookMarkContext';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import LoginPage from './pages/LoginPage';
 
 const queryStr = qs.stringify({
   client_id: process.env.REACT_APP_GOOGLECALENDAR_CLIENT_ID,
@@ -72,7 +74,7 @@ const initializeToken = () => {
 // 앱 시작시 토큰 초기화
 initializeToken();
 
-const App = () => {
+const AuthenticatedApp = () => {
   const initialState = {
     histories: {},
   };
@@ -126,13 +128,9 @@ const App = () => {
     }
   };
 
-  // 토큰 상태 확인 및 리다이렉트
+  // 토큰 상태 설정 및 인터벌 설정
   useEffect(() => {
-    // 토큰이 없으면 로그인 페이지로 리다이렉트
-    if (!access_token) {
-      window.location.href = loginUrl;
-      return;
-    }
+    if (!access_token) return;
 
     // 유효한 토큰이 있으면 상태 저장
     mapInitDispatch({ type: 'setAccessToken', payload: access_token });
@@ -149,7 +147,7 @@ const App = () => {
         // 저장된 사용자 ID도 삭제
         removeStoredUserId();
         // 토큰 만료 시 로그인 페이지로 이동
-        window.location.href = loginUrl;
+        window.location.href = '/login';
         clearInterval(tokenCheckInterval);
       }
     }, 60000); // 1분마다 체크
@@ -209,7 +207,8 @@ const App = () => {
         // 인증 오류 (401) 발생 시 토큰 갱신
         if (error.response && error.response.status === 401) {
           console.log('인증 오류가 발생하여 다시 로그인합니다.');
-          window.location.href = loginUrl;
+          removeStoredUserId();
+          window.location.href = '/login';
         } else {
           alert('일정을 불러오는 중 오류가 발생했습니다.');
         }
@@ -219,35 +218,40 @@ const App = () => {
     callCalendarAPI();
   }, [access_token, isLoading]);
 
-  // 데이터 로드 완료 후 지도 초기화 상태 활성화
-  // useEffect(() => {
-  //   if (!isLoading && !mapInitialized) {
-  //     // 약간의 지연 후 지도 초기화 상태 활성화 (경쟁 상태 방지)
-  //     const timer = setTimeout(() => {
-  //       setMapInitialized(true);
-  //     }, 500);
-
-  //     return () => clearTimeout(timer);
-  //   }
-  // }, [isLoading, mapInitialized]);
-
   if (isLoading) {
     return <div className="loading">로딩 중...</div>;
   }
 
   return (
     <UseDispatch.Provider value={dispatch}>
-      {/*<header></header>*/}
-      {/* <PrimarySearchAppBar /> */}
       <BookmarkProvider userId={userId.current ?? ''}>
         <TodayRestaurantProvider>
           <ModalProvider>
-            <MainPage state={state} userId={userId.current ?? ''} />
+            <MainPage state={state} />
           </ModalProvider>
         </TodayRestaurantProvider>
       </BookmarkProvider>
-      <footer></footer>
     </UseDispatch.Provider>
+  );
+};
+
+const App = () => {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route
+          path="/"
+          element={
+            access_token && isTokenValid() ? (
+              <AuthenticatedApp />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+      </Routes>
+    </BrowserRouter>
   );
 };
 

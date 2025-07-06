@@ -8,14 +8,16 @@ import {
   getRestaurantsWithName,
 } from '@src/lib/api/supabase_api';
 import { useTodayRestaurantDispatch } from '@src/context/TodayRestaurantContext';
+import { useBookMarkState } from '@src/context/BookMarkContext';
 const History = ({ histories }: { histories: HistoryType }) => {
   const [historyRestaurants, setHistoryRestaurants] = useState<any[]>([]);
   const todayRestaurantDispatch = useTodayRestaurantDispatch();
+  const { userId } = useBookMarkState();
 
   useEffect(() => {
     const fetchHistory = async () => {
       // const response = await getHistory('ltjktnet12', 'desc');
-      const response = await getPlacesWithUserBookmarks('ltjktnet12');
+      const response = await getPlacesWithUserBookmarks(userId);
       setHistoryRestaurants(response);
     };
     fetchHistory();

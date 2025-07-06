@@ -8,6 +8,7 @@ import {
 } from '@src/context/TodayRestaurantContext';
 import { insertHistory } from '@lib/api/supabase_api';
 import { useRef } from 'react';
+import { useBookMarkState } from '@src/context/BookMarkContext';
 
 const Modal = ({ restaurant }: { restaurant: Restaurant }) => {
   const modalDispatch = useModalDispatch();
@@ -15,6 +16,7 @@ const Modal = ({ restaurant }: { restaurant: Restaurant }) => {
   const todayRestaurantDispatch = useTodayRestaurantDispatch();
   const todayRestaurantState = useTodayRestaurantState();
   const calendarEvent = useRef<any>(null);
+  const { userId } = useBookMarkState();
 
   const insertTodayRestaurant = () => {
     try {
@@ -33,7 +35,7 @@ const Modal = ({ restaurant }: { restaurant: Restaurant }) => {
         }
         modalDispatch({ type: 'hideModal' });
         insertHistory(
-          'ltjktnet12',
+          userId,
           restaurant.name,
           result.start.date,
           result.id,
@@ -71,7 +73,7 @@ const Modal = ({ restaurant }: { restaurant: Restaurant }) => {
         //   'day',
         // );
         insertHistory(
-          'ltjktnet12',
+          userId,
           restaurant.name,
           todayEvent.start.date,
           todayEvent.id,

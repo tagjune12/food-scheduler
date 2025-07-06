@@ -16,7 +16,7 @@ const MemoizedSideBar = memo(({ state }: AppStoreType) => (
   <LazySideBar state={state} />
 ));
 
-const MainPage = ({ state, userId }: AppStoreType) => {
+const MainPage = ({ state }: { state: any }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const modalState = useModalState();
 
