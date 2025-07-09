@@ -1,26 +1,13 @@
-// import RestaurantCard from '@components/commons/RestaurantCard';
 import { Restaurant } from '@src/types';
-import { useEffect, useRef, useState } from 'react';
-import { getNumTypeToday } from '@lib/util';
+import { useEffect, useState } from 'react';
 import '@components/sidebar/TodayRestaurant.scss';
 import { getRestaurantsWithName } from '@lib/api/supabase_api';
-import RestaurantCard from '@components/commons/RestaurantCard';
 import TodayRestaurantCard from './TodayRestaurantCard';
-import { useTodayRestaurantDispatch } from '@src/context/TodayRestaurantContext';
-import Button from '@mui/material/Button';
 
 const TodayRestaurant = ({ restaurantName }: { restaurantName: string }) => {
-  // const visit = useRef<{
-  //   year: number;
-  //   month: number;
-  //   date: number;
-  // }>(getNumTypeToday());
-
   const [todayRestaurant, setTodayRestaurant] = useState<
     Restaurant | undefined
   >(undefined);
-
-  const todayRestaurantDispatch = useTodayRestaurantDispatch();
 
   useEffect(() => {
     const fetchRestaurant = async () => {
@@ -28,11 +15,10 @@ const TodayRestaurant = ({ restaurantName }: { restaurantName: string }) => {
       if (restaurant.length > 0) {
         const formattedRestaurant: any = {
           place_name: restaurant[0]?.place_name || '',
-          tags: restaurant[0]?.category_name
-            ? restaurant[0].category_name.split(' > ')
-            : [],
+          category_name: restaurant[0]?.category_name || '',
           address: restaurant[0]?.address_name || '',
           period: 0,
+          place_url: restaurant[0]?.place_url || '',
         };
         setTodayRestaurant(formattedRestaurant);
       } else {

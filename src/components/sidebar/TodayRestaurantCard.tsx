@@ -1,5 +1,6 @@
 import '@components/commons/RestaurantCard.scss';
 import { getNumTypeToday } from '@lib/util';
+import { useEffect } from 'react';
 
 export default function TodayRestaurantCard({ restaurant, visitDate }: any) {
   const getDiffDate = (visitDate: string): number => {
@@ -41,10 +42,14 @@ export default function TodayRestaurantCard({ restaurant, visitDate }: any) {
     );
   };
 
+  useEffect(() => {
+    console.log('restaurant', restaurant);
+  }, [restaurant]);
+
   return (
     <div className={`card-container`}>
       <h3>{restaurant.place_name}</h3>
-      <div className="visit-info">{renderVisitInfo()}</div>
+      {/* <div className="visit-info">{renderVisitInfo()}</div> */}
       <div className="progress-wrapper">
         <progress value={visitDate ? getDiffDate(visitDate) : 0} max={28} />
       </div>
