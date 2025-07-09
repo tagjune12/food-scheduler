@@ -44,8 +44,6 @@ const MapCard = ({
     if (restaurant.name) {
       modalDispatch({ type: 'showModal', payload: restaurant });
     } else {
-      // const test = convertPlaceToRestaurant(restaurant);
-      // console.log('test', test);
       modalDispatch({
         type: 'showModal',
         payload: convertPlaceToRestaurant(restaurant),

@@ -3,17 +3,12 @@ import { AppStoreType, Restaurant } from '@src/types';
 import Modal from '@components/commons/Modal';
 import { Skeleton } from '@mui/material';
 import { useModalState } from '@src/context/ModalContext';
+import SideBar from '@components/sidebar/SideBar';
 
 // 메모이제이션된 Map 컴포넌트
 const LazyMap = lazy(() => import('@components/Map'));
 const MemoizedMap = memo(({ state }: AppStoreType) => (
   <LazyMap state={state} />
-));
-
-// 메모이제이션된 SideBar 컴포넌트
-const LazySideBar = lazy(() => import('@components/sidebar/SideBar'));
-const MemoizedSideBar = memo(({ state }: AppStoreType) => (
-  <LazySideBar state={state} />
 ));
 
 const MainPage = ({ state }: { state: any }) => {
@@ -42,7 +37,7 @@ const MainPage = ({ state }: { state: any }) => {
           />
         }
       >
-        <MemoizedSideBar state={state} />
+        <SideBar state={state} />
       </Suspense>
       <Suspense
         fallback={
