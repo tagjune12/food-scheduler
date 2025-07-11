@@ -1,4 +1,12 @@
-import { createContext, Dispatch, useReducer, useContext } from 'react';
+import { getHistory } from '@lib/api/calendar_api';
+import { getRestaurantsWithName } from '@lib/api/supabase_api';
+import {
+  createContext,
+  Dispatch,
+  useReducer,
+  useContext,
+  useEffect,
+} from 'react';
 
 interface TodayRestaurantState {
   todayRestaurant: any;
@@ -44,13 +52,34 @@ const TodayRestaurantDispatchContext = createContext<{
 
 export const TodayRestaurantProvider = ({
   children,
+  userId,
 }: {
   children: React.ReactNode;
+  userId: string;
 }) => {
   const [todayRestaurantState, todayRestaurantDispatch] = useReducer(
     todayRestaurantReducer,
     initialState,
   );
+
+  useEffect(() => {
+    console.log('context userId', userId);
+    const fetchTodayRestaurant = async () => {
+      const restaurantName = (await getHistory()).items[0]?.summary;
+      console.log('restaurantName', restaurantName);
+      const todayRestaurant = (
+        await getRestaurantsWithName([restaurantName])
+      )[0];
+      console.log('todayRestaurant', todayRestaurant);
+      todayRestaurantDispatch({
+        type: 'selectRestaurant',
+        payload: todayRestaurant,
+      });
+    };
+
+    fetchTodayRestaurant();
+  }, [userId]);
+
   return (
     <TodayRestaurantStatContext.Provider value={todayRestaurantState}>
       <TodayRestaurantDispatchContext.Provider

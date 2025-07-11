@@ -225,7 +225,7 @@ const AuthenticatedApp = () => {
   return (
     <UseDispatch.Provider value={dispatch}>
       <BookmarkProvider userId={userId.current ?? ''}>
-        <TodayRestaurantProvider>
+        <TodayRestaurantProvider userId={userId.current ?? ''}>
           <ModalProvider>
             <MainPage state={state} />
           </ModalProvider>

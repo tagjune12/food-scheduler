@@ -43,7 +43,7 @@ export default function TodayRestaurantCard({ restaurant, visitDate }: any) {
   };
 
   useEffect(() => {
-    console.log('restaurant', restaurant);
+    console.log('today restaurant card', restaurant);
   }, [restaurant]);
 
   return (

@@ -57,7 +57,11 @@ const SideBar = ({ state }: AppStoreType) => {
             <h2>오늘의 식사</h2>
           </div>
           <TodayRestaurant
-            restaurantName={todayRestaurantState.todayRestaurant.name ?? ''}
+            restaurantName={
+              todayRestaurantState.todayRestaurant.name ||
+              todayRestaurantState.todayRestaurant.place_name ||
+              ''
+            }
           />
           <Divider />
           &nbsp;
