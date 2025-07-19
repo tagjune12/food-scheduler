@@ -72,7 +72,7 @@ export default function Searchbar({
             // const result = await searchLocalPlaces(searchValue);
             // console.log(result);
             const result = await searchRestaurantwithName(searchValue);
-            console.log(result);
+            // console.log(result);
             callbackFn(result);
           }
         }}

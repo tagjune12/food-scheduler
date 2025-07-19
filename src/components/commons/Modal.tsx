@@ -21,15 +21,15 @@ const Modal = ({ restaurant }: { restaurant: Restaurant }) => {
   const insertTodayRestaurant = () => {
     try {
       insertEvent(restaurant.name, new Date()).then((result) => {
-        console.log('todayRestaurantState1-restaurant', restaurant);
+        // console.log('todayRestaurantState1-restaurant', restaurant);
         todayRestaurantDispatch({
           type: 'selectRestaurant',
           payload: { ...restaurant },
         });
         calendarEvent.current = result;
-        console.log('todayRestaurantState1', todayRestaurantState);
-        console.log('result', result);
-        console.log('calendarEvent1', calendarEvent.current);
+        // console.log('todayRestaurantState1', todayRestaurantState);
+        // console.log('result', result);
+        // console.log('calendarEvent1', calendarEvent.current);
         if (modalState.callbackFn) {
           modalState.callbackFn(calendarEvent.current);
         }
@@ -50,21 +50,21 @@ const Modal = ({ restaurant }: { restaurant: Restaurant }) => {
   const updateTodayRestaurant = (todayEvent: JSONResponse) => {
     try {
       updateEvent(restaurant.name, todayEvent.id, new Date()).then((result) => {
-        console.log('todayRestaurantState2-restaurant', restaurant);
+        // console.log('todayRestaurantState2-restaurant', restaurant);
         todayRestaurantDispatch({
           type: 'selectRestaurant',
           payload: { ...restaurant },
         });
         calendarEvent.current = result;
-        console.log('todayRestaurantState1', todayRestaurantState);
-        console.log('result', result);
-        console.log('calendarEvent2', calendarEvent.current);
+        // console.log('todayRestaurantState1', todayRestaurantState);
+        // console.log('result', result);
+        // console.log('calendarEvent2', calendarEvent.current);
         if (modalState.callbackFn) {
           modalState.callbackFn(calendarEvent.current);
         }
 
         modalDispatch({ type: 'hideModal' });
-        console.log('todayRestaurantState2', todayRestaurantState);
+        // console.log('todayRestaurantState2', todayRestaurantState);
         // updateHistory(
         //   'ltjktnet12',
         //   restaurant.name,

@@ -336,7 +336,7 @@ const Map = ({ state }: AppStoreType) => {
       // 데이터 로드
       // const restaurants = (await getRestaurants()) ?? [];
       const restaurants = (await getPlacesWithUserBookmarks(userId)) ?? [];
-      console.log('restaurants', JSON.stringify(restaurants));
+      // console.log('restaurants', JSON.stringify(restaurants));
 
       // 새 마커 생성 및 추가
       markersRef.current = restaurants

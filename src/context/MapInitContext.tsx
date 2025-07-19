@@ -18,7 +18,7 @@ function mapInitReducer(prevState: MapInitState, action: any) {
         access_token: action.payload,
         initialized: true,
       };
-      console.log('mapInitReducer', result);
+      // console.log('mapInitReducer', result);
       return result;
     }
 

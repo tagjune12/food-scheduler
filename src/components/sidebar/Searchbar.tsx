@@ -189,7 +189,7 @@ export default function PrimarySearchAppBar() {
               }}
               onKeyDown={async (e) => {
                 if (e.key === 'Enter') {
-                  console.log(searchValue);
+                  // console.log(searchValue);
                   // const result = await searchLocalPlaces(searchValue);
                   // console.log(result);
                 }

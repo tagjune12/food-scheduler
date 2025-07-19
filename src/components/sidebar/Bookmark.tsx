@@ -23,11 +23,11 @@ export const Bookmark = () => {
   // }, []);
 
   useEffect(() => {
-    console.log('bookmarks', bookmarks);
+    // console.log('bookmarks', bookmarks);
   }, [bookmarks]);
 
   const handleBookmarkClick = async (restaurantId: string) => {
-    console.log('bookmark clicked', restaurantId);
+    // console.log('bookmark clicked', restaurantId);
     // const result = await deleteBookmark('ltjktnet12', restaurantId);
     // console.log('result', result);
     // if (result.length === 0) return;

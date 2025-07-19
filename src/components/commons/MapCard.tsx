@@ -40,7 +40,7 @@ const MapCard = ({
   };
 
   const handleButtonClick = () => {
-    console.log('restaurant', restaurant);
+    // console.log('restaurant', restaurant);
     if (restaurant.name) {
       modalDispatch({ type: 'showModal', payload: restaurant });
     } else {
@@ -76,7 +76,7 @@ const MapCard = ({
   };
 
   const handleBookmarkClick = async () => {
-    console.log('bookmark clicked', restaurant.id);
+    // console.log('bookmark clicked', restaurant.id);
     if (isBookmarked === 'N') {
       if (onBookmarkAdd) {
         await onBookmarkAdd(restaurant.id, restaurant);
@@ -88,7 +88,7 @@ const MapCard = ({
         setIsBookmarked('N');
       }
     }
-    console.log('restaurant', restaurant, isBookmarked);
+    // console.log('restaurant', restaurant, isBookmarked);
   };
 
   return (

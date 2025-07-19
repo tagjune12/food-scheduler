@@ -21,7 +21,7 @@ const History = ({ histories }: { histories: HistoryType }) => {
       setHistoryRestaurants(response);
     };
     fetchHistory();
-    console.log('historyRestaurants', historyRestaurants);
+    // console.log('historyRestaurants', historyRestaurants);
   }, [histories]);
 
   return (
