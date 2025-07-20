@@ -24,7 +24,7 @@ import {
 
 interface MapMarker {
   marker: kakao.maps.Marker;
-  overlay: kakao.maps.CustomOverlay;
+  restaurant: any; // 오버레이는 미리 생성하지 않고 레스토랑 정보만 저장
 }
 
 // interface MarkerStyle {
@@ -52,11 +52,13 @@ const Map = ({ state }: AppStoreType) => {
   const openedMarkerRef = useRef<number | null>(null);
   const markerClustererRef = useRef<kakao.maps.MarkerClusterer | null>(null);
   const clusterOverlayRef = useRef<kakao.maps.CustomOverlay | null>(null);
+  const currentOverlayRef = useRef<kakao.maps.CustomOverlay | null>(null); // 현재 열린 오버레이 추적
   const [isMapInitialized, setIsMapInitialized] = useState<boolean>(false);
   const [showListModal, setShowListModal] = useState<boolean>(false);
   const [clusterRestaurants, setClusterRestaurants] = useState<any[]>([]);
   const { userId } = useBookMarkState();
 
+  // 마커 클릭시 나타나는 카드 생성 (동적 생성)
   const createMarkerOverlay = useCallback(
     (restaurant: any) => {
       const content = document.createElement('div');
@@ -125,6 +127,7 @@ const Map = ({ state }: AppStoreType) => {
 
       return overlay;
     },
+    // [state.histories, addBookmark, removeBookmark],
     [state.histories],
   );
 
@@ -166,6 +169,7 @@ const Map = ({ state }: AppStoreType) => {
     [state.histories],
   );
 
+  // 마커 생성
   const createMarker = useCallback((restaurant: any) => {
     try {
       const lat = parseFloat(restaurant.latitude ?? '0');
@@ -215,8 +219,9 @@ const Map = ({ state }: AppStoreType) => {
   }, []);
 
   const closeCurrentOverlay = useCallback(() => {
-    if (openedMarkerRef.current !== null) {
-      markersRef.current[openedMarkerRef.current].overlay.setMap(null);
+    if (currentOverlayRef.current) {
+      currentOverlayRef.current.setMap(null);
+      currentOverlayRef.current = null;
       openedMarkerRef.current = null;
 
       // 지도 확대/축소 다시 활성화
@@ -239,32 +244,41 @@ const Map = ({ state }: AppStoreType) => {
   }, []);
 
   const handleMarkerClick = useCallback(
-    (index: number, info: Restaurant) => {
-      const { overlay } = markersRef.current[index];
-
+    async (index: number, info: Restaurant) => {
+      // 같은 마커를 다시 클릭하면 오버레이 닫기
       if (openedMarkerRef.current === index) {
-        overlay.setMap(null);
-        openedMarkerRef.current = null;
+        closeCurrentOverlay();
         return;
       }
 
+      // 기존 오버레이 닫기
       closeCurrentOverlay();
-      overlay.setMap(mapRef.current);
-      openedMarkerRef.current = index;
 
-      // DOM 이벤트 리스너 추가
-      const addEventBtn = document.querySelector('.add-event-btn');
-      // const closeInfoWindowBtn = document.querySelector(
-      //   '.info-window-container .close-btn',
-      // );
+      // 클릭한 마커의 레스토랑 정보로 동적으로 오버레이 생성
+      // const restaurant = markersRef.current[index].restaurant;
+      const restaurant = (
+        await getPlacesWithNameAndBookmarks(userId, [
+          markersRef.current[index].restaurant.place_name,
+        ])
+      )[0];
 
-      addEventBtn?.addEventListener('click', () => {
-        modalDispatch({ type: 'showModal', payload: info });
-      });
+      const overlay = createMarkerOverlay(restaurant);
 
-      // closeInfoWindowBtn?.addEventListener('click', closeCurrentOverlay);
+      if (overlay) {
+        overlay.setMap(mapRef.current);
+        currentOverlayRef.current = overlay;
+        openedMarkerRef.current = index;
+
+        // DOM 이벤트 리스너 추가 (비동기적으로 처리)
+        setTimeout(() => {
+          const addEventBtn = document.querySelector('.add-event-btn');
+          addEventBtn?.addEventListener('click', () => {
+            modalDispatch({ type: 'showModal', payload: info });
+          });
+        }, 0);
+      }
     },
-    [modalDispatch, closeCurrentOverlay],
+    [modalDispatch, closeCurrentOverlay, createMarkerOverlay],
   );
 
   const handleMarkerClustererClick = useCallback(
@@ -334,11 +348,9 @@ const Map = ({ state }: AppStoreType) => {
       markerClustererRef.current.clear();
 
       // 데이터 로드
-      // const restaurants = (await getRestaurants()) ?? [];
       const restaurants = (await getPlacesWithUserBookmarks(userId)) ?? [];
-      // console.log('restaurants', JSON.stringify(restaurants));
 
-      // 새 마커 생성 및 추가
+      // 새 마커 생성 및 추가 (오버레이는 미리 생성하지 않음)
       markersRef.current = restaurants
         .map((restaurant, index) => {
           // 좌표 검증
@@ -370,10 +382,9 @@ const Map = ({ state }: AppStoreType) => {
           };
 
           const marker = createMarker(restaurant);
-          const overlay = createMarkerOverlay(restaurant);
 
-          // 마커나 오버레이가 null이면 건너뛰기
-          if (!marker || !overlay) {
+          // 마커가 null이면 건너뛰기
+          if (!marker) {
             return null;
           }
 
@@ -387,7 +398,7 @@ const Map = ({ state }: AppStoreType) => {
             handleMarkerClick(index, restaurantInfo),
           );
 
-          return { marker, overlay };
+          return { marker, restaurant }; // 오버레이는 제거하고 레스토랑 정보만 저장
         })
         .filter((item) => item !== null) as MapMarker[];
 
@@ -395,7 +406,7 @@ const Map = ({ state }: AppStoreType) => {
     } catch (error) {
       console.error('식당 데이터 로드 및 마커 생성 오류:', error);
     }
-  }, [createMarker, createMarkerOverlay, handleMarkerClick]);
+  }, [createMarker, handleMarkerClick, userId]);
 
   // 지도 초기화 함수 - 의존성 최소화
   const initializeMap = useCallback(async () => {
@@ -500,14 +511,18 @@ const Map = ({ state }: AppStoreType) => {
     // 컴포넌트 언마운트 시 정리
     return () => {
       if (markersRef.current.length > 0) {
-        markersRef.current.forEach(({ marker, overlay }) => {
+        markersRef.current.forEach(({ marker }) => {
           marker.setMap(null);
-          overlay.setMap(null);
         });
       }
 
       if (markerClustererRef.current) {
         markerClustererRef.current.clear();
+      }
+
+      // 현재 오버레이도 정리
+      if (currentOverlayRef.current) {
+        currentOverlayRef.current.setMap(null);
       }
     };
   }, [initializeMap, isMapInitialized, appInitialized]);

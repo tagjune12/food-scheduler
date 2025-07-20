@@ -3,8 +3,13 @@ import { convertPlaceToRestaurant, getNumTypeToday } from '@lib/util';
 import { useModalDispatch } from '@src/context/ModalContext';
 import StarOutlineIcon from '@mui/icons-material/StarOutline';
 import GradeIcon from '@mui/icons-material/Grade';
-import { deleteBookmark, insertBookmark } from '@lib/api/supabase_api';
-import { useState } from 'react';
+import {
+  deleteBookmark,
+  getPlacesWithNameAndBookmarks,
+  insertBookmark,
+} from '@lib/api/supabase_api';
+import { useEffect, useState } from 'react';
+import { useBookMarkState } from '@src/context/BookMarkContext';
 
 interface MapCardProps {
   restaurant: any; // Supabase 또는 카카오맵 데이터 모두 수용
@@ -19,8 +24,6 @@ const MapCard = ({
   onBookmarkAdd,
   onBookmarkRemove,
 }: MapCardProps) => {
-  // const dispatch = useContext(UseDispatch);
-  // const { state } = useModalState();
   const modalDispatch = useModalDispatch();
   const [isBookmarked, setIsBookmarked] = useState(restaurant.bookmarked);
 
