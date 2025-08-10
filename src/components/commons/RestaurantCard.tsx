@@ -4,7 +4,6 @@ import { useModalDispatch } from '@src/context/ModalContext';
 
 import StarOutlineIcon from '@mui/icons-material/StarOutline';
 import GradeIcon from '@mui/icons-material/Grade';
-import { deleteBookmark, insertBookmark } from '@lib/api/supabase_api';
 
 interface RestaurantCardProps {
   restaurant: any; // Supabase 또는 카카오맵 데이터 모두 수용
@@ -19,7 +18,6 @@ const RestaurantCard = ({
   onMap,
   callback,
 }: RestaurantCardProps) => {
-  // const dispatch = useContext(UseDispatch);
   const modalDispatch = useModalDispatch();
 
   const getDiffDate = (visitDate: string): number => {
@@ -67,7 +65,6 @@ const RestaurantCard = ({
   };
 
   const handleBookmarkClick = () => {
-    // console.log('bookmark clicked', restaurant.id);
     if (window.confirm('북마크를 취소하시겠습니까?')) {
       callback?.(restaurant.id);
     }
@@ -85,7 +82,6 @@ const RestaurantCard = ({
           )}
         </div>
       </div>
-      {/* <div className="visit-info">{renderVisitInfo()}</div> */}
       <div className="progress-wrapper">
         <progress value={visitDate ? getDiffDate(visitDate) : 0} max={28} />
       </div>

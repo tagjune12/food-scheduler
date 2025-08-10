@@ -30,20 +30,7 @@ const TodayRestaurant = ({ restaurantName }: { restaurantName: string }) => {
 
   return (
     <div className="today-restaurant-contianer">
-      <div className="button-wrapper">
-        {/* {todayRestaurant && (
-          <Button
-            className="delete-button"
-            onClick={() => {
-              if (window.confirm('삭제하시겠습니까?')) {
-                todayRestaurantDispatch({ type: 'deleteEvent' });
-              }
-            }}
-          >
-            삭제하기
-          </Button>
-        )} */}
-      </div>
+      <div className="button-wrapper"></div>
       <div className="info-section">
         {todayRestaurant ? (
           <TodayRestaurantCard restaurant={todayRestaurant} />

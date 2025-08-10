@@ -15,7 +15,6 @@ export default function PaginationButtons({
 }) {
   const handleChange = (event: React.ChangeEvent<unknown>, value: number) => {
     btnClickListener(value);
-    // console.log('restaurantListRef', restaurantListRef.current);
     restaurantListRef.current?.scrollTo({ top: 0 });
   };
 

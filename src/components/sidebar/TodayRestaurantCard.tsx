@@ -49,7 +49,6 @@ export default function TodayRestaurantCard({ restaurant, visitDate }: any) {
   return (
     <div className={`card-container`}>
       <h3>{restaurant.place_name}</h3>
-      {/* <div className="visit-info">{renderVisitInfo()}</div> */}
       <div className="progress-wrapper">
         <progress value={visitDate ? getDiffDate(visitDate) : 0} max={28} />
       </div>

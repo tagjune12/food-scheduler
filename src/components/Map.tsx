@@ -6,17 +6,11 @@ import { createRoot } from 'react-dom/client';
 import {
   getPlacesWithNameAndBookmarks,
   getPlacesWithUserBookmarks,
-  getRestaurants,
-  getRestaurantsWithName,
 } from '@lib/api/supabase_api';
 import MapCard from './commons/MapCard';
-import Fab from '@mui/material/Fab';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import { useModalDispatch } from '@src/context/ModalContext';
 import { useMapInitState } from '@src/context/MapInitContext';
 import ListModal from './ListModal';
-import { convertPlacesToRestaurants } from '@lib/util';
 import {
   useBookMarkActions,
   useBookMarkState,
@@ -27,20 +21,8 @@ interface MapMarker {
   restaurant: any; // 오버레이는 미리 생성하지 않고 레스토랑 정보만 저장
 }
 
-// interface MarkerStyle {
-//   width: string;
-//   height: string;
-//   backgroundColor: string;
-// }
-
 const DEFAULT_CENTER = { lat: 37.4028207, lng: 127.1115201 };
 const DEFAULT_ZOOM = 3;
-
-// const MARKER_STYLE: MarkerStyle = {
-//   width: '20px',
-//   height: '20px',
-//   backgroundColor: '#845EC2',
-// };
 
 const Map = ({ state }: AppStoreType) => {
   const modalDispatch = useModalDispatch();
@@ -127,7 +109,6 @@ const Map = ({ state }: AppStoreType) => {
 
       return overlay;
     },
-    // [state.histories, addBookmark, removeBookmark],
     [state.histories],
   );
 
@@ -138,31 +119,10 @@ const Map = ({ state }: AppStoreType) => {
         const title = c.getTitle();
         if (title) markerTitles.push(title);
       });
-      // const fetchedRestaurants = await getRestaurantsWithName(markerTitles);
       const fetchedRestaurants = await getPlacesWithNameAndBookmarks(
         userId,
         markerTitles,
       );
-      // console.log('fetchedRestaurants', JSON.stringify(fetchedRestaurants));
-
-      // 수신된 데이터를 Restaurant 타입으로 변환
-      // const mappedRestaurants: Restaurant[] = fetchedRestaurants.map(
-      //   (restaurant) => ({
-      //     name: restaurant.place_name ?? '',
-      //     tags: (restaurant.category_name ?? '')
-      //       .split('>')
-      //       .filter((elem) => elem !== '음식점'),
-      //     address: restaurant.address_name ?? '',
-      //     period: 0,
-      //     visit: '',
-      //     position: {
-      //       x: restaurant.latitude ?? '',
-      //       y: restaurant.longitude ?? '',
-      //     },
-      //     place_url: restaurant.place_url ?? '',
-      //   }),
-      // );
-
       setClusterRestaurants(fetchedRestaurants);
       setShowListModal(true);
     },
@@ -255,7 +215,6 @@ const Map = ({ state }: AppStoreType) => {
       closeCurrentOverlay();
 
       // 클릭한 마커의 레스토랑 정보로 동적으로 오버레이 생성
-      // const restaurant = markersRef.current[index].restaurant;
       const restaurant = (
         await getPlacesWithNameAndBookmarks(userId, [
           markersRef.current[index].restaurant.place_name,

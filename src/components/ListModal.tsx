@@ -1,12 +1,7 @@
-// import * as React from 'react';
 import Box from '@mui/material/Box';
-// import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
-import { Restaurant } from '@src/types';
 import MapCard from './commons/MapCard';
 import Grid from '@mui/material/Grid';
-import { convertPlaceToRestaurant } from '@lib/util';
 import { useBookMarkActions } from '@src/context/BookMarkContext';
 
 const style = {
@@ -19,7 +14,6 @@ const style = {
   maxHeight: '80vh',
   overflow: 'auto',
   bgcolor: 'background.paper',
-  // border: '2px solid #000',
   borderRadius: '10px',
   boxShadow: 24,
   p: 4,
@@ -65,7 +59,6 @@ export default function ListModal({
       <Box sx={style}>
         <Grid container spacing={4}>
           {restaurants.map((restaurant, idx) => {
-            // const restaurant = convertPlaceToRestaurant(place);
             return (
               <Grid
                 item
@@ -78,12 +71,7 @@ export default function ListModal({
               >
                 <MapCard
                   restaurant={restaurant}
-                  visitDate={
-                    // restaurant.place_name
-                    //   ? state.histories[restaurant.place_name]?.date
-                    //   : undefined
-                    undefined
-                  }
+                  visitDate={undefined}
                   onBookmarkAdd={addBookmark}
                   onBookmarkRemove={removeBookmark}
                 />

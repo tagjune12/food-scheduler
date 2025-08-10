@@ -14,7 +14,6 @@ import SearchIcon from '@mui/icons-material/Search';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import MailIcon from '@mui/icons-material/Mail';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-// import { searchLocalPlaces } from '@lib/api/naver_api';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -189,9 +188,6 @@ export default function PrimarySearchAppBar() {
               }}
               onKeyDown={async (e) => {
                 if (e.key === 'Enter') {
-                  // console.log(searchValue);
-                  // const result = await searchLocalPlaces(searchValue);
-                  // console.log(result);
                 }
               }}
             />
@@ -228,20 +224,6 @@ export default function PrimarySearchAppBar() {
               <AccountCircle />
             </IconButton>
           </Box>
-          {/*
-          <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
-            <IconButton
-              size="large"
-              aria-label="show more"
-              aria-controls={mobileMenuId}
-              aria-haspopup="true"
-              onClick={handleMobileMenuOpen}
-              color="inherit"
-            >
-              <MoreIcon />
-            </IconButton>
-          </Box>
-          */}
         </Toolbar>
       </AppBar>
       {renderMobileMenu}

@@ -11,7 +11,6 @@ import {
 import Skeleton from '@mui/material/Skeleton';
 import Divider from '@mui/material/Divider';
 import { useTodayRestaurantState } from '@src/context/TodayRestaurantContext';
-import StarOutlineIcon from '@mui/icons-material/StarOutline';
 import { Bookmark } from '@components/sidebar/Bookmark';
 const SideBar = ({ state }: AppStoreType) => {
   const [isHistory, setIsHistory] = useState<boolean>(false);
@@ -44,9 +43,6 @@ const SideBar = ({ state }: AppStoreType) => {
             <button onClick={showCalendar}>
               <BsCalendarPlusFill />
             </button>
-            {/* <button onClick={() => setIsBookmark(!isBookmark)}>
-              <StarOutlineIcon />
-            </button> */}
             <button onClick={() => setIsOpenMenu(!isOpenMenu)}>
               {isOpenMenu ? <BsArrowLeftShort /> : <BsArrowRightShort />}
             </button>
@@ -119,14 +115,8 @@ const SideBar = ({ state }: AppStoreType) => {
               </>
             }
           >
-            {isBookmark ? (
-              <Bookmark />
-            ) : (
-              // <History histories={state.histories} />
-              <Bookmark />
-            )}
+            {isBookmark ? <Bookmark /> : <Bookmark />}
           </Suspense>
-          {/* <History histories={state.histories} /> */}
         </div>
       </div>
     </>
