@@ -12,7 +12,13 @@ import Skeleton from '@mui/material/Skeleton';
 import Divider from '@mui/material/Divider';
 import { useTodayRestaurantState } from '@src/context/TodayRestaurantContext';
 import { Bookmark } from '@components/sidebar/Bookmark';
-const SideBar = ({ state }: AppStoreType) => {
+const SideBar = ({
+  state,
+  isShowSidebar,
+}: {
+  state: AppStoreType;
+  isShowSidebar: boolean;
+}) => {
   const [isHistory, setIsHistory] = useState<boolean>(false);
   const [isOpenMenu, setIsOpenMenu] = useState<boolean>(true);
   const [isBookmark, setIsBookmark] = useState<boolean>(false);
@@ -27,7 +33,8 @@ const SideBar = ({ state }: AppStoreType) => {
   };
 
   const showSidebar = (isOpen: boolean) => {
-    sideBarRef.current!.style.display = isOpen ? 'block' : 'none';
+    console.log('isShowSidebar', isShowSidebar);
+    sideBarRef.current!.style.display = isShowSidebar ? 'block' : 'none';
   };
 
   useEffect(() => {
@@ -38,7 +45,7 @@ const SideBar = ({ state }: AppStoreType) => {
     <>
       {isHistory && <Calendar closeCalendar={showCalendar} />}
       <div className="sidebar">
-        <div className="sidebar-btn-container" ref={sideBarBtnRef}>
+        {/* <div className="sidebar-btn-container" ref={sideBarBtnRef}>
           <div className="sidebar-btn">
             <button onClick={showCalendar}>
               <BsCalendarPlusFill />
@@ -47,7 +54,7 @@ const SideBar = ({ state }: AppStoreType) => {
               {isOpenMenu ? <BsArrowLeftShort /> : <BsArrowRightShort />}
             </button>
           </div>
-        </div>
+        </div> */}
         <div id="schedules" ref={sideBarRef}>
           <div className="schedule-header">
             <h2>오늘의 식사</h2>

@@ -15,6 +15,7 @@ import {
   useBookMarkActions,
   useBookMarkState,
 } from '@src/context/BookMarkContext';
+import { convertPlaceToRestaurant } from '@lib/util';
 
 interface MapMarker {
   marker: kakao.maps.Marker;
@@ -495,6 +496,64 @@ const Map = ({ state }: AppStoreType) => {
     // 식당 데이터 업데이트
     loadRestaurantsAndCreateMarkers();
   }, [isMapInitialized, loadRestaurantsAndCreateMarkers]);
+
+  // 검색에서 온 선택 항목 처리: 지도 이동 + 최대 확대 + 오버레이 표시
+  useEffect(() => {
+    const handler = (e: any) => {
+      if (!mapRef.current) return;
+      const place = e.detail;
+      const lat = parseFloat(place.latitude ?? place.y ?? '0');
+      const lng = parseFloat(place.longitude ?? place.x ?? '0');
+      if (isNaN(lat) || isNaN(lng) || lat === 0 || lng === 0) return;
+
+      const pos = new kakao.maps.LatLng(lat, lng);
+      mapRef.current.setCenter(pos);
+      mapRef.current.setLevel(1); // 최대 확대에 가깝게
+
+      // 오버레이 생성 및 표시
+      const overlay = createMarkerOverlay({
+        ...place,
+        latitude: String(lat),
+        longitude: String(lng),
+      });
+      if (overlay) {
+        overlay.setMap(mapRef.current);
+        currentOverlayRef.current?.setMap(null);
+        currentOverlayRef.current = overlay;
+
+        // 오버레이 내부 버튼('오늘은 이거다') 클릭 시 모달 표시 및 오버레이 닫기
+        setTimeout(() => {
+          const btn = document.querySelector('.add-event-btn');
+          btn?.addEventListener('click', () => {
+            try {
+              const converted = convertPlaceToRestaurant({
+                id: place.id,
+                place_name: place.place_name,
+                address_name: place.address_name,
+                road_address_name: place.road_address_name,
+                category_name: place.category_name,
+                place_url: place.place_url,
+                x: String(lng),
+                y: String(lat),
+                distance: place.distance,
+              } as any);
+              modalDispatch({ type: 'showModal', payload: converted });
+            } finally {
+              // 줌 비활성화가 남지 않도록 안전하게 오버레이 닫기 (zoomable 되살림)
+              closeCurrentOverlay();
+            }
+          });
+        }, 0);
+      }
+    };
+
+    window.addEventListener('openPlaceFromSearch', handler as EventListener);
+    return () =>
+      window.removeEventListener(
+        'openPlaceFromSearch',
+        handler as EventListener,
+      );
+  }, [createMarkerOverlay, modalDispatch, closeCurrentOverlay]);
 
   return (
     <>

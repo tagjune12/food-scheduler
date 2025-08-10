@@ -45,16 +45,15 @@ const LoginPage = () => {
                 />
               </svg>
             </div>
-            Google로 로그인
+            구글 계정으로 로그인
           </button>
 
           <div className="login-info">
             <p>로그인하면 다음 기능을 사용할 수 있습니다:</p>
             <ul>
               <li>구글 캘린더 연동</li>
-              <li>음식 스케줄 관리</li>
               <li>식당 북마크</li>
-              <li>위치 기반 식당 검색</li>
+              {/* <li>위치 기반 식당 검색</li> */}
             </ul>
           </div>
         </div>

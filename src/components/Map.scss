@@ -1,9 +1,22 @@
 .kakao-map {
   width: 100%;
-  height: 100vh;
+  height: calc(100vh - 64px);
   position: relative;
+  overflow: hidden; /* 내부 스크롤 제거 */
 }
 
+/* 페이지 전체 스크롤로 인한 화면 끊김 방지 (필요 시) */
+html, body, #root {
+  height: 100%;
+}
+
+@media (max-width: 600px) {
+  .kakao-map {
+    height: calc(100vh - 56px);
+  }
+}
+
+/* 이하 기존 스타일 유지 */
 .info-window-container {
   background: white;
   border-radius: 8px;
