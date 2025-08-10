@@ -1,5 +1,5 @@
 import React, { lazy, Suspense, useEffect, useState, memo } from 'react';
-import { AppStoreType, Restaurant } from '@src/types';
+import { AppStoreType } from '@src/types';
 import Modal from '@components/commons/Modal';
 import { Skeleton } from '@mui/material';
 import { useModalState } from '@src/context/ModalContext';

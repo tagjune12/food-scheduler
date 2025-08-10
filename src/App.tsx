@@ -12,7 +12,6 @@ import {
   getStoredUserId,
   removeStoredUserId,
 } from '@lib/util';
-import PrimarySearchAppBar from '@components/sidebar/Searchbar';
 import './App.scss';
 import {
   TodayRestaurantProvider,
@@ -20,26 +19,12 @@ import {
 } from './context/TodayRestaurantContext';
 import { ModalProvider } from './context/ModalContext';
 import { useMapInitDispatch } from './context/MapInitContext';
-import { getUserInfo, GoogleUserInfo } from '@lib/api/user_api';
+import { getUserInfo } from '@lib/api/user_api';
 import { BookmarkProvider } from './context/BookMarkContext';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 
-const queryStr = qs.stringify({
-  client_id: process.env.REACT_APP_GOOGLECALENDAR_CLIENT_ID,
-  redirect_uri: 'http://localhost:3000',
-  response_type: 'token',
-  scope:
-    'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.email',
-  // access_type: 'offline',
-});
-const loginUrl = `https://accounts.google.com/o/oauth2/v2/auth?${queryStr}`;
-
 export const UseDispatch = createContext<Function>(() => {});
-// 지도 초기화 상태를 위한 Context 생성
-export const MapInitContext = createContext<{ initialized: boolean }>({
-  initialized: false,
-});
 
 // 해시에서 토큰 파싱
 const hashParams = qs.parse(window.location.hash.substring(1));

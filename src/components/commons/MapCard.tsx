@@ -3,11 +3,6 @@ import { convertPlaceToRestaurant, getNumTypeToday } from '@lib/util';
 import { useModalDispatch } from '@src/context/ModalContext';
 import StarOutlineIcon from '@mui/icons-material/StarOutline';
 import GradeIcon from '@mui/icons-material/Grade';
-import {
-  deleteBookmark,
-  getPlacesWithNameAndBookmarks,
-  insertBookmark,
-} from '@lib/api/supabase_api';
 import { useEffect, useState } from 'react';
 import { useBookMarkState } from '@src/context/BookMarkContext';
 

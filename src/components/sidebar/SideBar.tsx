@@ -3,11 +3,6 @@ import { useRef, useState, useEffect, Suspense, lazy } from 'react';
 import Calendar from '@components/calendar/Calendar';
 import '@components/sidebar/SideBar.scss';
 import { AppStoreType } from '@src/types';
-import {
-  BsCalendarPlusFill,
-  BsArrowLeftShort,
-  BsArrowRightShort,
-} from 'react-icons/bs';
 import Skeleton from '@mui/material/Skeleton';
 import Divider from '@mui/material/Divider';
 import { useTodayRestaurantState } from '@src/context/TodayRestaurantContext';
@@ -23,7 +18,6 @@ const SideBar = ({
   const [isOpenMenu, setIsOpenMenu] = useState<boolean>(true);
   const [isBookmark, setIsBookmark] = useState<boolean>(false);
   const sideBarRef = useRef<HTMLDivElement>(null);
-  const sideBarBtnRef = useRef<HTMLDivElement>(null);
   const todayRestaurantState = useTodayRestaurantState();
 
   const History = lazy(() => import('@components/sidebar/History'));
@@ -33,28 +27,18 @@ const SideBar = ({
   };
 
   const showSidebar = (isOpen: boolean) => {
-    console.log('isShowSidebar', isShowSidebar);
-    sideBarRef.current!.style.display = isShowSidebar ? 'block' : 'none';
+    if (!sideBarRef.current) return;
+    sideBarRef.current.style.display = isOpen ? 'block' : 'none';
   };
 
   useEffect(() => {
-    showSidebar(isOpenMenu);
-  }, [isOpenMenu]);
+    showSidebar(isShowSidebar);
+  }, [isShowSidebar]);
 
   return (
     <>
       {isHistory && <Calendar closeCalendar={showCalendar} />}
       <div className="sidebar">
-        {/* <div className="sidebar-btn-container" ref={sideBarBtnRef}>
-          <div className="sidebar-btn">
-            <button onClick={showCalendar}>
-              <BsCalendarPlusFill />
-            </button>
-            <button onClick={() => setIsOpenMenu(!isOpenMenu)}>
-              {isOpenMenu ? <BsArrowLeftShort /> : <BsArrowRightShort />}
-            </button>
-          </div>
-        </div> */}
         <div id="schedules" ref={sideBarRef}>
           <div className="schedule-header">
             <h2>오늘의 식사</h2>
