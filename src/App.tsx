@@ -82,7 +82,7 @@ const AuthenticatedApp = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   // 지도 초기화 상태
-  const [mapInitialized, setMapInitialized] = useState<boolean>(false);
+  // const [mapInitialized, setMapInitialized] = useState<boolean>(false);
   const mapInitDispatch = useMapInitDispatch();
   const TodayRestaurantDispatch = useTodayRestaurantDispatch();
 

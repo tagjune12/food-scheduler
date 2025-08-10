@@ -1,33 +1,33 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   EventApi,
-  DateSelectArg,
+  // DateSelectArg,
   EventClickArg,
   EventContentArg,
   EventDropArg,
-  formatDate,
+  // formatDate,
 } from '@fullcalendar/core';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import { setInitializeEvents, createEventId } from '@lib/event-utils';
+import { setInitializeEvents } from '@lib/event-utils';
 import { EventInput } from '@fullcalendar/core';
-import { insertEvent, deleteEvent, updateEvent } from '@lib/api/calendar_api';
+import { deleteEvent, updateEvent } from '@lib/api/calendar_api';
 import '@components/calendar/Calendar.scss';
-import { UseDispatch } from '@src/App';
+// import { UseDispatch } from '@src/App';
 import RestaurantList from '@components/calendar/RestaurantList';
 import {
   useTodayRestaurantDispatch,
   useTodayRestaurantState,
 } from '@src/context/TodayRestaurantContext';
-import { getStringTypeToday } from '@lib/util';
+// import { getStringTypeToday } from '@lib/util';
 
 export default function Calendar({
   closeCalendar,
 }: {
   closeCalendar: () => void;
 }) {
-  const [currentEvents, setCurrentEvents] = useState<EventApi[]>();
+  // const [currentEvents, setCurrentEvents] = useState<EventApi[]>();
   const [initailEvents, setInitEvents] = useState<EventInput[]>();
   // const dispatch = useContext(UseDispatch);
   const todayRestaurantDispatch = useTodayRestaurantDispatch();
