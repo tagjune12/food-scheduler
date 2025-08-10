@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useEffect, useState, memo } from 'react';
+import React, { lazy, Suspense, useState, memo } from 'react';
 import { AppStoreType } from '@src/types';
 import Modal from '@components/commons/Modal';
 import { Skeleton } from '@mui/material';

@@ -3,7 +3,7 @@ import { getRestaurants } from '@lib/api/supabase_api';
 import PaginationButtons from '@components/commons/PaginationButtons';
 import { convertPlaceToRestaurant } from '@lib/util';
 import { useModalDispatch } from '@src/context/ModalContext';
-import FullCalendar from '@fullcalendar/react';
+// import FullCalendar from '@fullcalendar/react';
 // import Searchbar from '@components/sidebar/Searchbar';
 import Searchbar from '@components/commons/Searchbar';
 function ListItem({ restaurant }: { restaurant: any }) {
@@ -28,6 +28,7 @@ export default function RestaurantList({
   const [restaurants, setRestaurants] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [page, setPage] = useState(1);
+  // const [sortType, setSortType] = useState<string>('name');
   const dataPerPage = 10;
   const modalDispatch = useModalDispatch();
   const restaurantListRef = useRef<HTMLDivElement>(null);
