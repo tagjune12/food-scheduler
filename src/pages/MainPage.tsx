@@ -14,19 +14,9 @@ const MemoizedMap = memo(({ state }: AppStoreType) => (
 ));
 
 const MainPage = ({ state }: { state: any }) => {
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const modalState = useModalState();
   const [isShowCalendar, setisShowCalendar] = useState<boolean>(false);
   const [isShowSidebar, setIsShowSidebar] = useState<boolean>(false);
-
-  useEffect(() => {
-    // 페이지 완전 로드 후 로딩 상태 업데이트
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 100);
-
-    return () => clearTimeout(timer);
-  }, []);
 
   return (
     <div className="main-page">

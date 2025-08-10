@@ -2,7 +2,6 @@
 import { getHistory } from '@lib/api/calendar_api';
 
 let eventGuid = 0;
-let todayStr = new Date().toISOString().replace(/T.*$/, ''); // YYYY-MM-DD of today
 const curYear = new Date().getFullYear();
 
 // export const INITIAL_EVENTS: EventInput[] = [

@@ -18,11 +18,6 @@ export default function TodayRestaurantCard({ restaurant, visitDate }: any) {
     return diffMs / (1000 * 60 * 60 * 24);
   };
 
-  const renderVisitInfo = () => {
-    if (!visitDate) return '최근 방문한적 없음';
-    return `${Math.floor(getDiffDate(visitDate))}일 전 방문`;
-  };
-
   const renderTags = () => {
     if (!restaurant.category_name) return null;
 

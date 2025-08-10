@@ -1,6 +1,6 @@
 import qs from 'qs';
 import { access_token } from '@src/App';
-import { getNumTypeToday, getStringDate, isTokenValid } from '@lib/util';
+import { getNumTypeToday, isTokenValid } from '@lib/util';
 
 const CALENDAR_ID = 'ltjktnet12@gmail.com';
 const BASE_URL = `https://www.googleapis.com/calendar/v3/calendars/${CALENDAR_ID}/events`;

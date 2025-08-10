@@ -1,5 +1,5 @@
 import TodayRestaurant from '@components/sidebar/TodayRestaurant';
-import { useRef, useState, useEffect, Suspense, lazy } from 'react';
+import { useRef, useState, useEffect, Suspense } from 'react';
 import Calendar from '@components/calendar/Calendar';
 import '@components/sidebar/SideBar.scss';
 import { AppStoreType } from '@src/types';
@@ -15,12 +15,8 @@ const SideBar = ({
   isShowSidebar: boolean;
 }) => {
   const [isHistory, setIsHistory] = useState<boolean>(false);
-  const [isOpenMenu, setIsOpenMenu] = useState<boolean>(true);
-  const [isBookmark, setIsBookmark] = useState<boolean>(false);
   const sideBarRef = useRef<HTMLDivElement>(null);
   const todayRestaurantState = useTodayRestaurantState();
-
-  const History = lazy(() => import('@components/sidebar/History'));
 
   const showCalendar = () => {
     setIsHistory((isHistory) => !isHistory);
@@ -106,7 +102,7 @@ const SideBar = ({
               </>
             }
           >
-            {isBookmark ? <Bookmark /> : <Bookmark />}
+            <Bookmark />
           </Suspense>
         </div>
       </div>

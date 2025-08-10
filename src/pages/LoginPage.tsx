@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import qs from 'qs';
 import './LoginPage.scss';
 

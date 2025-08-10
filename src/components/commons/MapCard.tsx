@@ -3,8 +3,7 @@ import { convertPlaceToRestaurant, getNumTypeToday } from '@lib/util';
 import { useModalDispatch } from '@src/context/ModalContext';
 import StarOutlineIcon from '@mui/icons-material/StarOutline';
 import GradeIcon from '@mui/icons-material/Grade';
-import { useEffect, useState } from 'react';
-import { useBookMarkState } from '@src/context/BookMarkContext';
+import { useState } from 'react';
 
 interface MapCardProps {
   restaurant: any; // Supabase 또는 카카오맵 데이터 모두 수용
@@ -38,7 +37,6 @@ const MapCard = ({
   };
 
   const handleButtonClick = () => {
-    // console.log('restaurant', restaurant);
     if (restaurant.name) {
       modalDispatch({ type: 'showModal', payload: restaurant });
     } else {
@@ -47,11 +45,6 @@ const MapCard = ({
         payload: convertPlaceToRestaurant(restaurant),
       });
     }
-  };
-
-  const renderVisitInfo = () => {
-    if (!visitDate) return '최근 방문한적 없음';
-    return `${Math.floor(getDiffDate(visitDate))}일 전 방문`;
   };
 
   const renderTags = () => {
@@ -74,7 +67,6 @@ const MapCard = ({
   };
 
   const handleBookmarkClick = async () => {
-    // console.log('bookmark clicked', restaurant.id);
     if (isBookmarked === 'N') {
       if (onBookmarkAdd) {
         await onBookmarkAdd(restaurant.id, restaurant);
@@ -86,7 +78,6 @@ const MapCard = ({
         setIsBookmarked('N');
       }
     }
-    // console.log('restaurant', restaurant, isBookmarked);
   };
 
   return (
@@ -101,7 +92,6 @@ const MapCard = ({
           )}
         </div>
       </div>
-      {/* <div className="visit-info">{renderVisitInfo()}</div> */}
       <div className="progress-wrapper">
         <progress value={visitDate ? getDiffDate(visitDate) : 0} max={28} />
       </div>

@@ -40,11 +40,6 @@ const RestaurantCard = ({
     modalDispatch({ type: 'showModal', payload: item });
   };
 
-  const renderVisitInfo = () => {
-    if (!visitDate) return '최근 방문한적 없음';
-    return `${Math.floor(getDiffDate(visitDate))}일 전 방문`;
-  };
-
   const renderTags = () => {
     if (!restaurant.category_name) return null;
 

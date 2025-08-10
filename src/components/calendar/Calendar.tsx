@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import {
   EventApi,
   // DateSelectArg,
@@ -124,15 +124,15 @@ export default function Calendar({
     // setCurrentEvents(events);
   };
 
-  const initEvents = async () => {
+  const initEvents = useCallback(async () => {
     setInitEvents(await setInitializeEvents());
     console.log('initEvents', initailEvents);
     calendarRef.current?.getApi().refetchEvents();
-  };
+  }, [initailEvents]);
 
   useEffect(() => {
     initEvents();
-  }, [todayRestaurant]);
+  }, [todayRestaurant, initEvents]);
 
   return (
     <div className="calendar-wrapper">

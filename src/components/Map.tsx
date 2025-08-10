@@ -249,11 +249,11 @@ const Map = ({ state }: AppStoreType) => {
       // 기존 마커 오버레이도 닫기
       closeCurrentOverlay();
 
-      const overlay = await createClustererOverlay(cluster);
+      await createClustererOverlay(cluster);
       // overlay.setMap(mapRef.current);
 
       // // 생성된 오버레이를 참조에 저장
-      // clusterOverlayRef.current = overlay;
+      // clusterOverlayRef.current = null;
 
       // 지도 클릭 시 오버레이 닫기
       kakao.maps.event.addListener(

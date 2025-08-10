@@ -3,11 +3,9 @@ import { HistoryType } from '@src/types';
 import '@components/sidebar/History.scss';
 import { useEffect, useState } from 'react';
 import { getPlacesWithUserBookmarks } from '@src/lib/api/supabase_api';
-import { useTodayRestaurantDispatch } from '@src/context/TodayRestaurantContext';
 import { useBookMarkState } from '@src/context/BookMarkContext';
 const History = ({ histories }: { histories: HistoryType }) => {
   const [historyRestaurants, setHistoryRestaurants] = useState<any[]>([]);
-  const todayRestaurantDispatch = useTodayRestaurantDispatch();
   const { userId } = useBookMarkState();
 
   useEffect(() => {
@@ -16,7 +14,7 @@ const History = ({ histories }: { histories: HistoryType }) => {
       setHistoryRestaurants(response);
     };
     fetchHistory();
-  }, [histories]);
+  }, [histories, userId]);
 
   return (
     <div className="history-container">
