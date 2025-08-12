@@ -4,7 +4,7 @@ import './LoginPage.scss';
 const LoginPage = () => {
   const queryStr = qs.stringify({
     client_id: process.env.REACT_APP_GOOGLECALENDAR_CLIENT_ID,
-    redirect_uri: 'http://localhost:3000',
+    redirect_uri: process.env.REACT_APP_GOOGLE_LOGIN_REDIRECT_URL,
     response_type: 'token',
     scope:
       'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.email',
