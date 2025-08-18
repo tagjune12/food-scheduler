@@ -1,6 +1,6 @@
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
-import MapCard from './commons/MapCard';
+import MapCard from '@components/commons/MapCard';
 import Grid from '@mui/material/Grid';
 import { useBookMarkActions } from '@src/context/BookMarkContext';
 

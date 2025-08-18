@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import { MapInitProvider } from './context/MapInitContext';
+import '@src/index.css';
+import App from '@src/App';
+import { MapInitProvider } from '@src/context/MapInitContext';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement,

@@ -2,7 +2,7 @@ import { Restaurant } from '@src/types';
 import { useEffect, useState } from 'react';
 import '@components/sidebar/TodayRestaurant.scss';
 import { getRestaurantsWithName } from '@lib/api/supabase_api';
-import TodayRestaurantCard from './TodayRestaurantCard';
+import TodayRestaurantCard from '@components/sidebar/TodayRestaurantCard';
 
 const TodayRestaurant = ({ restaurantName }: { restaurantName: string }) => {
   const [todayRestaurant, setTodayRestaurant] = useState<

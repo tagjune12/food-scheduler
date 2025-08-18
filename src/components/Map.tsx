@@ -7,10 +7,10 @@ import {
   getPlacesWithNameAndBookmarks,
   getPlacesWithUserBookmarks,
 } from '@lib/api/supabase_api';
-import MapCard from './commons/MapCard';
+import MapCard from '@components/commons/MapCard';
 import { useModalDispatch } from '@src/context/ModalContext';
 import { useMapInitState } from '@src/context/MapInitContext';
-import ListModal from './ListModal';
+import ListModal from '@components/ListModal';
 import {
   useBookMarkActions,
   useBookMarkState,

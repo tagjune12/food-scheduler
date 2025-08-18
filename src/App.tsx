@@ -12,17 +12,17 @@ import {
   getStoredUserId,
   removeStoredUserId,
 } from '@lib/util';
-import './App.scss';
+import '@src/App.scss';
 import {
   TodayRestaurantProvider,
   useTodayRestaurantDispatch,
-} from './context/TodayRestaurantContext';
-import { ModalProvider } from './context/ModalContext';
-import { useMapInitDispatch } from './context/MapInitContext';
+} from '@src/context/TodayRestaurantContext';
+import { ModalProvider } from '@src/context/ModalContext';
+import { useMapInitDispatch } from '@src/context/MapInitContext';
 import { getUserInfo } from '@lib/api/user_api';
-import { BookmarkProvider } from './context/BookMarkContext';
+import { BookmarkProvider } from '@src/context/BookMarkContext';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import LoginPage from './pages/LoginPage';
+import LoginPage from '@pages/LoginPage';
 
 export const UseDispatch = createContext<Function>(() => {});
 

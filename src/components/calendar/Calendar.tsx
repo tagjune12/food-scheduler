@@ -124,6 +124,7 @@ export default function Calendar({
     // setCurrentEvents(events);
   };
 
+  // 캘린더 초기화
   const initEvents = useCallback(async () => {
     setInitEvents(await setInitializeEvents());
     console.log('initEvents', initailEvents);
@@ -132,7 +133,7 @@ export default function Calendar({
 
   useEffect(() => {
     initEvents();
-  }, [todayRestaurant, initEvents]);
+  }, [todayRestaurant]);
 
   return (
     <div className="calendar-wrapper">
