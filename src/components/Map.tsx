@@ -16,6 +16,7 @@ import {
   useBookMarkState,
 } from '@src/context/BookMarkContext';
 import { convertPlaceToRestaurant } from '@lib/util';
+import { PlaceFilter } from '@pages/MainPage';
 
 interface MapMarker {
   marker: kakao.maps.Marker;
@@ -25,7 +26,12 @@ interface MapMarker {
 const DEFAULT_CENTER = { lat: 37.4028207, lng: 127.1115201 };
 const DEFAULT_ZOOM = 3;
 
-const Map = ({ state }: AppStoreType) => {
+interface MapProps extends AppStoreType {
+  placeFilter?: PlaceFilter;
+  setPlaceFilter?: React.Dispatch<React.SetStateAction<PlaceFilter>>;
+}
+
+const Map = ({ state, placeFilter = 'all', setPlaceFilter }: MapProps) => {
   const modalDispatch = useModalDispatch();
   const { initialized: appInitialized } = useMapInitState();
   const { addBookmark, removeBookmark } = useBookMarkActions();
@@ -40,6 +46,31 @@ const Map = ({ state }: AppStoreType) => {
   const [showListModal, setShowListModal] = useState<boolean>(false);
   const [clusterRestaurants, setClusterRestaurants] = useState<any[]>([]);
   const { userId } = useBookMarkState();
+
+  // 필터 옵션 정의
+  const filterOptions = [
+    {
+      value: 'all' as PlaceFilter,
+      label: '전체',
+      icon: '🌐',
+      color: '#666',
+    },
+    {
+      value: 'restaurant' as PlaceFilter,
+      label: '음식점',
+      icon: '🍽️',
+      color: '#FF6B6B',
+    },
+    {
+      value: 'cafe' as PlaceFilter,
+      label: '카페',
+      icon: '☕',
+      color: '#8B4513',
+    },
+  ];
+
+  // 디버깅용 로그
+  console.log('Map component rendered, filter:', placeFilter);
 
   // 마커 클릭시 나타나는 카드 생성 (동적 생성)
   const createMarkerOverlay = useCallback(
@@ -123,11 +154,12 @@ const Map = ({ state }: AppStoreType) => {
       const fetchedRestaurants = await getPlacesWithNameAndBookmarks(
         userId,
         markerTitles,
+        placeFilter,
       );
       setClusterRestaurants(fetchedRestaurants);
       setShowListModal(true);
     },
-    [state.histories],
+    [state.histories, userId, placeFilter],
   );
 
   // 마커 생성
@@ -295,78 +327,59 @@ const Map = ({ state }: AppStoreType) => {
     ],
   );
 
+  // 식당 데이터 불러오기 및 마커 생성
   const loadRestaurantsAndCreateMarkers = useCallback(async () => {
     if (!mapRef.current || !markerClustererRef.current) return;
 
     try {
-      // 기존 마커 제거
+      // 기존 마커 정리
       markersRef.current.forEach(({ marker }) => {
         marker.setMap(null);
       });
-
-      // 클러스터러에서 모든 마커 제거
+      markersRef.current = [];
       markerClustererRef.current.clear();
 
-      // 데이터 로드
-      const restaurants = (await getPlacesWithUserBookmarks(userId)) ?? [];
+      // 식당 데이터 가져오기 (필터 적용)
+      const restaurants = await getPlacesWithUserBookmarks(userId, placeFilter);
+      console.log(
+        `총 ${restaurants.length}개의 장소 로드 (필터: ${placeFilter})`,
+      );
 
-      // 새 마커 생성 및 추가 (오버레이는 미리 생성하지 않음)
-      markersRef.current = restaurants
-        .map((restaurant, index) => {
-          // 좌표 검증
-          const lat = parseFloat(restaurant.latitude ?? '0');
-          const lng = parseFloat(restaurant.longitude ?? '0');
+      // 각 식당에 대해 마커 생성
+      const newMarkers: kakao.maps.Marker[] = [];
+      restaurants.forEach((restaurant: any) => {
+        const marker = createMarker(restaurant);
+        if (marker) {
+          markersRef.current.push({ marker, restaurant });
+          newMarkers.push(marker);
 
-          if (lat === 0 || lng === 0 || isNaN(lat) || isNaN(lng)) {
-            console.warn(`잘못된 좌표 데이터: ${restaurant.place_name}`, {
-              latitude: restaurant.latitude,
-              longitude: restaurant.longitude,
-              parsedLat: lat,
-              parsedLng: lng,
-            });
-          }
+          // 마커 클릭 이벤트
+          kakao.maps.event.addListener(marker, 'click', () => {
+            // 기존 오버레이 닫기
+            closeCurrentOverlay();
 
-          const restaurantInfo: Restaurant = {
-            name: restaurant.place_name ?? '',
-            tags: (restaurant.category_name ?? '')
-              .split('>')
-              .filter((elem) => elem !== '음식점'),
-            address: restaurant.address_name ?? '',
-            period: 0,
-            visit: '',
-            position: {
-              x: restaurant.longitude ?? '', // x는 경도(longitude)
-              y: restaurant.latitude ?? '', // y는 위도(latitude)
-            },
-            place_url: restaurant.place_url ?? '',
-          };
+            // 새 오버레이 생성 및 표시
+            const overlay = createMarkerOverlay(restaurant);
+            if (overlay) {
+              overlay.setMap(mapRef.current);
+              currentOverlayRef.current = overlay;
+            }
+          });
+        }
+      });
 
-          const marker = createMarker(restaurant);
-
-          // 마커가 null이면 건너뛰기
-          if (!marker) {
-            return null;
-          }
-
-          // 클러스터러에 마커 추가
-          if (markerClustererRef.current) {
-            markerClustererRef.current.addMarker(marker);
-          }
-
-          // 마커 클릭 이벤트 추가
-          kakao.maps.event.addListener(marker, 'click', () =>
-            handleMarkerClick(index, restaurantInfo),
-          );
-
-          return { marker, restaurant }; // 오버레이는 제거하고 레스토랑 정보만 저장
-        })
-        .filter((item) => item !== null) as MapMarker[];
-
-      console.log(`${markersRef.current.length}개 마커 생성 완료`);
+      // 클러스터러에 마커 추가
+      markerClustererRef.current.addMarkers(newMarkers);
     } catch (error) {
-      console.error('식당 데이터 로드 및 마커 생성 오류:', error);
+      console.error('식당 데이터 로드 오류:', error);
     }
-  }, [createMarker, handleMarkerClick, userId]);
+  }, [
+    createMarker,
+    createMarkerOverlay,
+    closeCurrentOverlay,
+    userId,
+    placeFilter,
+  ]);
 
   // 지도 초기화 함수 - 의존성 최소화
   const initializeMap = useCallback(async () => {
@@ -557,9 +570,65 @@ const Map = ({ state }: AppStoreType) => {
 
   return (
     <>
-      <div>
+      <div style={{ position: 'relative', width: '100%', height: '100%' }}>
         <div id="map" className="kakao-map" />
       </div>
+
+      {/* 플로팅 필터 버튼 - 툴바 바로 아래 오른쪽 */}
+      <div
+        style={{
+          position: 'fixed',
+          top: '80px',
+          right: '16px',
+          display: 'flex',
+          gap: '8px',
+          zIndex: 99999,
+          backgroundColor: 'white',
+          borderRadius: '25px',
+          padding: '4px',
+          boxShadow: '0 2px 12px rgba(0,0,0,0.25)',
+        }}
+      >
+        {filterOptions.map((option) => (
+          <button
+            key={option.value}
+            onClick={() => {
+              console.log('Filter clicked:', option.value);
+              setPlaceFilter?.(option.value);
+            }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              padding: '8px 12px',
+              backgroundColor:
+                placeFilter === option.value ? option.color : 'white',
+              color: placeFilter === option.value ? 'white' : option.color,
+              border: `1px solid ${option.color}`,
+              borderRadius: '20px',
+              cursor: 'pointer',
+              fontWeight: placeFilter === option.value ? 'bold' : 'normal',
+              fontSize: '14px',
+              transition: 'all 0.3s ease',
+              outline: 'none',
+            }}
+            onMouseEnter={(e) => {
+              if (placeFilter !== option.value) {
+                e.currentTarget.style.backgroundColor = `${option.color}20`;
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (placeFilter !== option.value) {
+                e.currentTarget.style.backgroundColor = 'white';
+              }
+            }}
+          >
+            <span>{option.icon}</span>
+            <span>{option.label}</span>
+          </button>
+        ))}
+      </div>
+
       <ListModal
         open={showListModal}
         handleClose={() => setShowListModal(false)}

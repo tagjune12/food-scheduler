@@ -7,16 +7,33 @@ import SideBar from '@components/sidebar/SideBar';
 import MainToolbar from '@components/commons/MainToolbar';
 import Calendar from '@components/calendar/Calendar';
 
+// 필터 타입 정의
+export type PlaceFilter = 'all' | 'restaurant' | 'cafe';
+
 // 메모이제이션된 Map 컴포넌트
 const LazyMap = lazy(() => import('@components/Map'));
-const MemoizedMap = memo(({ state }: AppStoreType) => (
-  <LazyMap state={state} />
-));
+const MemoizedMap = memo(
+  ({
+    state,
+    placeFilter,
+    setPlaceFilter,
+  }: AppStoreType & {
+    placeFilter: PlaceFilter;
+    setPlaceFilter: React.Dispatch<React.SetStateAction<PlaceFilter>>;
+  }) => (
+    <LazyMap
+      state={state}
+      placeFilter={placeFilter}
+      setPlaceFilter={setPlaceFilter}
+    />
+  ),
+);
 
 const MainPage = ({ state }: { state: any }) => {
   const modalState = useModalState();
   const [isShowCalendar, setisShowCalendar] = useState<boolean>(false);
   const [isShowSidebar, setIsShowSidebar] = useState<boolean>(false);
+  const [placeFilter, setPlaceFilter] = useState<PlaceFilter>('all');
 
   return (
     <div className="main-page">
@@ -53,7 +70,11 @@ const MainPage = ({ state }: { state: any }) => {
           />
         }
       >
-        <MemoizedMap state={state} />
+        <MemoizedMap
+          state={state}
+          placeFilter={placeFilter}
+          setPlaceFilter={setPlaceFilter}
+        />
       </Suspense>
     </div>
   );

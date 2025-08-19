@@ -7,7 +7,7 @@ const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY as string;
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
 
 
-export const getRestaurants = async () => {
+export const getRestaurants = async (categoryFilter?: string) => {
   try{
     if (!supabase) {
       throw new Error('Supabase client not initialized');
@@ -15,7 +15,18 @@ export const getRestaurants = async () => {
       console.log('supabase client initialized');
     }
 
-    const { data, error} = await supabase.from('places').select('*').eq('category_group_code', 'FD6').order('place_name', { ascending: true });
+    let query = supabase.from('places').select('*');
+    
+    // 카테고리 필터 적용
+    if (categoryFilter === 'cafe') {
+      query = query.eq('category_group_code', 'CE7');
+    } else if (categoryFilter === 'restaurant' || !categoryFilter) {
+      query = query.eq('category_group_code', 'FD6');
+    } else if (categoryFilter === 'all') {
+      query = query.in('category_group_code', ['FD6', 'CE7']);
+    }
+    
+    const { data, error} = await query.order('place_name', { ascending: true });
      
     if (error) {
       console.error('Supabase error:', error);
@@ -36,7 +47,7 @@ export const getRestaurantsWithName = async (names: string[]) => {
       console.log('supabase client initialized');
     }
 
-    const { data, error} = await supabase.from('places').select('*').eq('category_group_code', 'FD6').in('place_name', names);
+    const { data, error} = await supabase.from('places').select('*').in('category_group_code', ['FD6', 'CE7']).in('place_name', names);
      
     if (error) {
       console.error('Supabase error:', error);
@@ -49,7 +60,7 @@ export const getRestaurantsWithName = async (names: string[]) => {
   }
 };
 
-export const searchRestaurantwithName = async (keyword: string) => {
+export const searchRestaurantwithName = async (keyword: string, categoryFilter?: string) => {
   try{
     if (!supabase) {
       throw new Error('Supabase client not initialized');
@@ -57,7 +68,19 @@ export const searchRestaurantwithName = async (keyword: string) => {
       console.log('supabase client initialized');
     }
 
-    const { data, error} = await supabase.from('places').select('*').eq('category_group_code', 'FD6').ilike('place_name', `%${keyword.trim()}%`);
+    let query = supabase.from('places').select('*');
+    
+    // 카테고리 필터 적용
+    if (categoryFilter === 'cafe') {
+      query = query.eq('category_group_code', 'CE7');
+    } else if (categoryFilter === 'restaurant') {
+      query = query.eq('category_group_code', 'FD6');
+    } else {
+      // 기본값: 식당과 카페 모두 검색
+      query = query.in('category_group_code', ['FD6', 'CE7']);
+    }
+    
+    const { data, error} = await query.ilike('place_name', `%${keyword.trim()}%`);
      
     if (error) {
       console.error('Supabase error:', error);
@@ -250,11 +273,19 @@ export const deleteBookmark = async (userId: string, placeId: string) => {
 }
 
 
-export const getPlacesWithUserBookmarks = async (userId: string) => {
-  const { data, error } = await supabase
+export const getPlacesWithUserBookmarks = async (userId: string, categoryFilter?: string) => {
+  const query = supabase
     .rpc('get_places_with_bookmarks', { 
       p_user_id: userId 
     });
+  
+  // 카테고리 필터 적용
+  if (categoryFilter && categoryFilter !== 'all') {
+    const categoryCode = categoryFilter === 'cafe' ? 'CE7' : 'FD6';
+    query.eq('category_group_code', categoryCode);
+  }
+  
+  const { data, error } = await query;
   
   if (error) {
     throw new Error(`Failed to fetch places: ${error.message}`);
@@ -263,12 +294,20 @@ export const getPlacesWithUserBookmarks = async (userId: string) => {
   return data;
 }
 
-export const getPlacesWithNameAndBookmarks = async (userId: string, names: string[]) => {
-  const { data, error } = await supabase
+export const getPlacesWithNameAndBookmarks = async (userId: string, names: string[], categoryFilter?: string) => {
+  const query = supabase
     .rpc('get_places_with_name_and_bookmarks', { 
       p_place_names: names,
       p_user_id: userId,
     });
+  
+  // 카테고리 필터 적용
+  if (categoryFilter && categoryFilter !== 'all') {
+    const categoryCode = categoryFilter === 'cafe' ? 'CE7' : 'FD6';
+    query.eq('category_group_code', categoryCode);
+  }
+  
+  const { data, error } = await query;
   
   if (error) {
     throw new Error(`Failed to fetch places: ${error.message}`);
