@@ -14,7 +14,12 @@ import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import CircularProgress from '@mui/material/CircularProgress';
-import { searchRestaurantwithName } from '@lib/api/supabase_api';
+import Chip from '@mui/material/Chip';
+import CloseIcon from '@mui/icons-material/Close';
+import {
+  searchRestaurantwithName,
+  searchRestaurantsByTag,
+} from '@lib/api/supabase_api';
 import { useEffect } from 'react';
 import { removeStoredUserId } from '@lib/util';
 
@@ -73,45 +78,64 @@ export default function MainToolbar({
   const [open, setOpen] = React.useState<boolean>(false);
   const [loading, setLoading] = React.useState<boolean>(false);
   const [highlightIndex, setHighlightIndex] = React.useState<number>(-1);
+  const [tags, setTags] = React.useState<string[]>([]);
+  const tagsContainerRef = React.useRef<HTMLDivElement | null>(null);
+  const [tagsWidth, setTagsWidth] = React.useState<number>(0);
 
-  // 디바운스 검색
-  useEffect(() => {
-    const handler = setTimeout(async () => {
-      const keyword = inputValue.trim();
-      if (keyword.length === 0) {
-        setOptions([]);
-        setOpen(false);
-        return;
-      }
-      setLoading(true);
-      try {
-        const result = await searchRestaurantwithName(keyword);
-        setOptions(result ?? []);
-        setOpen(true);
-      } catch (e) {
-        setOptions([]);
-        setOpen(true); // 열어두고 "결과 없음" 표시
-      } finally {
-        setLoading(false);
-      }
-    }, 250);
+  // 태그 컨테이너 실제 너비 측정하여 입력 패딩에 반영
+  React.useLayoutEffect(() => {
+    const measure = () => {
+      setTagsWidth(tagsContainerRef.current?.offsetWidth ?? 0);
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, [tags]);
 
-    return () => clearTimeout(handler);
-  }, [inputValue]);
+  const inputPaddingLeftPx = tags.length > 0 ? tagsWidth + 48 : undefined; // 아이콘 영역(약 48px) + 태그 너비
 
-  // 옵션 변경 시 하이라이트 초기화
-  useEffect(() => {
-    setHighlightIndex(options.length > 0 ? 0 : -1);
-  }, [options]);
-
-  const handleSelect = (option: any) => {
-    setInputValue(option?.place_name ?? '');
-    setOpen(false);
-    const event = new CustomEvent('openPlaceFromSearch', { detail: option });
-    window.dispatchEvent(event);
+  // 태그 추가 함수
+  const addTag = (tagText: string) => {
+    const trimmedTag = tagText.trim();
+    if (trimmedTag && !tags.includes(trimmedTag)) {
+      setTags((prev) => [...prev, trimmedTag]);
+    }
   };
 
+  // 태그 삭제 함수
+  const removeTag = (tagToRemove: string) => {
+    setTags((prev) => prev.filter((tag) => tag !== tagToRemove));
+  };
+
+  // 입력값 변경 처리
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+
+    // 카테고리명 입력 후 공백이 입력되면 태그로 변환
+    if (value.startsWith('#') && value.includes(' ')) {
+      const spaceIndex = value.indexOf(' ');
+      const tagPart = value.substring(1, spaceIndex); // # 제거
+      const remainingPart = value.substring(spaceIndex + 1);
+
+      if (tagPart.trim()) {
+        addTag(tagPart.trim());
+        setInputValue(remainingPart);
+        return;
+      }
+    }
+
+    setInputValue(value);
+  };
+
+  // 키보드 입력 처리 (백스페이스로 태그 삭제)
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // 백스페이스로 태그 삭제
+    if (e.key === 'Backspace' && inputValue === '' && tags.length > 0) {
+      e.preventDefault();
+      setTags((prev) => prev.slice(0, -1));
+      return;
+    }
+
     if (!open) setOpen(true);
     const hasOptions = options.length > 0;
 
@@ -144,6 +168,75 @@ export default function MainToolbar({
       default:
         break;
     }
+  };
+
+  // 검색 로직 (태그와 입력값을 모두 고려)
+  useEffect(() => {
+    const handler = setTimeout(async () => {
+      const keyword = inputValue.trim();
+      const hasActiveTags = tags.length > 0;
+
+      // 태그가 있거나 키워드가 있을 때만 검색
+      if (!hasActiveTags && keyword.length === 0) {
+        setOptions([]);
+        setOpen(false);
+        return;
+      }
+
+      setLoading(true);
+      try {
+        let result: any[] = [];
+
+        if (hasActiveTags) {
+          // 여러 태그 AND 매칭: 모든 태그 조건을 만족하는 교집합
+          const resultsList = await Promise.all(
+            tags.map((tag) => searchRestaurantsByTag(tag, keyword)),
+          );
+          let intersection: any[] = (resultsList[0] ?? []) as any[];
+          for (let i = 1; i < resultsList.length; i += 1) {
+            const list = resultsList[i] ?? [];
+            const ids = new Set(list.map((r: any) => r.id));
+            intersection = intersection.filter((r: any) => ids.has(r.id));
+          }
+          // 중복 제거(안전)
+          result = intersection.filter(
+            (item, index, self) =>
+              index === self.findIndex((t) => t.id === item.id),
+          );
+        } else if (keyword.startsWith('#')) {
+          // 해시태그 검색 (기존 로직)
+          const [tagToken, ...restTokens] = keyword.split(/\s+/);
+          const tag = tagToken.slice(1);
+          const nameKeyword = restTokens.join(' ');
+          result = await searchRestaurantsByTag(tag, nameKeyword);
+        } else if (keyword.length > 0) {
+          // 일반 검색
+          result = await searchRestaurantwithName(keyword);
+        }
+
+        setOptions(result ?? []);
+        setOpen(true);
+      } catch (e) {
+        setOptions([]);
+        setOpen(true);
+      } finally {
+        setLoading(false);
+      }
+    }, 250);
+
+    return () => clearTimeout(handler);
+  }, [inputValue, tags]);
+
+  // 옵션 변경 시 하이라이트 초기화
+  useEffect(() => {
+    setHighlightIndex(options.length > 0 ? 0 : -1);
+  }, [options]);
+
+  const handleSelect = (option: any) => {
+    setInputValue(option?.place_name ?? '');
+    setOpen(false);
+    const event = new CustomEvent('openPlaceFromSearch', { detail: option });
+    window.dispatchEvent(event);
   };
 
   const handleLogout = () => {
@@ -183,14 +276,65 @@ export default function MainToolbar({
             <SearchIconWrapper>
               <SearchIcon />
             </SearchIconWrapper>
+
+            {/* 태그 표시 영역 */}
+            {tags.length > 0 && (
+              <Box
+                ref={tagsContainerRef}
+                sx={{
+                  position: 'absolute',
+                  left: 40,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 0.5,
+                  flexWrap: 'wrap',
+                  zIndex: 1,
+                }}
+              >
+                {tags.map((tag, index) => (
+                  <Chip
+                    key={index}
+                    label={`#${tag}`}
+                    size="small"
+                    onDelete={() => removeTag(tag)}
+                    deleteIcon={<CloseIcon />}
+                    sx={{
+                      backgroundColor: alpha('#fff', 0.2),
+                      color: 'white',
+                      height: 24,
+                      fontSize: '0.75rem',
+                      '& .MuiChip-deleteIcon': {
+                        color: 'white',
+                        fontSize: '14px',
+                      },
+                    }}
+                  />
+                ))}
+              </Box>
+            )}
+
             <StyledInputBase
-              placeholder="검색(태그검색: #태그명)"
+              placeholder={
+                tags.length > 0
+                  ? '추가 검색어 입력...'
+                  : '검색(태그검색: #태그명)'
+              }
               inputProps={{ 'aria-label': 'search' }}
               value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
+              onChange={handleInputChange}
               onFocus={() => setOpen(true)}
               onBlur={() => setTimeout(() => setOpen(false), 150)}
               onKeyDown={handleKeyDown}
+              sx={{
+                // 입력 내부 패딩을 동적으로 조정해 태그와 키워드 간격을 최소화
+                '& .MuiInputBase-input': {
+                  paddingLeft: inputPaddingLeftPx
+                    ? `${inputPaddingLeftPx}px`
+                    : undefined,
+                },
+              }}
             />
             {open && (
               <Paper

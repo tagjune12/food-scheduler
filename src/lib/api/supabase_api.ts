@@ -316,6 +316,46 @@ export const getPlacesWithNameAndBookmarks = async (userId: string, names: strin
   return data;
 }
 
+// 해시태그(카테고리/태그) 기반 검색: #카페 한강 → 카테고리에 '카페' 포함 AND 상호명 '한강' 포함
+export const searchRestaurantsByTag = async (tag: string, nameKeyword?: string) => {
+  try {
+    if (!supabase) {
+      throw new Error('Supabase client not initialized');
+    } else {
+      console.log('supabase client initialized');
+    }
+
+    let query = supabase.from('places').select('*');
+
+    // 식당/카페 범위 제한
+    query = query.in('category_group_code', ['FD6', 'CE7']);
+
+    const trimmedTag = tag.trim();
+    if (trimmedTag.length === 0) {
+      return [];
+    }
+
+    // 카테고리명 또는 그룹명에 태그가 포함되는지 검색
+    query = query.or(`category_name.ilike.%${trimmedTag}%,category_group_name.ilike.%${trimmedTag}%`);
+
+    const trimmedName = (nameKeyword ?? '').trim();
+    if (trimmedName.length > 0) {
+      query = query.ilike('place_name', `%${trimmedName}%`);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error('Supabase error:', error);
+      throw error;
+    }
+    return data ?? [];
+  } catch (error) {
+    console.error('Error in searchRestaurantsByTag:', error);
+    return [];
+  }
+};
+
 // export const getBookmarkedPlaces = async (userId: string) => {
 //   const { data, error } = await supabase
 //     .rpc('get_bookmarked_places', { 
