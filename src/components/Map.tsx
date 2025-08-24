@@ -46,6 +46,9 @@ const Map = ({ state, placeFilter = 'all', setPlaceFilter }: MapProps) => {
   const [showListModal, setShowListModal] = useState<boolean>(false);
   const [clusterRestaurants, setClusterRestaurants] = useState<any[]>([]);
   const { userId } = useBookMarkState();
+  const didInitialMarkerLoadRef = useRef<boolean>(false);
+  const prevFilterRef = useRef<PlaceFilter | null>(null);
+  const prevUserIdRef = useRef<string | null>(null);
 
   // 필터 옵션 정의
   const filterOptions = [
@@ -427,9 +430,8 @@ const Map = ({ state, placeFilter = 'all', setPlaceFilter }: MapProps) => {
     // 초기화 상태 업데이트
     console.log('지도 초기화 완료');
 
-    // 식당 데이터 로드 및 마커 생성은 별도 함수로 분리
-    await loadRestaurantsAndCreateMarkers();
-
+    // 지도 초기화 완료 플래그만 설정하고,
+    // 실제 마커 로딩은 아래 useEffect에서 한 번만 수행
     setIsMapInitialized(true);
   }, [
     closeCurrentOverlay,
@@ -500,15 +502,22 @@ const Map = ({ state, placeFilter = 'all', setPlaceFilter }: MapProps) => {
     };
   }, [initializeMap, isMapInitialized, appInitialized]);
 
-  // 식당 데이터나 방문 기록이 변경될 때 마커 업데이트
+  // 초기 1회 + 필터/사용자 변경 시에만 마커 업데이트
   useEffect(() => {
-    // 지도가 초기화되지 않았거나 로딩 중이면 건너뜀
     if (!isMapInitialized || !mapRef.current || !markerClustererRef.current)
       return;
 
-    // 식당 데이터 업데이트
-    loadRestaurantsAndCreateMarkers();
-  }, [isMapInitialized, loadRestaurantsAndCreateMarkers]);
+    const isInitialLoad = !didInitialMarkerLoadRef.current;
+    const isFilterChanged = prevFilterRef.current !== placeFilter;
+    const isUserChanged = prevUserIdRef.current !== userId;
+
+    if (isInitialLoad || isFilterChanged || isUserChanged) {
+      didInitialMarkerLoadRef.current = true;
+      prevFilterRef.current = placeFilter;
+      prevUserIdRef.current = userId as any;
+      loadRestaurantsAndCreateMarkers();
+    }
+  }, [isMapInitialized, placeFilter, userId, loadRestaurantsAndCreateMarkers]);
 
   // 검색에서 온 선택 항목 처리: 지도 이동 + 최대 확대 + 오버레이 표시
   useEffect(() => {
@@ -582,7 +591,7 @@ const Map = ({ state, placeFilter = 'all', setPlaceFilter }: MapProps) => {
           right: '16px',
           display: 'flex',
           gap: '8px',
-          zIndex: 99999,
+          zIndex: 1200, // 모달(1300) 아래, 지도(기본 0) 위
           backgroundColor: 'white',
           borderRadius: '25px',
           padding: '4px',
