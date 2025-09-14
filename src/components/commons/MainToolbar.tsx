@@ -22,6 +22,7 @@ import {
 } from '@lib/api/supabase_api';
 import { useEffect } from 'react';
 import { removeStoredUserId } from '@lib/util';
+import { useNavigate } from 'react-router-dom';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -81,6 +82,8 @@ export default function MainToolbar({
   const [tags, setTags] = React.useState<string[]>([]);
   const tagsContainerRef = React.useRef<HTMLDivElement | null>(null);
   const [tagsWidth, setTagsWidth] = React.useState<number>(0);
+
+  const navigate = useNavigate();
 
   // 태그 컨테이너 실제 너비 측정하여 입력 패딩에 반영
   React.useLayoutEffect(() => {
@@ -247,8 +250,8 @@ export default function MainToolbar({
       localStorage.removeItem('token_expiry');
       removeStoredUserId();
     } finally {
-      // 로그인 페이지로 이동
-      window.location.href = '/login';
+      // 로그인 페이지로 이동 (BrowserRouter 기준)
+      navigate('/login', { replace: true });
     }
   };
 

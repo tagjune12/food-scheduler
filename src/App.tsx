@@ -21,7 +21,13 @@ import { ModalProvider } from '@src/context/ModalContext';
 import { useMapInitDispatch } from '@src/context/MapInitContext';
 import { getUserInfo } from '@lib/api/user_api';
 import { BookmarkProvider } from '@src/context/BookMarkContext';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useNavigate,
+} from 'react-router-dom';
 import LoginPage from '@pages/LoginPage';
 
 export const UseDispatch = createContext<Function>(() => {});
@@ -87,6 +93,7 @@ const AuthenticatedApp = () => {
   const TodayRestaurantDispatch = useTodayRestaurantDispatch();
 
   const userId = useRef<string | null>(null);
+  const navigate = useNavigate();
 
   // 사용자 ID 초기화 함수
   const initializeUserId = async () => {
@@ -131,8 +138,8 @@ const AuthenticatedApp = () => {
         console.log('토큰이 만료되어 재로그인이 필요합니다.');
         // 저장된 사용자 ID도 삭제
         removeStoredUserId();
-        // 토큰 만료 시 로그인 페이지로 이동
-        window.location.href = '/login';
+        // 토큰 만료 시 로그인 페이지로 이동 (BrowserRouter 기준)
+        navigate('/login', { replace: true });
         clearInterval(tokenCheckInterval);
       }
     }, 60000); // 1분마다 체크
@@ -193,7 +200,7 @@ const AuthenticatedApp = () => {
         if (error.response && error.response.status === 401) {
           console.log('인증 오류가 발생하여 다시 로그인합니다.');
           removeStoredUserId();
-          window.location.href = '/login';
+          navigate('/login', { replace: true });
         } else {
           alert('일정을 불러오는 중 오류가 발생했습니다.');
         }
@@ -235,6 +242,7 @@ const App = () => {
             )
           }
         />
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
   );
