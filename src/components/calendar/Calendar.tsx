@@ -41,9 +41,7 @@ export default function Calendar({
         deleteEvent(eventId);
         clickInfo.event.remove();
         todayRestaurantDispatch({ type: 'deleteEvent' });
-      } catch (e) {
-        // console.log('일정 삭제에 실패했습니다.');
-      }
+      } catch (e) {}
     }
   };
 
@@ -75,7 +73,6 @@ export default function Calendar({
     }
   };
   const handleEvents = (events: EventApi[]) => {
-    console.log('events', events);
     // setCurrentEvents(events);
   };
 
@@ -95,7 +92,6 @@ export default function Calendar({
   const initEvents = useCallback(
     async (startDatestr: string, endDatestr: string) => {
       setInitEvents(await setInitializeEvents(startDatestr, endDatestr));
-      console.log('initEvents', initailEvents);
       calendarRef.current?.getApi().refetchEvents();
     },
     [initailEvents],
@@ -108,7 +104,6 @@ export default function Calendar({
       const today = new Date();
       const startDate = new Date(today.getFullYear(), today.getMonth(), 1);
       const endDate = new Date(today.getFullYear(), today.getMonth() + 1, 31);
-      console.log(startDate.toISOString(), endDate.toISOString());
       initEvents(startDate.toISOString(), endDate.toISOString());
 
       return;

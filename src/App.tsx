@@ -101,19 +101,19 @@ const AuthenticatedApp = () => {
     const storedUserId = getStoredUserId();
     if (storedUserId) {
       userId.current = storedUserId;
-      console.log('저장된 사용자 ID 사용:', storedUserId);
+      // console.log('저장된 사용자 ID 사용:', storedUserId);
       return;
     }
 
     // localStorage에 없으면 Google API에서 가져오기
     try {
       const userInfo = await getUserInfo();
-      console.log('사용자 정보:', userInfo);
+      // console.log('사용자 정보:', userInfo);
       const newUserId = userInfo.email?.split('@')[0];
       if (newUserId) {
         userId.current = newUserId;
         saveUserId(newUserId); // localStorage에 저장
-        console.log('새로운 사용자 ID 저장:', newUserId);
+        // console.log('새로운 사용자 ID 저장:', newUserId);
       }
     } catch (error) {
       console.error('사용자 정보 가져오기 실패:', error);
@@ -198,7 +198,7 @@ const AuthenticatedApp = () => {
 
         // 인증 오류 (401) 발생 시 토큰 갱신
         if (error.response && error.response.status === 401) {
-          console.log('인증 오류가 발생하여 다시 로그인합니다.');
+          // console.log('인증 오류가 발생하여 다시 로그인합니다.');
           removeStoredUserId();
           navigate('/login', { replace: true });
         } else {
