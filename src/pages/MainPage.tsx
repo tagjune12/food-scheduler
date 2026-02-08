@@ -31,17 +31,17 @@ const MemoizedMap = memo(
 
 const MainPage = ({ state }: { state: any }) => {
   const modalState = useModalState();
-  const [isShowCalendar, setisShowCalendar] = useState<boolean>(false);
+  const [isShowCalendar, setIsShowCalendar] = useState<boolean>(false);
   const [isShowSidebar, setIsShowSidebar] = useState<boolean>(false);
   const [placeFilter, setPlaceFilter] = useState<PlaceFilter>('all');
 
   return (
     <div className="main-page">
       {isShowCalendar && (
-        <Calendar closeCalendar={() => setisShowCalendar(false)} />
+        <Calendar closeCalendar={() => setIsShowCalendar(false)} />
       )}
       <MainToolbar
-        showCalendar={() => setisShowCalendar(true)}
+        showCalendar={() => setIsShowCalendar(true)}
         // showSidbar={() => setIsShowSidebar((prev) => !prev)}
         showSidebar={setIsShowSidebar}
       />

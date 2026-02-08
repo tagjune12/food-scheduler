@@ -10,10 +10,10 @@ const getAuthHeaders = () => {
   if (!access_token || !isTokenValid()) {
     throw new Error('유효한 인증 토큰이 없습니다.');
   }
-  
+
   return {
     Authorization: 'Bearer ' + access_token,
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
   };
 };
 
@@ -42,11 +42,11 @@ async function getHistory(startTime?: string, endTime?: string): Promise<any> {
       method: 'GET',
       headers: getAuthHeaders(),
     });
-    
+
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
-    
+
     return await response.json();
   } catch (error) {
     console.error('Fetch error:', error);
@@ -89,18 +89,18 @@ async function insertEvent(name: string, visitDate: Date) {
         .padStart(2, '0')}`,
     },
   };
-  
+
   try {
     const response = await fetch(targetUri, {
       method: 'POST',
       headers: getAuthHeaders(),
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
     });
-    
+
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
-    
+
     const data = await response.json();
     console.log('data', data);
     return data;
@@ -141,18 +141,18 @@ async function updateEvent(name: string, eventId: string, visitDate: Date) {
         .padStart(2, '0')}`,
     },
   };
-  
+
   try {
     const response = await fetch(targetUri, {
       method: 'PUT',
       headers: getAuthHeaders(),
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
     });
-    
+
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
-    
+
     return await response.json();
   } catch (error) {
     console.error('Fetch error:', error);
@@ -162,17 +162,17 @@ async function updateEvent(name: string, eventId: string, visitDate: Date) {
 
 async function deleteEvent(eventId: string) {
   const targetUri = `${BASE_URL}/${eventId}`;
-  
+
   try {
     const response = await fetch(targetUri, {
       method: 'DELETE',
-      headers: getAuthHeaders()
+      headers: getAuthHeaders(),
     });
-    
+
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
-    
+
     return await response.text();
   } catch (error) {
     console.error('Fetch error:', error);

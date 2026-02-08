@@ -3,8 +3,6 @@ import { getRestaurants } from '@lib/api/supabase_api';
 import PaginationButtons from '@components/commons/PaginationButtons';
 import { convertPlaceToRestaurant } from '@lib/util';
 import { useModalDispatch } from '@src/context/ModalContext';
-// import FullCalendar from '@fullcalendar/react';
-// import Searchbar from '@components/sidebar/Searchbar';
 import Searchbar from '@components/commons/Searchbar';
 function ListItem({ restaurant }: { restaurant: any }) {
   return (

@@ -1,11 +1,9 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import {
   EventApi,
-  // DateSelectArg,
   EventClickArg,
   EventContentArg,
   EventDropArg,
-  // formatDate,
 } from '@fullcalendar/core';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -20,63 +18,20 @@ import {
   useTodayRestaurantDispatch,
   useTodayRestaurantState,
 } from '@src/context/TodayRestaurantContext';
-// import { getStringTypeToday } from '@lib/util';
+import { DatesSetArg } from '@fullcalendar/core'; // 상단 import 추가
 
 export default function Calendar({
   closeCalendar,
 }: {
   closeCalendar: () => void;
 }) {
-  // const [currentEvents, setCurrentEvents] = useState<EventApi[]>();
   const [initailEvents, setInitEvents] = useState<EventInput[]>();
-  // const dispatch = useContext(UseDispatch);
   const todayRestaurantDispatch = useTodayRestaurantDispatch();
   const { todayRestaurant } = useTodayRestaurantState();
   const calendarRef = useRef<FullCalendar>(null);
-
-  // Date Cell 클릭시 이벤트 등록
-  // const handleDateSelect = async (selectInfo: DateSelectArg) => {
-  //   let title = prompt('어디로 가지?');
-  //   let calendarApi = selectInfo.view.calendar;
-
-  //   calendarApi.unselect(); // clear date selection
-
-  //   if (title) {
-  //     try {
-  //       const newEvent = await insertEvent(
-  //         title,
-  //         new Date(selectInfo.startStr),
-  //       );
-  //       calendarApi.addEvent({
-  //         id: newEvent.id,
-  //         title,
-  //         start: selectInfo.startStr,
-  //         end: selectInfo.endStr,
-  //         allDay: selectInfo.allDay,
-  //       });
-  //     } catch (e) {
-  //       alert('일정등록에 실패했습니다.');
-  //     }
-
-  //     // item.id
-  //   }
-  // };
-
-  // 레스토랑이 선택되었을 때 호출되는 함수
-  // const handleRestaurantSelect = (restaurant) => {
-  //   setSelectedRestaurant(restaurant);
-
-  //   // 캘린더의 API에 접근해서 이벤트를 수동으로 업데이트할 수 있음
-  //   if (calendarRef.current) {
-  //     const calendarApi = calendarRef.current.getApi();
-  //     // 여기서 필요한 작업 수행
-  //     // 예: 새 이벤트 추가, 이벤트 업데이트 등
-
-  //     // 모든 이벤트를 가져와서 eventsSet 콜백 수동 트리거
-  //     const allEvents = calendarApi.getEvents();
-  //     handleEvents(allEvents);
-  //   }
-  // };
+  const [viewRange, setViewRange] = useState<{ start: Date; end: Date } | null>(
+    null,
+  );
 
   // 일정 클릭하면 삭제할건지 뜸
   const handleEventClick = (clickInfo: EventClickArg) => {
@@ -124,24 +79,51 @@ export default function Calendar({
     // setCurrentEvents(events);
   };
 
-  // 캘린더 초기화
-  const initEvents = useCallback(async () => {
-    setInitEvents(await setInitializeEvents());
-    console.log('initEvents', initailEvents);
-    calendarRef.current?.getApi().refetchEvents();
-  }, [initailEvents]);
+  // 2. 달력의 뷰(날짜 범위)가 변경될 때마다 호출되는 콜백
+  const handleDatesSet = (dateInfo: DatesSetArg) => {
+    // dateInfo.start: 화면에 보이는 달력의 시작 날짜 (이전 달의 날짜 포함 가능)
+    // dateInfo.end: 화면에 보이는 달력의 끝 날짜
+    // dateInfo.view.currentStart: 현재 달력의 기준 월 (예: 2월 1일)
 
+    setViewRange({
+      start: dateInfo.start,
+      end: dateInfo.end,
+    });
+  };
+
+  // 캘린더 초기화
+  const initEvents = useCallback(
+    async (startDatestr: string, endDatestr: string) => {
+      setInitEvents(await setInitializeEvents(startDatestr, endDatestr));
+      console.log('initEvents', initailEvents);
+      calendarRef.current?.getApi().refetchEvents();
+    },
+    [initailEvents],
+  );
+
+  // 3. viewRange가 변경되거나 todayRestaurant가 변경될 때 실행되는 useEffect
   useEffect(() => {
-    initEvents();
-  }, [todayRestaurant]);
+    // viewRange가 없으면 현재 월로 이벤트 가져옴(첫 렌더링 직전)
+    if (!viewRange) {
+      const today = new Date();
+      const startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+      const endDate = new Date(today.getFullYear(), today.getMonth() + 1, 31);
+      console.log(startDate.toISOString(), endDate.toISOString());
+      initEvents(startDate.toISOString(), endDate.toISOString());
+
+      return;
+    }
+    initEvents(viewRange.start.toISOString(), viewRange.end.toISOString());
+  }, [viewRange, todayRestaurant]);
 
   return (
     <div className="calendar-wrapper">
       <div className="calendar-and-list-container">
         <div className="calendar-container">
-          {initailEvents && (
+          {true && (
             <FullCalendar
               ref={calendarRef}
+              datesSet={handleDatesSet}
               customButtons={{
                 closeButton: {
                   text: 'X',
@@ -157,7 +139,7 @@ export default function Calendar({
                 right: 'next closeButton',
               }}
               initialView="dayGridMonth"
-              initialEvents={initailEvents} // alternatively, use the `events` setting to fetch from a feed
+              events={initailEvents} // alternatively, use the `events` setting to fetch from a feed
               editable={true}
               selectable={true}
               selectMirror={true}
@@ -173,7 +155,7 @@ export default function Calendar({
             />
           )}
         </div>
-        {initailEvents && (
+        {true && (
           <RestaurantList
             callbackFn={(newEvent) => {
               if (calendarRef.current) {

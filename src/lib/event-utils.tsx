@@ -2,31 +2,17 @@
 import { getHistory } from '@lib/api/calendar_api';
 
 let eventGuid = 0;
-const curYear = new Date().getFullYear();
 
-// export const INITIAL_EVENTS: EventInput[] = [
-//   {
-//     id: createEventId(),
-//     title: 'All-day event',
-//     start: todayStr,
-//   },
-//   {
-//     id: createEventId(),
-//     title: 'Timed event',
-//     start: todayStr + 'T12:00:00',
-//   },
-// ];
+async function setInitializeEvents(startDateStr: string, endDateStr: string) {
+  const response = await getHistory(startDateStr, endDateStr);
 
-// let INITIAL_EVENTS: EventInput[];
-async function setInitializeEvents() {
-  let histories: Array<any> = (
-    await getHistory(
-      new Date(curYear, 1, 1).toISOString(),
-      new Date(curYear, 12, 31).toISOString(),
-    )
-  ).items;
+  console.log('getHistory response:', response);
 
-  return histories.map((calendarEvent) => ({
+  let histories: Array<any> = response.items || [];
+
+  console.log('histories', histories);
+
+  return histories.map((calendarEvent: any) => ({
     id: calendarEvent.id,
     title: calendarEvent.summary,
     start: calendarEvent.start.date,
