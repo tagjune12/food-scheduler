@@ -90,3 +90,4 @@ GEMINI.md
 *.png
 *ico
 *.txt
+.gemini/settings.json
