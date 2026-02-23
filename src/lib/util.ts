@@ -9,7 +9,7 @@ function getNumTypeToday(): { year: number; month: number; date: number } {
 
 function getStringTypeToday(): { year: string; month: string; date: string } {
   const today: Date = new Date();
-  const year = (today.getFullYear()).toString();
+  const year = today.getFullYear().toString();
   const month = (today.getMonth() + 1).toString().padStart(2, '0');
   const date = today.getDate().toString().padStart(2, '0');
 
@@ -41,7 +41,7 @@ function saveToken(token: string, expiresIn: number): void {
 function isTokenValid(): boolean {
   const expiryTime = localStorage.getItem('token_expiry');
   if (!expiryTime) return false;
-  
+
   const now = new Date().getTime();
   return now < parseInt(expiryTime);
 }
@@ -53,7 +53,7 @@ function getStoredToken(): string | null {
     localStorage.removeItem('token_expiry');
     return null;
   }
-  
+
   return localStorage.getItem('access_token');
 }
 
@@ -116,16 +116,19 @@ interface Restaurant {
  * @param visitDate 방문 날짜 (선택 사항)
  * @returns Restaurant 타입으로 변환된 객체
  */
-function convertPlaceToRestaurant(place: PlacesSearchResult, visitDate?: string): Restaurant {
+function convertPlaceToRestaurant(
+  place: PlacesSearchResult,
+  visitDate?: string,
+): Restaurant {
   // 카테고리 이름을 > 기준으로 분리하여 태그 배열로 변환
-  // console.log("카테고리 이름:", place.category_name);
-  // console.log("카테고리 이름:", place.category_name.split('>'));
-  
   // category_name이 undefined이거나 null인 경우 빈 배열을 사용
-  const tags = place.category_name 
-    ? place.category_name.split('>').map(tag => tag.trim()).filter(tag => tag !== '')
+  const tags = place.category_name
+    ? place.category_name
+        .split('>')
+        .map((tag) => tag.trim())
+        .filter((tag) => tag !== '')
     : [];
-  
+
   // Restaurant 객체 생성
 
   const restaurant: Restaurant = {
@@ -135,18 +138,18 @@ function convertPlaceToRestaurant(place: PlacesSearchResult, visitDate?: string)
     period: 0, // 기본값으로 0 설정
     position: {
       x: place.x,
-      y: place.y
+      y: place.y,
     },
     id: place.id,
     place_url: place.place_url,
-    distance: place.distance
+    distance: place.distance,
   };
-  
+
   // 방문 날짜가 제공된 경우 추가
   if (visitDate) {
     restaurant.visit = visitDate;
   }
-  
+
   return restaurant;
 }
 
@@ -155,15 +158,17 @@ function convertPlaceToRestaurant(place: PlacesSearchResult, visitDate?: string)
  * @param places Kakao Places API 검색 결과 객체 배열
  * @returns Restaurant 타입 배열
  */
-function convertPlacesToRestaurants(places: PlacesSearchResult[]): Restaurant[] {
-  return places.map(place => convertPlaceToRestaurant(place));
+function convertPlacesToRestaurants(
+  places: PlacesSearchResult[],
+): Restaurant[] {
+  return places.map((place) => convertPlaceToRestaurant(place));
 }
 
-export { 
-  getNumTypeToday, 
-  getStringDate, 
-  saveToken, 
-  isTokenValid, 
+export {
+  getNumTypeToday,
+  getStringDate,
+  saveToken,
+  isTokenValid,
   getStoredToken,
   saveUserId,
   getStoredUserId,
@@ -171,5 +176,5 @@ export {
   removeStoredToken,
   convertPlaceToRestaurant,
   convertPlacesToRestaurants,
-  getStringTypeToday
+  getStringTypeToday,
 };

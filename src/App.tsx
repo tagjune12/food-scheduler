@@ -168,7 +168,6 @@ const AuthenticatedApp = () => {
         const today = getNumTypeToday();
         let todayRestaurant: { [key: string]: string } = {};
 
-        console.log(items);
         const nameAndDate = items.reduce(
           (result: HistoryType, item: JSONResponse): HistoryType => {
             const key = item.summary; // 일정 이름(식당 이름)
@@ -200,16 +199,21 @@ const AuthenticatedApp = () => {
         console.error('API 호출 오류:', error);
 
         // 인증 오류 (401) 또는 권한 오류 (403) 발생 시 토큰 삭제 및 재로그인 유도
-        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-          // console.log('인증/권한 오류가 발생하여 다시 로그인합니다.');
+        if (
+          error.response &&
+          (error.response.status === 401 || error.response.status === 403)
+        ) {
           removeStoredUserId();
           removeStoredToken();
           navigate('/login', { replace: true });
-        } else if (error.message && (error.message.includes('401') || error.message.includes('403'))) {
-            // fetch API의 경우 response 객체가 error 객체 안에 없을 수 있음
-             removeStoredUserId();
-             removeStoredToken();
-             navigate('/login', { replace: true });
+        } else if (
+          error.message &&
+          (error.message.includes('401') || error.message.includes('403'))
+        ) {
+          // fetch API의 경우 response 객체가 error 객체 안에 없을 수 있음
+          removeStoredUserId();
+          removeStoredToken();
+          navigate('/login', { replace: true });
         } else {
           alert('일정을 불러오는 중 오류가 발생했습니다.');
         }

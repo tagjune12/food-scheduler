@@ -111,7 +111,6 @@ export default function Calendar({
   const fetchGoogleCalendar = async () => {
     try {
       const list = await getCalendarList();
-      console.log(list);
       setCalendarList(list);
       setIsModalOpen(true);
     } catch (e) {
@@ -123,7 +122,7 @@ export default function Calendar({
   // 3. viewRange가 변경되거나 todayRestaurant가 변경될 때 실행되는 useEffect
   useEffect(() => {
     const userId = localStorage.getItem('userId') || '';
-    
+
     if (!currentCalendarId) {
       getUserCalendar(userId).then((userCalendar) => {
         if (userCalendar && userCalendar.length > 0) {
@@ -140,7 +139,11 @@ export default function Calendar({
       const today = new Date();
       const startDate = new Date(today.getFullYear(), today.getMonth(), 1);
       const endDate = new Date(today.getFullYear(), today.getMonth() + 1, 31);
-      initEvents(startDate.toISOString(), endDate.toISOString(), currentCalendarId);
+      initEvents(
+        startDate.toISOString(),
+        endDate.toISOString(),
+        currentCalendarId,
+      );
 
       return;
     }

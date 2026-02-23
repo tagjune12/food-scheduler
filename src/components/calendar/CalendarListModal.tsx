@@ -27,9 +27,7 @@ const CalendarListModal = ({
   if (!isOpen) return null;
 
   const clickListItem = (id: string) => {
-    console.log(id, '선택됨');
     if (window.confirm(`${id}를 선택하시겠습니까?`)) {
-      console.log('캘린더 선택 진행됨');
       const userId = localStorage.getItem('user_id');
       try {
         if (userId) {
@@ -41,8 +39,6 @@ const CalendarListModal = ({
       } catch (e) {
         alert('캘린더 선택에 실패했습니다.');
       }
-    } else {
-      console.log('취소됨');
     }
   };
 

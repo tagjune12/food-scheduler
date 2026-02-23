@@ -54,7 +54,6 @@ export default function RestaurantList({
     // restaurant-item을 찾았다면 해당 데이터를 처리
     if (restaurantItem && restaurantItem.dataset.restaurant) {
       const restaurant = JSON.parse(restaurantItem.dataset.restaurant);
-      console.log('선택된 레스토랑:', restaurant);
       // 여기에 레스토랑 선택 처리 로직 추가
       modalDispatch({
         type: 'showModal',
@@ -66,25 +65,6 @@ export default function RestaurantList({
     }
   };
 
-  // const handleSortClick = (sortType: string) => {
-  //   console.log('정렬 타입:', sortType);
-  //   let sortedRestaurants = [];
-  //   if (restaurants) {
-  //     if (sortType === 'name') {
-  //       sortedRestaurants = restaurants.sort((a, b) =>
-  //         a.place_name.localeCompare(b.name),
-  //       );
-  //     } else if (sortType === 'visit_date') {
-  //       sortedRestaurants = restaurants.sort(
-  //         (a, b) =>
-  //           new Date(b.visit_date).getTime() - new Date(a.visit_date).getTime(),
-  //       );
-  //     }
-  //   }
-  //   setSortType(sortType);
-  //   setRestaurants(sortedRestaurants);
-  // };
-
   return (
     <div className="restaurant-list-container">
       <div className="restaurant-list-header">
@@ -93,20 +73,7 @@ export default function RestaurantList({
         <Searchbar callbackFn={setRestaurants} />
 
         <div className="restaurant-list-header-sort-container">
-          <div className="restaurant-list-header-sort">
-            {/* <p
-              onClick={() => handleSortClick('name')}
-              className={sortType === 'name' ? 'selected' : ''}
-            >
-              이름 순
-            </p>
-            <p
-              onClick={() => handleSortClick('visit_date')}
-              className={sortType === 'visit_date' ? 'selected' : ''}
-            >
-              최근 방문일자 순
-            </p> */}
-          </div>
+          <div className="restaurant-list-header-sort"></div>
         </div>
       </div>
 
