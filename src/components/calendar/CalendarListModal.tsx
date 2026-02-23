@@ -1,6 +1,7 @@
 import React from 'react';
 import '@components/calendar/CalendarListModal.scss';
 import { setUserCalendar } from '@lib/api/supabase_api';
+import { filterHash } from '@fullcalendar/core/internal';
 
 // TODO: 구글캘린더 목록 가져와서 사용할 캘린더 불러오는 모달 작성중
 interface CalendarListModalProps {
@@ -26,8 +27,8 @@ const CalendarListModal = ({
   // 모달이 닫혀있으면 아무것도 렌더링하지 않음
   if (!isOpen) return null;
 
-  const clickListItem = (id: string) => {
-    if (window.confirm(`${id}를 선택하시겠습니까?`)) {
+  const clickListItem = (id: string, summary: string) => {
+    if (window.confirm(`${summary}를 선택하시겠습니까?`)) {
       const userId = localStorage.getItem('user_id');
       try {
         if (userId) {
@@ -51,26 +52,31 @@ const CalendarListModal = ({
         </button>
         <h2 className="modal-header">Google Calendar</h2>
         <div className="calendar-list">
-          {calendarList?.items?.map((item) => (
-            <div
-              key={item.id}
-              className="calendar-item"
-              onClick={() => {
-                clickListItem(item.id);
-              }}
-            >
+          {calendarList?.items
+            ?.filter(
+              (item: { [key: string]: string }) =>
+                item.summary !== '대한민국의 휴일',
+            )
+            .map((item) => (
               <div
-                className="icon-box"
-                style={{
-                  backgroundColor: item.backgroundColor,
-                  color: item.foregroundColor,
+                key={item.id}
+                className="calendar-item"
+                onClick={() => {
+                  clickListItem(item.id, item.summary);
                 }}
               >
-                📅
+                <div
+                  className="icon-box"
+                  style={{
+                    backgroundColor: item.backgroundColor,
+                    color: item.foregroundColor,
+                  }}
+                >
+                  📅
+                </div>
+                <span className="calendar-name">{item.summary}</span>
               </div>
-              <span className="calendar-name">{item.summary}</span>
-            </div>
-          )) || (
+            )) || (
             <p style={{ textAlign: 'center', color: '#666' }}>
               캘린더 목록이 없습니다.
             </p>
