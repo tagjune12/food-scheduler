@@ -3,8 +3,16 @@ import { getHistory } from '@lib/api/calendar_api';
 
 let eventGuid = 0;
 
-async function setInitializeEvents(startDateStr: string, endDateStr: string) {
-  const response = await getHistory(startDateStr, endDateStr);
+async function setInitializeEvents(
+  startDateStr: string,
+  endDateStr: string,
+  calendarId: string,
+) {
+  const response = await getHistory(
+    startDateStr,
+    endDateStr,
+    calendarId === '' ? 'primary' : calendarId,
+  );
   let histories: Array<any> = response.items || [];
 
   return histories.map((calendarEvent: any) => ({

@@ -2,8 +2,9 @@ import qs from 'qs';
 import { access_token } from '@src/App';
 import { getNumTypeToday, isTokenValid } from '@lib/util';
 
-const CALENDAR_ID = 'ltjktnet12@gmail.com';
-const BASE_URL = `https://www.googleapis.com/calendar/v3/calendars/${CALENDAR_ID}/events`;
+const DEFAULT_CALENDAR_ID = 'primary';
+const getBaseUrl = (calendarId: string) =>
+  `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`;
 
 // 인증 헤더 생성 함수 - 토큰 유효성 검사 포함
 const getAuthHeaders = () => {
@@ -21,9 +22,14 @@ const getAuthHeaders = () => {
  * statTiem, endTime 입력 안되어있으면 오늘,다음날로 입력됨
  * @param startTime 시작날(ISO string)
  * @param endTime 끝나는날(포함X)(ISO string)
+ * @param calendarId 캘린더 ID (기본값: 'primary')
  * @returns
  */
-async function getHistory(startTime?: string, endTime?: string): Promise<any> {
+async function getHistory(
+  startTime?: string,
+  endTime?: string,
+  calendarId: string = DEFAULT_CALENDAR_ID,
+): Promise<any> {
   const numTypeToday = getNumTypeToday();
   const query = qs.stringify({
     timeMin: startTime ?? new Date().toISOString(),
@@ -35,7 +41,8 @@ async function getHistory(startTime?: string, endTime?: string): Promise<any> {
         numTypeToday.date + 1,
       ).toISOString(),
   });
-  const targetUri = `${BASE_URL}?${query}`;
+  const targetUri = `${getBaseUrl(calendarId)}?${query}`;
+  console.log('targetUri', targetUri);
 
   try {
     const response = await fetch(targetUri, {
@@ -54,8 +61,12 @@ async function getHistory(startTime?: string, endTime?: string): Promise<any> {
   }
 }
 
-async function insertEvent(name: string, visitDate: Date) {
-  const targetUri = `${BASE_URL}`;
+async function insertEvent(
+  name: string,
+  visitDate: Date,
+  calendarId: string = DEFAULT_CALENDAR_ID,
+) {
+  const targetUri = `${getBaseUrl(calendarId)}`;
   const [startYear, startMonth, startDate]: number[] = [
     visitDate.getFullYear(),
     visitDate.getMonth() + 1,
@@ -110,8 +121,13 @@ async function insertEvent(name: string, visitDate: Date) {
   }
 }
 
-async function updateEvent(name: string, eventId: string, visitDate: Date) {
-  const targetUri = `${BASE_URL}/${eventId}`;
+async function updateEvent(
+  name: string,
+  eventId: string,
+  visitDate: Date,
+  calendarId: string = DEFAULT_CALENDAR_ID,
+) {
+  const targetUri = `${getBaseUrl(calendarId)}/${eventId}`;
   const [startYear, startMonth, startDate] = [
     visitDate.getFullYear(),
     visitDate.getMonth() + 1,
@@ -160,8 +176,11 @@ async function updateEvent(name: string, eventId: string, visitDate: Date) {
   }
 }
 
-async function deleteEvent(eventId: string) {
-  const targetUri = `${BASE_URL}/${eventId}`;
+async function deleteEvent(
+  eventId: string,
+  calendarId: string = DEFAULT_CALENDAR_ID,
+) {
+  const targetUri = `${getBaseUrl(calendarId)}/${eventId}`;
 
   try {
     const response = await fetch(targetUri, {
@@ -180,4 +199,25 @@ async function deleteEvent(eventId: string) {
   }
 }
 
-export { getHistory, insertEvent, updateEvent, deleteEvent };
+async function getCalendarList() {
+  const targetUri = `https://www.googleapis.com/calendar/v3/users/me/calendarList`;
+  console.log('getCalendarList');
+  try {
+    const response = await fetch(targetUri, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    const data = await response.json();
+    console.log('response.json()', data.items);
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+    throw error;
+  }
+}
+
+export { getHistory, insertEvent, updateEvent, deleteEvent, getCalendarList };

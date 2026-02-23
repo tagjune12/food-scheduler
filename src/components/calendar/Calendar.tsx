@@ -10,15 +10,21 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { setInitializeEvents } from '@lib/event-utils';
 import { EventInput } from '@fullcalendar/core';
-import { deleteEvent, updateEvent } from '@lib/api/calendar_api';
+import {
+  deleteEvent,
+  getCalendarList,
+  updateEvent,
+} from '@lib/api/calendar_api';
 import '@components/calendar/Calendar.scss';
 // import { UseDispatch } from '@src/App';
 import RestaurantList from '@components/calendar/RestaurantList';
+import CalendarListModal from './CalendarListModal';
 import {
   useTodayRestaurantDispatch,
   useTodayRestaurantState,
 } from '@src/context/TodayRestaurantContext';
 import { DatesSetArg } from '@fullcalendar/core'; // 상단 import 추가
+import { getUserCalendar } from '@lib/api/supabase_api';
 
 export default function Calendar({
   closeCalendar,
@@ -32,6 +38,9 @@ export default function Calendar({
   const [viewRange, setViewRange] = useState<{ start: Date; end: Date } | null>(
     null,
   );
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [calendarList, setCalendarList] = useState<any>(null);
+  const [currentCalendarId, setCurrentCalendarId] = useState<string>('');
 
   // 일정 클릭하면 삭제할건지 뜸
   const handleEventClick = (clickInfo: EventClickArg) => {
@@ -90,88 +99,131 @@ export default function Calendar({
 
   // 캘린더 초기화
   const initEvents = useCallback(
-    async (startDatestr: string, endDatestr: string) => {
-      setInitEvents(await setInitializeEvents(startDatestr, endDatestr));
+    async (startDatestr: string, endDatestr: string, calendarId: string) => {
+      setInitEvents(
+        await setInitializeEvents(startDatestr, endDatestr, calendarId),
+      );
       calendarRef.current?.getApi().refetchEvents();
     },
     [initailEvents],
   );
 
+  const fetchGoogleCalendar = async () => {
+    try {
+      const list = await getCalendarList();
+      console.log(list);
+      setCalendarList(list);
+      setIsModalOpen(true);
+    } catch (e) {
+      console.error(e);
+      alert('캘린더 목록을 가져오는데 실패했습니다.');
+    }
+  };
+
   // 3. viewRange가 변경되거나 todayRestaurant가 변경될 때 실행되는 useEffect
   useEffect(() => {
+    const userId = localStorage.getItem('userId') || '';
+    
+    if (!currentCalendarId) {
+      getUserCalendar(userId).then((userCalendar) => {
+        if (userCalendar && userCalendar.length > 0) {
+          setCurrentCalendarId(userCalendar[0].calendar_id);
+        } else {
+          setCurrentCalendarId('primary');
+        }
+      });
+      return;
+    }
+
     // viewRange가 없으면 현재 월로 이벤트 가져옴(첫 렌더링 직전)
     if (!viewRange) {
       const today = new Date();
       const startDate = new Date(today.getFullYear(), today.getMonth(), 1);
       const endDate = new Date(today.getFullYear(), today.getMonth() + 1, 31);
-      initEvents(startDate.toISOString(), endDate.toISOString());
+      initEvents(startDate.toISOString(), endDate.toISOString(), currentCalendarId);
 
       return;
     }
-    initEvents(viewRange.start.toISOString(), viewRange.end.toISOString());
-  }, [viewRange, todayRestaurant]);
+    initEvents(
+      viewRange.start.toISOString(),
+      viewRange.end.toISOString(),
+      currentCalendarId,
+    );
+  }, [viewRange, todayRestaurant, currentCalendarId]);
 
   return (
-    <div className="calendar-wrapper">
-      <div className="calendar-and-list-container">
-        <div className="calendar-container">
-          {true && (
-            <FullCalendar
-              ref={calendarRef}
-              datesSet={handleDatesSet}
-              customButtons={{
-                closeButton: {
-                  text: 'X',
-                  click: () => {
-                    closeCalendar();
+    <>
+      <div className="calendar-wrapper">
+        <div className="calendar-and-list-container">
+          <div className="calendar-container">
+            {true && (
+              <FullCalendar
+                ref={calendarRef}
+                datesSet={handleDatesSet}
+                customButtons={{
+                  closeButton: {
+                    text: 'X',
+                    click: () => {
+                      closeCalendar();
+                    },
                   },
-                },
+                  googleCalendarBtn: {
+                    text: '📅 달력 가져오기',
+                    click: fetchGoogleCalendar,
+                  },
+                }}
+                plugins={[dayGridPlugin, interactionPlugin]}
+                headerToolbar={{
+                  left: 'googleCalendarBtn',
+                  center: 'title',
+                  right: 'prev next closeButton',
+                }}
+                initialView="dayGridMonth"
+                events={initailEvents} // alternatively, use the `events` setting to fetch from a feed
+                editable={true}
+                selectable={true}
+                selectMirror={true}
+                dayMaxEvents={true}
+                // select={handleDateSelect}
+                eventContent={renderEventContent} // custom render function
+                eventClick={handleEventClick}
+                eventDrop={handleEventDrop}
+                // aspectRatio={1.3} // cell의 크기 조절
+                handleWindowResize={true}
+                contentHeight={600}
+                eventsSet={handleEvents} // called after events are initialized/added/changed/removed
+              />
+            )}
+          </div>
+          {true && (
+            <RestaurantList
+              callbackFn={(newEvent) => {
+                if (calendarRef.current) {
+                  const orgCalenderEvent = calendarRef.current
+                    .getApi()
+                    .getEventById(newEvent.id);
+                  if (orgCalenderEvent) {
+                    orgCalenderEvent.remove();
+                  }
+                  calendarRef.current?.getApi().addEvent({
+                    id: newEvent.id,
+                    title: newEvent.summary,
+                    start: newEvent.start.date,
+                    end: newEvent.end.date,
+                    allDay: true,
+                  });
+                }
               }}
-              plugins={[dayGridPlugin, interactionPlugin]}
-              headerToolbar={{
-                left: 'prev',
-                center: 'title',
-                right: 'next closeButton',
-              }}
-              initialView="dayGridMonth"
-              events={initailEvents} // alternatively, use the `events` setting to fetch from a feed
-              editable={true}
-              selectable={true}
-              selectMirror={true}
-              dayMaxEvents={true}
-              // select={handleDateSelect}
-              eventContent={renderEventContent} // custom render function
-              eventClick={handleEventClick}
-              eventDrop={handleEventDrop}
-              // aspectRatio={1.3} // cell의 크기 조절
-              handleWindowResize={true}
-              contentHeight={600}
-              eventsSet={handleEvents} // called after events are initialized/added/changed/removed
             />
           )}
         </div>
-        {true && (
-          <RestaurantList
-            callbackFn={(newEvent) => {
-              if (calendarRef.current) {
-                const orgCalenderEvent = calendarRef.current
-                  .getApi()
-                  .getEventById(newEvent.id);
-                if (orgCalenderEvent) {
-                  orgCalenderEvent.remove();
-                }
-                calendarRef.current?.getApi().addEvent({
-                  id: newEvent.id,
-                  title: newEvent.summary,
-                  start: newEvent.start.date,
-                  end: newEvent.end.date,
-                  allDay: true,
-                });
-              }
-            }}
-          />
-        )}
       </div>
-    </div>
+      <CalendarListModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSelect={(id) => setCurrentCalendarId(id)}
+        calendarList={calendarList}
+      />
+    </>
   );
 }

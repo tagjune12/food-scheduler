@@ -7,7 +7,7 @@ const LoginPage = () => {
     redirect_uri: process.env.REACT_APP_GOOGLE_LOGIN_REDIRECT_URL,
     response_type: 'token',
     scope:
-      'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.email',
+      'https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/calendar.calendarlist.readonly',
   });
   const loginUrl = `https://accounts.google.com/o/oauth2/v2/auth?${queryStr}`;
 

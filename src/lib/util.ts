@@ -72,6 +72,12 @@ function removeStoredUserId(): void {
   localStorage.removeItem('user_id');
 }
 
+// 토큰 삭제 함수
+function removeStoredToken(): void {
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('token_expiry');
+}
+
 // Kakao Places API의 PlacesSearchResult를 Restaurant 타입으로 변환하는 함수
 interface PlacesSearchResult {
   address_name: string;
@@ -162,6 +168,7 @@ export {
   saveUserId,
   getStoredUserId,
   removeStoredUserId,
+  removeStoredToken,
   convertPlaceToRestaurant,
   convertPlacesToRestaurants,
   getStringTypeToday
