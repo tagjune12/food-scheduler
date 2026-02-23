@@ -37,10 +37,6 @@ export default function TodayRestaurantCard({ restaurant, visitDate }: any) {
     );
   };
 
-  useEffect(() => {
-    console.log('today restaurant card', restaurant);
-  }, [restaurant]);
-
   return (
     <div className={`card-container`}>
       <h3>{restaurant.place_name}</h3>

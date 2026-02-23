@@ -344,9 +344,6 @@ const Map = ({ state, placeFilter = 'all', setPlaceFilter }: MapProps) => {
 
       // 식당 데이터 가져오기 (필터 적용)
       const restaurants = await getPlacesWithUserBookmarks(userId, placeFilter);
-      // console.log(
-      //   `총 ${restaurants.length}개의 장소 로드 (필터: ${placeFilter})`,
-      // );
 
       // 각 식당에 대해 마커 생성
       const newMarkers: kakao.maps.Marker[] = [];
@@ -392,7 +389,6 @@ const Map = ({ state, placeFilter = 'all', setPlaceFilter }: MapProps) => {
       return;
     }
 
-    // console.log('지도 초기화 시작');
     const container = document.getElementById('map');
     if (!container) {
       console.error('지도 컨테이너를 찾을 수 없습니다.');
@@ -427,9 +423,6 @@ const Map = ({ state, placeFilter = 'all', setPlaceFilter }: MapProps) => {
     // 지도 클릭 이벤트 (한 번만 추가)
     kakao.maps.event.addListener(mapRef.current, 'click', closeCurrentOverlay);
 
-    // 초기화 상태 업데이트
-    // console.log('지도 초기화 완료');
-
     // 지도 초기화 완료 플래그만 설정하고,
     // 실제 마커 로딩은 아래 useEffect에서 한 번만 수행
     setIsMapInitialized(true);
@@ -443,14 +436,10 @@ const Map = ({ state, placeFilter = 'all', setPlaceFilter }: MapProps) => {
   // 카카오맵 스크립트 로드 및 초기화 (한 번만 실행)
   useEffect(() => {
     // 앱 초기화가 완료되지 않았으면 지도 초기화하지 않음
-    // console.log('appInitialized', appInitialized);
     if (!appInitialized) return;
 
     // 지도가 이미 초기화되었으면 재실행하지 않음
-    // console.log('isMapInitialized', isMapInitialized, mapRef.current);
     if (isMapInitialized && mapRef.current) return;
-
-    // console.log('지도 초기화 시작 (앱 초기화 상태:', appInitialized, ')');
 
     const loadKakaoMap = () => {
       // 스크립트가 이미 로드된 경우 중복 로드 방지
@@ -461,14 +450,12 @@ const Map = ({ state, placeFilter = 'all', setPlaceFilter }: MapProps) => {
         return;
       }
 
-      // console.log('카카오맵 스크립트 로드 시작');
       const script = document.createElement('script');
       script.id = 'kakao-map-script';
       script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.REACT_APP_KAKAO_MAP_API_JS_KEY}&libraries=services,clusterer&autoload=false`;
       script.async = true;
       script.onload = () => {
         window.kakao.maps.load(() => {
-          // console.log('카카오맵 스크립트 로드 완료');
           initializeMap();
         });
       };
@@ -477,7 +464,6 @@ const Map = ({ state, placeFilter = 'all', setPlaceFilter }: MapProps) => {
 
     // 이미 스크립트가 로드되었는지 확인
     if (window.kakao && window.kakao.maps) {
-      // console.log('카카오맵 이미 로드됨');
       initializeMap();
     } else {
       loadKakaoMap();
@@ -602,7 +588,6 @@ const Map = ({ state, placeFilter = 'all', setPlaceFilter }: MapProps) => {
           <button
             key={option.value}
             onClick={() => {
-              console.log('Filter clicked:', option.value);
               setPlaceFilter?.(option.value);
             }}
             style={{

@@ -42,7 +42,6 @@ async function getHistory(
       ).toISOString(),
   });
   const targetUri = `${getBaseUrl(calendarId)}?${query}`;
-  console.log('targetUri', targetUri);
 
   try {
     const response = await fetch(targetUri, {
@@ -113,7 +112,6 @@ async function insertEvent(
     }
 
     const data = await response.json();
-    console.log('data', data);
     return data;
   } catch (error) {
     console.error('Fetch error:', error);
@@ -201,7 +199,6 @@ async function deleteEvent(
 
 async function getCalendarList() {
   const targetUri = `https://www.googleapis.com/calendar/v3/users/me/calendarList`;
-  console.log('getCalendarList');
   try {
     const response = await fetch(targetUri, {
       method: 'GET',
@@ -212,7 +209,6 @@ async function getCalendarList() {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
     const data = await response.json();
-    console.log('response.json()', data.items);
     return data;
   } catch (error) {
     console.error('Fetch error:', error);

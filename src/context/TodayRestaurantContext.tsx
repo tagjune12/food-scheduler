@@ -63,14 +63,11 @@ export const TodayRestaurantProvider = ({
   );
 
   useEffect(() => {
-    console.log('context userId', userId);
     const fetchTodayRestaurant = async () => {
       const restaurantName = (await getHistory()).items[0]?.summary;
-      console.log('restaurantName', restaurantName);
       const todayRestaurant = (
         await getRestaurantsWithName([restaurantName])
       )[0];
-      console.log('todayRestaurant', todayRestaurant);
       todayRestaurantDispatch({
         type: 'selectRestaurant',
         payload: todayRestaurant,

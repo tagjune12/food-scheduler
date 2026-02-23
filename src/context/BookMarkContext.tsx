@@ -132,7 +132,6 @@ export const BookmarkProvider = ({
 
   // 컴포넌트 마운트 시 북마크 목록 조회
   useEffect(() => {
-    console.log('userId', userId);
     const fetchBookmarks = async () => {
       if (!userId) return;
 
