@@ -33,10 +33,10 @@ const SideBar = ({
 
   return (
     <>
-      {isHistory && <Calendar closeCalendar={showCalendar} />}
+      {/* {isHistory && <Calendar closeCalendar={showCalendar} />} */}
       <div className="sidebar">
         <div id="schedules" ref={sideBarRef}>
-          <div className="schedule-header">
+          {/* <div className="schedule-header">
             <h2>오늘의 식사</h2>
           </div>
           <TodayRestaurant
@@ -45,13 +45,13 @@ const SideBar = ({
               todayRestaurantState.todayRestaurant.place_name ||
               ''
             }
-          />
-          <Divider />
+          /> */}
+          {/* <Divider /> */}
           &nbsp;
           <div className="schedule-header">
             <h2>즐겨찾기</h2>
           </div>
-          <Suspense
+          {/* <Suspense
             fallback={
               <>
                 <Skeleton
@@ -101,9 +101,9 @@ const SideBar = ({
                 />
               </>
             }
-          >
+          > */}
             <Bookmark />
-          </Suspense>
+          {/* </Suspense> */}
         </div>
       </div>
     </>

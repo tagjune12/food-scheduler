@@ -1,13 +1,9 @@
 import React from 'react';
 import '@components/calendar/CalendarListModal.scss';
-import { setUserCalendar } from '@lib/api/supabase_api';
-import { filterHash } from '@fullcalendar/core/internal';
 
-// TODO: 구글캘린더 목록 가져와서 사용할 캘린더 불러오는 모달 작성중
-interface CalendarListModalProps {
+export interface CalendarListModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSelect: (calendarId: string) => void;
   calendarList?: {
     items: Array<{
       id: string;
@@ -16,36 +12,20 @@ interface CalendarListModalProps {
       summary: string;
     }>;
   };
+  onSelectCalendar: (id: string, summary: string) => void;
 }
 
 const CalendarListModal = ({
   isOpen,
   onClose,
-  onSelect,
   calendarList,
+  onSelectCalendar,
 }: CalendarListModalProps) => {
   // 모달이 닫혀있으면 아무것도 렌더링하지 않음
   if (!isOpen) return null;
 
-  const clickListItem = (id: string, summary: string) => {
-    if (window.confirm(`${summary}를 선택하시겠습니까?`)) {
-      const userId = localStorage.getItem('user_id');
-      try {
-        if (userId) {
-          setUserCalendar(userId, id).then(() => {
-            onSelect(id);
-            onClose();
-          });
-        }
-      } catch (e) {
-        alert('캘린더 선택에 실패했습니다.');
-      }
-    }
-  };
-
   return (
     <div className="modal-overlay" onClick={onClose}>
-      {/* stopPropagation: 클릭 이벤트가 부모(overlay)로 퍼지는 것을 방지 */}
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <button className="close-button" onClick={onClose}>
           &times;
@@ -54,7 +34,7 @@ const CalendarListModal = ({
         <div className="calendar-list">
           {calendarList?.items
             ?.filter(
-              (item: { [key: string]: string }) =>
+              (item) =>
                 item.summary !== '대한민국의 휴일',
             )
             .map((item) => (
@@ -62,7 +42,7 @@ const CalendarListModal = ({
                 key={item.id}
                 className="calendar-item"
                 onClick={() => {
-                  clickListItem(item.id, item.summary);
+                  onSelectCalendar(item.id, item.summary);
                 }}
               >
                 <div

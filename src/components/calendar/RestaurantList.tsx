@@ -1,9 +1,18 @@
-import { useEffect, useRef, useState } from 'react';
-import { getRestaurants } from '@lib/api/supabase_api';
-import PaginationButtons from '@components/commons/PaginationButtons';
-import { convertPlaceToRestaurant } from '@lib/util';
-import { useModalDispatch } from '@src/context/ModalContext';
+import React from 'react';
 import Searchbar from '@components/commons/Searchbar';
+import PaginationButtons from '@components/commons/PaginationButtons';
+
+interface RestaurantListProps {
+  restaurants: any[];
+  isLoading: boolean;
+  page: number;
+  dataPerPage: number;
+  setPage: React.Dispatch<React.SetStateAction<number>>;
+  setRestaurants: React.Dispatch<React.SetStateAction<any[]>>;
+  onRestaurantClick: (event: React.MouseEvent) => void;
+  restaurantListRef: React.RefObject<HTMLDivElement>;
+}
+
 function ListItem({ restaurant }: { restaurant: any }) {
   return (
     <div
@@ -19,57 +28,19 @@ function ListItem({ restaurant }: { restaurant: any }) {
 }
 
 export default function RestaurantList({
-  callbackFn,
-}: {
-  callbackFn: (params: any) => void;
-}) {
-  const [restaurants, setRestaurants] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [page, setPage] = useState(1);
-  // const [sortType, setSortType] = useState<string>('name');
-  const dataPerPage = 10;
-  const modalDispatch = useModalDispatch();
-  const restaurantListRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    // supabase에서 데이터 가져오기
-    (async () => {
-      setIsLoading(true);
-      try {
-        const restaurants = await getRestaurants();
-        setRestaurants(restaurants);
-      } catch (error) {
-        console.error('레스토랑 데이터 로딩 오류:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    })();
-  }, []);
-
-  const handleRestaurantListItemClick = (event: React.MouseEvent) => {
-    // 클릭된 요소를 시작으로 부모 요소 중 restaurant-item 클래스를 가진 요소를 찾음
-    const target = event.target as HTMLElement;
-    const restaurantItem = target.closest('.restaurant-item') as HTMLElement;
-
-    // restaurant-item을 찾았다면 해당 데이터를 처리
-    if (restaurantItem && restaurantItem.dataset.restaurant) {
-      const restaurant = JSON.parse(restaurantItem.dataset.restaurant);
-      // 여기에 레스토랑 선택 처리 로직 추가
-      modalDispatch({
-        type: 'showModal',
-        payload: convertPlaceToRestaurant(
-          JSON.parse(restaurantItem.dataset.restaurant),
-        ),
-        callbackFn: callbackFn,
-      });
-    }
-  };
-
+  restaurants,
+  isLoading,
+  page,
+  dataPerPage,
+  setPage,
+  setRestaurants,
+  onRestaurantClick,
+  restaurantListRef,
+}: RestaurantListProps) {
   return (
     <div className="restaurant-list-container">
       <div className="restaurant-list-header">
         <h3>식당 목록</h3>
-        {/* <PrimarySearchAppBar /> */}
         <Searchbar callbackFn={setRestaurants} />
 
         <div className="restaurant-list-header-sort-container">
@@ -83,7 +54,7 @@ export default function RestaurantList({
         <>
           <div
             className="restaurant-items-container"
-            onClick={handleRestaurantListItemClick}
+            onClick={onRestaurantClick}
             ref={restaurantListRef}
           >
             {restaurants

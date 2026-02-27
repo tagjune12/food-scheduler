@@ -5,13 +5,13 @@ import { Skeleton } from '@mui/material';
 import { useModalState } from '@src/context/ModalContext';
 import SideBar from '@components/sidebar/SideBar';
 import MainToolbar from '@components/commons/MainToolbar';
-import Calendar from '@components/calendar/Calendar';
+import { Calendar } from '@components/calendar';
 
 // 필터 타입 정의
 export type PlaceFilter = 'all' | 'restaurant' | 'cafe';
 
 // 메모이제이션된 Map 컴포넌트
-const LazyMap = lazy(() => import('@components/Map'));
+const LazyMap = lazy(() => import('@components/Map').then((module) => ({ default: module.Map })));
 const MemoizedMap = memo(
   ({
     state,
