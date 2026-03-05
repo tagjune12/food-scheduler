@@ -14,14 +14,15 @@ import {
   removeStoredToken,
 } from '@lib/util';
 import '@src/App.scss';
-import {
-  TodayRestaurantProvider,
-  useTodayRestaurantDispatch,
-} from '@src/context/TodayRestaurantContext';
+// import {
+//   TodayRestaurantProvider,
+//   useTodayRestaurantDispatch,
+// } from '@src/context/TodayRestaurantContext';
 import { ModalProvider } from '@src/context/ModalContext';
 import { useMapInitDispatch } from '@src/context/MapInitContext';
 import { getUserInfo } from '@lib/api/user_api';
 import { BookmarkProvider } from '@src/context/BookMarkContext';
+import { AuthProvider } from '@src/context/AuthContext';
 import {
   BrowserRouter,
   Routes,
@@ -87,141 +88,141 @@ const AuthenticatedApp = () => {
   };
 
   const [state, dispatch] = useReducer(reducer, initialState);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   // 지도 초기화 상태
   // const [mapInitialized, setMapInitialized] = useState<boolean>(false);
   const mapInitDispatch = useMapInitDispatch();
-  const TodayRestaurantDispatch = useTodayRestaurantDispatch();
+  // const TodayRestaurantDispatch = useTodayRestaurantDispatch();
 
   const userId = useRef<string | null>(null);
   const navigate = useNavigate();
 
-  // 사용자 ID 초기화 함수
-  const initializeUserId = async () => {
-    // 먼저 localStorage에서 저장된 userId 확인
-    const storedUserId = getStoredUserId();
-    if (storedUserId) {
-      userId.current = storedUserId;
-      // console.log('저장된 사용자 ID 사용:', storedUserId);
-      return;
-    }
+  // // 사용자 ID 초기화 함수
+  // const initializeUserId = async () => {
+  //   // 먼저 localStorage에서 저장된 userId 확인
+  //   const storedUserId = getStoredUserId();
+  //   if (storedUserId) {
+  //     userId.current = storedUserId;
+  //     // console.log('저장된 사용자 ID 사용:', storedUserId);
+  //     return;
+  //   }
 
-    // localStorage에 없으면 Google API에서 가져오기
-    try {
-      const userInfo = await getUserInfo();
-      // console.log('사용자 정보:', userInfo);
-      const newUserId = userInfo.email?.split('@')[0];
-      if (newUserId) {
-        userId.current = newUserId;
-        saveUserId(newUserId); // localStorage에 저장
-        // console.log('새로운 사용자 ID 저장:', newUserId);
-      }
-    } catch (error) {
-      console.error('사용자 정보 가져오기 실패:', error);
-    }
-  };
+  //   // localStorage에 없으면 Google API에서 가져오기
+  //   try {
+  //     const userInfo = await getUserInfo();
+  //     // console.log('사용자 정보:', userInfo);
+  //     const newUserId = userInfo.email?.split('@')[0];
+  //     if (newUserId) {
+  //       userId.current = newUserId;
+  //       saveUserId(newUserId); // localStorage에 저장
+  //       // console.log('새로운 사용자 ID 저장:', newUserId);
+  //     }
+  //   } catch (error) {
+  //     console.error('사용자 정보 가져오기 실패:', error);
+  //   }
+  // };
 
   // 토큰 상태 설정 및 인터벌 설정
-  useEffect(() => {
-    if (!access_token) return;
+  // useEffect(() => {
+  //   if (!access_token) return;
 
-    // 유효한 토큰이 있으면 상태 저장
-    mapInitDispatch({ type: 'setAccessToken', payload: access_token });
+  //   // 유효한 토큰이 있으면 상태 저장
+  //   mapInitDispatch({ type: 'setAccessToken', payload: access_token });
 
-    // 사용자 ID 초기화
-    initializeUserId();
+  //   // 사용자 ID 초기화
+  //   initializeUserId();
 
-    setIsLoading(false);
+  //   // setIsLoading(false);
 
-    // 토큰 만료 체크 인터벌 설정
-    const tokenCheckInterval = setInterval(() => {
-      if (!isTokenValid()) {
-        console.log('토큰이 만료되어 재로그인이 필요합니다.');
-        // 저장된 사용자 ID 및 토큰 삭제
-        removeStoredUserId();
-        removeStoredToken();
-        // 토큰 만료 시 로그인 페이지로 이동 (BrowserRouter 기준)
-        navigate('/login', { replace: true });
-        clearInterval(tokenCheckInterval);
-      }
-    }, 60000); // 1분마다 체크
+  //   // 토큰 만료 체크 인터벌 설정
+  //   const tokenCheckInterval = setInterval(() => {
+  //     if (!isTokenValid()) {
+  //       console.log('토큰이 만료되어 재로그인이 필요합니다.');
+  //       // 저장된 사용자 ID 및 토큰 삭제
+  //       removeStoredUserId();
+  //       removeStoredToken();
+  //       // 토큰 만료 시 로그인 페이지로 이동 (BrowserRouter 기준)
+  //       navigate('/login', { replace: true });
+  //       clearInterval(tokenCheckInterval);
+  //     }
+  //   }, 60000); // 1분마다 체크
 
-    return () => clearInterval(tokenCheckInterval);
-  }, []);
+  //   return () => clearInterval(tokenCheckInterval);
+  // }, []);
 
-  useEffect(() => {
-    if (!access_token || isLoading) return;
+  // useEffect(() => {
+  //   if (!access_token || isLoading) return;
 
-    const today = new Date();
-    const timeMax = today.toISOString();
-    const timeMin = new Date(
-      today.getFullYear(),
-      today.getMonth() - 1,
-      today.getDate(),
-    ).toISOString();
+  //   const today = new Date();
+  //   const timeMax = today.toISOString();
+  //   const timeMin = new Date(
+  //     today.getFullYear(),
+  //     today.getMonth() - 1,
+  //     today.getDate(),
+  //   ).toISOString();
 
-    const callCalendarAPI = async () => {
-      try {
-        const response = await getHistory(timeMin, timeMax);
-        const items: Array<Object> = response.items;
+  //   const callCalendarAPI = async () => {
+  //     try {
+  //       const response = await getHistory(timeMin, timeMax);
+  //       const items: Array<Object> = response.items;
 
-        const today = getNumTypeToday();
-        let todayRestaurant: { [key: string]: string } = {};
+  //       const today = getNumTypeToday();
+  //       let todayRestaurant: { [key: string]: string } = {};
 
-        const nameAndDate = items.reduce(
-          (result: HistoryType, item: JSONResponse): HistoryType => {
-            const key = item.summary; // 일정 이름(식당 이름)
-            const value = { date: item.start.date, eventId: item.id }; // 일정 날짜, 이벤트ID
+  //       const nameAndDate = items.reduce(
+  //         (result: HistoryType, item: JSONResponse): HistoryType => {
+  //           const key = item.summary; // 일정 이름(식당 이름)
+  //           const value = { date: item.start.date, eventId: item.id }; // 일정 날짜, 이벤트ID
 
-            if (
-              today.year.toString().padStart(2, '0') ===
-                item.start.date.split('-')[0] &&
-              today.month.toString().padStart(2, '0') ===
-                item.start.date.split('-')[1] &&
-              today.date.toString().padStart(2, '0') ===
-                item.start.date.split('-')[2]
-            ) {
-              todayRestaurant.name = key;
-            }
-            result[key] = value;
-            return result;
-          },
-          {},
-        );
-        dispatch({ type: 'setHistory', payload: nameAndDate });
-        if (todayRestaurant) {
-          TodayRestaurantDispatch({
-            type: 'selectRestaurant',
-            payload: todayRestaurant,
-          });
-        }
-      } catch (error: any) {
-        console.error('API 호출 오류:', error);
+  //           if (
+  //             today.year.toString().padStart(2, '0') ===
+  //               item.start.date.split('-')[0] &&
+  //             today.month.toString().padStart(2, '0') ===
+  //               item.start.date.split('-')[1] &&
+  //             today.date.toString().padStart(2, '0') ===
+  //               item.start.date.split('-')[2]
+  //           ) {
+  //             todayRestaurant.name = key;
+  //           }
+  //           result[key] = value;
+  //           return result;
+  //         },
+  //         {},
+  //       );
+  //       dispatch({ type: 'setHistory', payload: nameAndDate });
+  //       if (todayRestaurant) {
+  //         TodayRestaurantDispatch({
+  //           type: 'selectRestaurant',
+  //           payload: todayRestaurant,
+  //         });
+  //       }
+  //     } catch (error: any) {
+  //       console.error('API 호출 오류:', error);
 
-        // 인증 오류 (401) 또는 권한 오류 (403) 발생 시 토큰 삭제 및 재로그인 유도
-        if (
-          error.response &&
-          (error.response.status === 401 || error.response.status === 403)
-        ) {
-          removeStoredUserId();
-          removeStoredToken();
-          navigate('/login', { replace: true });
-        } else if (
-          error.message &&
-          (error.message.includes('401') || error.message.includes('403'))
-        ) {
-          // fetch API의 경우 response 객체가 error 객체 안에 없을 수 있음
-          removeStoredUserId();
-          removeStoredToken();
-          navigate('/login', { replace: true });
-        } else {
-          alert('일정을 불러오는 중 오류가 발생했습니다.');
-        }
-      }
-    };
+  //       // 인증 오류 (401) 또는 권한 오류 (403) 발생 시 토큰 삭제 및 재로그인 유도
+  //       if (
+  //         error.response &&
+  //         (error.response.status === 401 || error.response.status === 403)
+  //       ) {
+  //         removeStoredUserId();
+  //         removeStoredToken();
+  //         navigate('/login', { replace: true });
+  //       } else if (
+  //         error.message &&
+  //         (error.message.includes('401') || error.message.includes('403'))
+  //       ) {
+  //         // fetch API의 경우 response 객체가 error 객체 안에 없을 수 있음
+  //         removeStoredUserId();
+  //         removeStoredToken();
+  //         navigate('/login', { replace: true });
+  //       } else {
+  //         alert('일정을 불러오는 중 오류가 발생했습니다.');
+  //       }
+  //     }
+  //   };
 
-    callCalendarAPI();
-  }, [access_token, isLoading]);
+  //   callCalendarAPI();
+  // }, [access_token, isLoading]);
 
   if (isLoading) {
     return <div className="loading">로딩 중...</div>;
@@ -229,13 +230,15 @@ const AuthenticatedApp = () => {
 
   return (
     <UseDispatch.Provider value={dispatch}>
-      <BookmarkProvider userId={userId.current ?? ''}>
-        <TodayRestaurantProvider userId={userId.current ?? ''}>
-          <ModalProvider>
-            <MainPage state={state} />
-          </ModalProvider>
-        </TodayRestaurantProvider>
-      </BookmarkProvider>
+      <AuthProvider>
+        <BookmarkProvider userId={userId.current ?? ''}>
+          {/* <TodayRestaurantProvider userId={userId.current ?? ''}> */}
+            <ModalProvider>
+              <MainPage state={state} />
+            </ModalProvider>
+          {/* </TodayRestaurantProvider> */}
+        </BookmarkProvider>
+      </AuthProvider>
     </UseDispatch.Provider>
   );
 };
@@ -244,7 +247,7 @@ const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<LoginPage />} />
+        {/* <Route path="/login" element={<LoginPage />} />
         <Route
           path="/"
           element={
@@ -255,7 +258,10 @@ const App = () => {
             )
           }
         />
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/login" replace />} /> */}
+        <Route path="/" element={<AuthenticatedApp />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );

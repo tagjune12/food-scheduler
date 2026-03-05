@@ -16,7 +16,9 @@ export const Bookmark = () => {
   };
 
   return (
-    <div>
+
+    <div className="schedule-header">
+      <h2>즐겨찾기</h2>
       {bookmarks.length === 0 ? (
         <div>즐겨찾기가 없습니다.</div>
       ) : (

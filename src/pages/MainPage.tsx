@@ -6,6 +6,8 @@ import { useModalState } from '@src/context/ModalContext';
 import SideBar from '@components/sidebar/SideBar';
 import MainToolbar from '@components/commons/MainToolbar';
 import { Calendar } from '@components/calendar';
+import { getStoredToken } from '@lib/util';
+import { useNavigate } from 'react-router-dom';
 
 // 필터 타입 정의
 export type PlaceFilter = 'all' | 'restaurant' | 'cafe';
@@ -34,6 +36,7 @@ const MainPage = ({ state }: { state: any }) => {
   const [isShowCalendar, setIsShowCalendar] = useState<boolean>(false);
   const [isShowSidebar, setIsShowSidebar] = useState<boolean>(false);
   const [placeFilter, setPlaceFilter] = useState<PlaceFilter>('all');
+  const navigate = useNavigate();
 
   return (
     <div className="main-page">
@@ -41,7 +44,13 @@ const MainPage = ({ state }: { state: any }) => {
         <Calendar closeCalendar={() => setIsShowCalendar(false)} />
       )}
       <MainToolbar
-        showCalendar={() => setIsShowCalendar(true)}
+        showCalendar={() => {
+          if(getStoredToken() === null && window.confirm('로그인이 필요합니다. 로그인하시겠습니까?')){
+            navigate('/login', { replace: true });
+          }else{
+            setIsShowCalendar(true);
+          }
+        }}
         // showSidbar={() => setIsShowSidebar((prev) => !prev)}
         showSidebar={setIsShowSidebar}
       />

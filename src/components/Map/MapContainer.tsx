@@ -35,18 +35,20 @@ const MapContainer = ({ state, placeFilter = 'all', setPlaceFilter }: MapContain
   const modalDispatch = useModalDispatch();
   const { initialized: appInitialized } = useMapInitState();
   const { addBookmark, removeBookmark } = useBookMarkActions();
-
+  
   // 지도의 각종 상태 데이터 및 Ref 의존성 정의
+  const [isMapInitialized, setIsMapInitialized] = useState<boolean>(false);
+  const [showListModal, setShowListModal] = useState<boolean>(false);
+  const [clusterRestaurants, setClusterRestaurants] = useState<any[]>([]);
+  const { userId } = useBookMarkState();
+  
   const mapRef = useRef<kakao.maps.Map | null>(null);
   const markersRef = useRef<MapMarker[]>([]);
   const openedMarkerRef = useRef<number | null>(null);
   const markerClustererRef = useRef<kakao.maps.MarkerClusterer | null>(null);
   const clusterOverlayRef = useRef<kakao.maps.CustomOverlay | null>(null);
   const currentOverlayRef = useRef<kakao.maps.CustomOverlay | null>(null);
-  const [isMapInitialized, setIsMapInitialized] = useState<boolean>(false);
-  const [showListModal, setShowListModal] = useState<boolean>(false);
-  const [clusterRestaurants, setClusterRestaurants] = useState<any[]>([]);
-  const { userId } = useBookMarkState();
+  
   
   const didInitialMarkerLoadRef = useRef<boolean>(false);
   const prevFilterRef = useRef<PlaceFilter | null>(null);
@@ -273,7 +275,7 @@ const MapContainer = ({ state, placeFilter = 'all', setPlaceFilter }: MapContain
   }, [closeCurrentOverlay, handleMarkerClustererClick, isMapInitialized]);
 
   useEffect(() => {
-    if (!appInitialized) return;
+    // if (!appInitialized) return;
     if (isMapInitialized && mapRef.current) return;
 
     const loadKakaoMap = () => {

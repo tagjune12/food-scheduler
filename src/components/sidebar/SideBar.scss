@@ -23,6 +23,8 @@
     overflow-y: auto;
     padding: 24px;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
     @include mixin-scrollbar;
 
     .card-container {
@@ -30,11 +32,52 @@
       width: 100%;
       box-sizing: border-box;
     }
+
+    .login-wrapper {
+      flex: 1;
+      /* fills remaining height of #schedules */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+
+      .login-btn {
+        width: 100%;
+        max-width: 250px;
+        /* Don't stretch too much on wide view */
+        padding: 14px 24px;
+        font-size: 16px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        background: linear-gradient(135deg, $--main-color1 0%, $--main-color2 100%);
+        color: white;
+        border-radius: 25px;
+        /* Pill shape */
+        text-transform: none;
+        border: none;
+        box-shadow: 0 4px 10px rgba(132, 94, 194, 0.3);
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        &:hover {
+          background: linear-gradient(135deg, lighten($--main-color1, 5%) 0%, lighten($--main-color2, 5%) 100%);
+          transform: translateY(-2px);
+          box-shadow: 0 6px 15px rgba(132, 94, 194, 0.4);
+        }
+
+        &:active {
+          transform: translateY(1px);
+          box-shadow: 0 2px 5px rgba(132, 94, 194, 0.3);
+        }
+      }
+    }
   }
 
   .schedule-header {
     margin-bottom: 16px;
-    
+
     h2 {
       font-size: 18px;
       font-weight: 600;

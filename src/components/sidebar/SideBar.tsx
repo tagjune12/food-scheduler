@@ -7,6 +7,12 @@ import Skeleton from '@mui/material/Skeleton';
 import Divider from '@mui/material/Divider';
 import { useTodayRestaurantState } from '@src/context/TodayRestaurantContext';
 import { Bookmark } from '@components/sidebar/Bookmark';
+import { getStoredToken } from '@lib/util';
+import React from 'react';
+import { Button } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@src/context/AuthContext';
+
 const SideBar = ({
   state,
   isShowSidebar,
@@ -17,6 +23,8 @@ const SideBar = ({
   const [isHistory, setIsHistory] = useState<boolean>(false);
   const sideBarRef = useRef<HTMLDivElement>(null);
   const todayRestaurantState = useTodayRestaurantState();
+  const { isLogin } = useAuth();
+  const navigate = useNavigate();
 
   const showCalendar = () => {
     setIsHistory((isHistory) => !isHistory);
@@ -24,7 +32,7 @@ const SideBar = ({
 
   const showSidebar = (isOpen: boolean) => {
     if (!sideBarRef.current) return;
-    sideBarRef.current.style.display = isOpen ? 'block' : 'none';
+    sideBarRef.current.style.display = isOpen ? 'flex' : 'none';
   };
 
   useEffect(() => {
@@ -47,10 +55,7 @@ const SideBar = ({
             }
           /> */}
           {/* <Divider /> */}
-          &nbsp;
-          <div className="schedule-header">
-            <h2>즐겨찾기</h2>
-          </div>
+         
           {/* <Suspense
             fallback={
               <>
@@ -102,7 +107,15 @@ const SideBar = ({
               </>
             }
           > */}
+          {isLogin ? (
             <Bookmark />
+          ) : (
+            <div className="login-wrapper">
+              <Button className="login-btn" onClick={() => navigate('/login', { replace: true })}>
+                로그인
+              </Button>
+            </div>
+          )}
           {/* </Suspense> */}
         </div>
       </div>

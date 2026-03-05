@@ -21,8 +21,10 @@ import {
   searchRestaurantsByTag,
 } from '@lib/api/supabase_api';
 import { useEffect } from 'react';
-import { removeStoredUserId } from '@lib/util';
+import { getStoredToken, removeStoredUserId } from '@lib/util';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@src/context/AuthContext';
+// import { Button } from 'react-bootstrap';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -82,6 +84,7 @@ export default function MainToolbar({
   const [tags, setTags] = React.useState<string[]>([]);
   const tagsContainerRef = React.useRef<HTMLDivElement | null>(null);
   const [tagsWidth, setTagsWidth] = React.useState<number>(0);
+  const { isLogin, setIsLogin } = useAuth();
 
   const navigate = useNavigate();
 
@@ -243,15 +246,19 @@ export default function MainToolbar({
   };
 
   const handleLogout = () => {
-    if (!window.confirm('로그아웃 하시겠습니까?')) return;
+    if (!window.confirm('로그아웃 하시겠습니까?')) {
+      
+      return;
+    }
     try {
       // 토큰/만료시간/유저ID 제거
       localStorage.removeItem('access_token');
       localStorage.removeItem('token_expiry');
       removeStoredUserId();
+      setIsLogin(false);
     } finally {
-      // 로그인 페이지로 이동 (BrowserRouter 기준)
-      navigate('/login', { replace: true });
+      // // 로그인 페이지로 이동 (BrowserRouter 기준)
+      // navigate('/login', { replace: true });
     }
   };
 
@@ -392,13 +399,19 @@ export default function MainToolbar({
           >
             calendar
           </Button>
-          <Button
+          {isLogin ? (<Button
             color="inherit"
             sx={{ color: 'white' }}
             onClick={handleLogout}
           >
             Logout
-          </Button>
+          </Button>) : ( <Button
+            color="inherit"
+            sx={{ color: 'white' }}
+            onClick={() => navigate('/login')}
+          >
+            Login
+          </Button>)}
         </Toolbar>
       </AppBar>
     </Box>
