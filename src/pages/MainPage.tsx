@@ -45,8 +45,12 @@ const MainPage = ({ state }: { state: any }) => {
       )}
       <MainToolbar
         showCalendar={() => {
-          if(getStoredToken() === null && window.confirm('로그인이 필요합니다. 로그인하시겠습니까?')){
-            navigate('/login', { replace: true });
+          if(getStoredToken() === null){
+            if(window.confirm('로그인이 필요합니다. 로그인하시겠습니까?') ){
+              navigate('/login', { replace: true });
+            }else{
+              return;
+            } 
           }else{
             setIsShowCalendar(true);
           }
