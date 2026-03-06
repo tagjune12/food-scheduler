@@ -230,7 +230,7 @@ export const useBookMarkActions = () => {
         payload:
           error instanceof Error
             ? error.message
-            : '북마크를 새로고침하는데 실패했습니다.',
+            : '북마크를 가져오는데 실패했습니다.',
       });
     }
   };

@@ -70,7 +70,11 @@ const MainPage = ({ state }: { state: any }) => {
         }
       >
         {isShowSidebar && (
-          <SideBar state={state} isShowSidebar={isShowSidebar} />
+          <SideBar
+            state={state}
+            isShowSidebar={isShowSidebar}
+            onClose={() => setIsShowSidebar(false)}
+          />
         )}
       </Suspense>
       <Suspense

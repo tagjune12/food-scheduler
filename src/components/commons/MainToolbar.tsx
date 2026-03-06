@@ -16,12 +16,15 @@ import ListItemText from '@mui/material/ListItemText';
 import CircularProgress from '@mui/material/CircularProgress';
 import Chip from '@mui/material/Chip';
 import CloseIcon from '@mui/icons-material/Close';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import LoginIcon from '@mui/icons-material/Login';
+import LogoutIcon from '@mui/icons-material/Logout';
 import {
   searchRestaurantwithName,
   searchRestaurantsByTag,
 } from '@lib/api/supabase_api';
 import { useEffect } from 'react';
-import { getStoredToken, removeStoredUserId } from '@lib/util';
+import { removeStoredUserId } from '@lib/util';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@src/context/AuthContext';
 // import { Button } from 'react-bootstrap';
@@ -33,12 +36,14 @@ const Search = styled('div')(({ theme }) => ({
   '&:hover': {
     backgroundColor: alpha(theme.palette.common.white, 0.25),
   },
-  marginRight: theme.spacing(2),
+  marginRight: theme.spacing(1),
   marginLeft: 0,
   width: '100%',
   [theme.breakpoints.up('sm')]: {
     marginLeft: theme.spacing(3),
-    // width: 'auto',
+    width: '300px',
+  },
+  [theme.breakpoints.up('md')]: {
     width: '500px',
   },
 }));
@@ -84,6 +89,7 @@ export default function MainToolbar({
   const [tags, setTags] = React.useState<string[]>([]);
   const tagsContainerRef = React.useRef<HTMLDivElement | null>(null);
   const [tagsWidth, setTagsWidth] = React.useState<number>(0);
+  const [searchOpen, setSearchOpen] = React.useState<boolean>(false);
   const { isLogin, setIsLogin } = useAuth();
 
   const navigate = useNavigate();
@@ -265,154 +271,228 @@ export default function MainToolbar({
   const showNoResult =
     !loading && open && options.length === 0 && inputValue.trim().length > 0;
 
-  return (
-    <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static">
-        <Toolbar sx={{ backgroundColor: '#845EC2' }}>
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="open drawer"
-            sx={{ mr: 2 }}
-            onClick={() => showSidebar((prev) => !prev)}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            뭐먹지..?
-          </Typography>
-          <Search>
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
+  // 검색창 내용 (모바일/데스크탑 공용)
+  const searchContent = (
+    <>
+      <SearchIconWrapper>
+        <SearchIcon />
+      </SearchIconWrapper>
 
-            {/* 태그 표시 영역 */}
-            {tags.length > 0 && (
-              <Box
-                ref={tagsContainerRef}
-                sx={{
-                  position: 'absolute',
-                  left: 40,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 0.5,
-                  flexWrap: 'wrap',
-                  zIndex: 1,
-                }}
-              >
-                {tags.map((tag, index) => (
-                  <Chip
-                    key={index}
-                    label={`#${tag}`}
-                    size="small"
-                    onDelete={() => removeTag(tag)}
-                    deleteIcon={<CloseIcon />}
-                    sx={{
-                      backgroundColor: alpha('#fff', 0.2),
-                      color: 'white',
-                      height: 24,
-                      fontSize: '0.75rem',
-                      '& .MuiChip-deleteIcon': {
-                        color: 'white',
-                        fontSize: '14px',
-                      },
-                    }}
-                  />
-                ))}
-              </Box>
-            )}
-
-            <StyledInputBase
-              placeholder={
-                tags.length > 0
-                  ? '추가 검색어 입력...'
-                  : '검색(태그검색: #태그명)'
-              }
-              inputProps={{ 'aria-label': 'search' }}
-              value={inputValue}
-              onChange={handleInputChange}
-              onFocus={() => setOpen(true)}
-              onBlur={() => setTimeout(() => setOpen(false), 150)}
-              onKeyDown={handleKeyDown}
+      {/* 태그 표시 영역 */}
+      {tags.length > 0 && (
+        <Box
+          ref={tagsContainerRef}
+          sx={{
+            position: 'absolute',
+            left: 40,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 0.5,
+            flexWrap: 'wrap',
+            zIndex: 1,
+          }}
+        >
+          {tags.map((tag, index) => (
+            <Chip
+              key={index}
+              label={`#${tag}`}
+              size="small"
+              onDelete={() => removeTag(tag)}
+              deleteIcon={<CloseIcon />}
               sx={{
-                // 입력 내부 패딩을 동적으로 조정해 태그와 키워드 간격을 최소화
-                '& .MuiInputBase-input': {
-                  paddingLeft: inputPaddingLeftPx
-                    ? `${inputPaddingLeftPx}px`
-                    : undefined,
+                backgroundColor: alpha('#fff', 0.2),
+                color: 'white',
+                height: 24,
+                fontSize: '0.75rem',
+                '& .MuiChip-deleteIcon': {
+                  color: 'white',
+                  fontSize: '14px',
                 },
               }}
             />
-            {open && (
-              <Paper
-                elevation={6}
-                sx={{
-                  position: 'absolute',
-                  top: '100%',
-                  left: 0,
-                  right: 0,
-                  mt: 1,
-                  maxHeight: 360,
-                  overflowY: 'auto',
-                  zIndex: (theme) => theme.zIndex.modal,
-                }}
+          ))}
+        </Box>
+      )}
+
+      <StyledInputBase
+        placeholder={
+          tags.length > 0
+            ? '추가 검색어 입력...'
+            : '검색(태그검색: #태그명)'
+        }
+        inputProps={{ 'aria-label': 'search' }}
+        value={inputValue}
+        onChange={handleInputChange}
+        onFocus={() => setOpen(true)}
+        onBlur={() => setTimeout(() => setOpen(false), 150)}
+        onKeyDown={handleKeyDown}
+        sx={{
+          '& .MuiInputBase-input': {
+            paddingLeft: inputPaddingLeftPx
+              ? `${inputPaddingLeftPx}px`
+              : undefined,
+          },
+        }}
+      />
+      {open && (
+        <Paper
+          elevation={6}
+          sx={{
+            position: 'absolute',
+            top: '100%',
+            left: 0,
+            right: 0,
+            mt: 1,
+            maxHeight: 360,
+            overflowY: 'auto',
+            zIndex: (theme) => theme.zIndex.modal,
+          }}
+        >
+          {loading ? (
+            <Box
+              sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 2 }}
+            >
+              <CircularProgress size={16} />
+              <span>검색 중...</span>
+            </Box>
+          ) : showNoResult ? (
+            <Box sx={{ p: 2, color: 'text.secondary' }}>결과 없음</Box>
+          ) : (
+            <List>
+              {options.map((opt: any, idx: number) => (
+                <ListItemButton
+                  key={opt.id}
+                  selected={idx === highlightIndex}
+                  onMouseEnter={() => setHighlightIndex(idx)}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => handleSelect(opt)}
+                >
+                  <ListItemText
+                    primary={opt.place_name}
+                    secondary={
+                      opt.road_address_name || opt.address_name || ''
+                    }
+                  />
+                </ListItemButton>
+              ))}
+            </List>
+          )}
+        </Paper>
+      )}
+    </>
+  );
+
+  return (
+    <Box sx={{ flexGrow: 1 }}>
+      <AppBar position="static">
+        {/* 모바일 검색창 오픈 시: 검색창만 전체 너비로 표시 */}
+        {searchOpen ? (
+          <Toolbar sx={{ backgroundColor: '#845EC2' }}>
+            <Search sx={{ flexGrow: 1, margin: 0, width: '100%' }}>
+              {searchContent}
+            </Search>
+            <IconButton
+              color="inherit"
+              onClick={() => {
+                setSearchOpen(false);
+                setInputValue('');
+                setTags([]);
+                setOpen(false);
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </Toolbar>
+        ) : (
+          <Toolbar sx={{ backgroundColor: '#845EC2' }}>
+            <IconButton
+              size="large"
+              edge="start"
+              color="inherit"
+              aria-label="open drawer"
+              sx={{ mr: 2 }}
+              onClick={() => showSidebar((prev) => !prev)}
+            >
+              <MenuIcon />
+            </IconButton>
+
+            <Typography
+              variant="h6"
+              component="div"
+              sx={{ flexGrow: 1, whiteSpace: 'nowrap' }}
+            >
+              뭐먹지..?
+            </Typography>
+
+            {/* 데스크탑 검색창 */}
+            <Search sx={{ display: { xs: 'none', sm: 'block' } }}>
+              {searchContent}
+            </Search>
+
+            {/* 모바일 검색 아이콘 */}
+            <IconButton
+              color="inherit"
+              onClick={() => setSearchOpen(true)}
+              sx={{ display: { xs: 'flex', sm: 'none' } }}
+            >
+              <SearchIcon />
+            </IconButton>
+
+            {/* 데스크탑 버튼 (텍스트) */}
+            <Button
+              color="inherit"
+              sx={{ color: 'white', display: { xs: 'none', sm: 'flex' } }}
+              onClick={showCalendar}
+            >
+              calendar
+            </Button>
+            {isLogin ? (
+              <Button
+                color="inherit"
+                sx={{ color: 'white', display: { xs: 'none', sm: 'flex' } }}
+                onClick={handleLogout}
               >
-                {loading ? (
-                  <Box
-                    sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 2 }}
-                  >
-                    <CircularProgress size={16} />
-                    <span>검색 중...</span>
-                  </Box>
-                ) : showNoResult ? (
-                  <Box sx={{ p: 2, color: 'text.secondary' }}>결과 없음</Box>
-                ) : (
-                  <List>
-                    {options.map((opt: any, idx: number) => (
-                      <ListItemButton
-                        key={opt.id}
-                        selected={idx === highlightIndex}
-                        onMouseEnter={() => setHighlightIndex(idx)}
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => handleSelect(opt)}
-                      >
-                        <ListItemText
-                          primary={opt.place_name}
-                          secondary={
-                            opt.road_address_name || opt.address_name || ''
-                          }
-                        />
-                      </ListItemButton>
-                    ))}
-                  </List>
-                )}
-              </Paper>
+                Logout
+              </Button>
+            ) : (
+              <Button
+                color="inherit"
+                sx={{ color: 'white', display: { xs: 'none', sm: 'flex' } }}
+                onClick={() => navigate('/login')}
+              >
+                Login
+              </Button>
             )}
-          </Search>
-          <Button
-            color="inherit"
-            sx={{ color: 'white' }}
-            onClick={showCalendar}
-          >
-            calendar
-          </Button>
-          {isLogin ? (<Button
-            color="inherit"
-            sx={{ color: 'white' }}
-            onClick={handleLogout}
-          >
-            Logout
-          </Button>) : ( <Button
-            color="inherit"
-            sx={{ color: 'white' }}
-            onClick={() => navigate('/login')}
-          >
-            Login
-          </Button>)}
-        </Toolbar>
+
+            {/* 모바일 버튼 (아이콘) */}
+            <IconButton
+              color="inherit"
+              onClick={showCalendar}
+              sx={{ display: { xs: 'flex', sm: 'none' } }}
+            >
+              <CalendarMonthIcon />
+            </IconButton>
+            {isLogin ? (
+              <IconButton
+                color="inherit"
+                onClick={handleLogout}
+                sx={{ display: { xs: 'flex', sm: 'none' } }}
+              >
+                <LogoutIcon />
+              </IconButton>
+            ) : (
+              <IconButton
+                color="inherit"
+                onClick={() => navigate('/login')}
+                sx={{ display: { xs: 'flex', sm: 'none' } }}
+              >
+                <LoginIcon />
+              </IconButton>
+            )}
+          </Toolbar>
+        )}
       </AppBar>
     </Box>
   );

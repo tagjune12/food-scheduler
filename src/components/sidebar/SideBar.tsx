@@ -9,26 +9,29 @@ import { useTodayRestaurantState } from '@src/context/TodayRestaurantContext';
 import { Bookmark } from '@components/sidebar/Bookmark';
 import { getStoredToken } from '@lib/util';
 import React from 'react';
-import { Button } from '@mui/material';
+import { Box, Button, IconButton } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@src/context/AuthContext';
 
 const SideBar = ({
   state,
   isShowSidebar,
+  onClose,
 }: {
   state: AppStoreType;
   isShowSidebar: boolean;
+  onClose?: () => void;
 }) => {
-  const [isHistory, setIsHistory] = useState<boolean>(false);
+  // const [isHistory, setIsHistory] = useState<boolean>(false);
   const sideBarRef = useRef<HTMLDivElement>(null);
-  const todayRestaurantState = useTodayRestaurantState();
+  // const todayRestaurantState = useTodayRestaurantState();
   const { isLogin } = useAuth();
   const navigate = useNavigate();
 
-  const showCalendar = () => {
-    setIsHistory((isHistory) => !isHistory);
-  };
+  // const showCalendar = () => {
+  //   setIsHistory((isHistory) => !isHistory);
+  // };
 
   const showSidebar = (isOpen: boolean) => {
     if (!sideBarRef.current) return;
@@ -41,72 +44,25 @@ const SideBar = ({
 
   return (
     <>
+      {/* 모바일 오버레이: 사이드바 외부 클릭 시 닫기 */}
+      <div className="sidebar-overlay" onClick={onClose} />
+
       {/* {isHistory && <Calendar closeCalendar={showCalendar} />} */}
       <div className="sidebar">
         <div id="schedules" ref={sideBarRef}>
-          {/* <div className="schedule-header">
-            <h2>오늘의 식사</h2>
-          </div>
-          <TodayRestaurant
-            restaurantName={
-              todayRestaurantState.todayRestaurant.name ||
-              todayRestaurantState.todayRestaurant.place_name ||
-              ''
-            }
-          /> */}
-          {/* <Divider /> */}
-         
-          {/* <Suspense
-            fallback={
-              <>
-                <Skeleton
-                  animation="wave"
-                  variant="rectangular"
-                  width={380}
-                  height={210}
-                  style={{
-                    marginBottom: 6,
-                  }}
-                />
-                <Skeleton
-                  animation="wave"
-                  variant="rectangular"
-                  width={380}
-                  height={210}
-                  style={{
-                    marginBottom: 6,
-                  }}
-                />
-                <Skeleton
-                  animation="wave"
-                  variant="rectangular"
-                  width={380}
-                  height={210}
-                  style={{
-                    marginBottom: 6,
-                  }}
-                />
-                <Skeleton
-                  animation="wave"
-                  variant="rectangular"
-                  width={380}
-                  height={210}
-                  style={{
-                    marginBottom: 6,
-                  }}
-                />
-                <Skeleton
-                  animation="wave"
-                  variant="rectangular"
-                  width={380}
-                  height={210}
-                  style={{
-                    marginBottom: 6,
-                  }}
-                />
-              </>
-            }
-          > */}
+          {/* 모바일 전용 닫기 버튼 */}
+          <Box
+            sx={{
+              display: { xs: 'flex', sm: 'none' },
+              justifyContent: 'flex-end',
+              mb: 1,
+            }}
+          >
+            <IconButton size="small" onClick={onClose}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
+
           {isLogin ? (
             <Bookmark />
           ) : (
@@ -116,7 +72,6 @@ const SideBar = ({
               </Button>
             </div>
           )}
-          {/* </Suspense> */}
         </div>
       </div>
     </>

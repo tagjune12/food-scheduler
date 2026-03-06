@@ -4,12 +4,22 @@ import {
   useBookMarkState,
 } from '@src/context/BookMarkContext';
 import { useEffect } from 'react';
+import {useAuth} from "@src/context/AuthContext";
 
 export const Bookmark = () => {
   const { bookmarks } = useBookMarkState();
-  const { removeBookmark } = useBookMarkActions();
+  const { removeBookmark, fetchBookmarks } = useBookMarkActions();
+  const { isLogin, setIsLogin } = useAuth();
 
-  useEffect(() => {}, [bookmarks]);
+  useEffect(() => {
+    if(isLogin){
+      try{
+        fetchBookmarks();
+      }catch(e){
+        alert("북마크를 가져오는데 실패했습니다.")
+      }
+    }
+  }, [bookmarks]);
 
   const handleBookmarkClick = async (restaurantId: string) => {
     await removeBookmark(restaurantId);
@@ -22,26 +32,29 @@ export const Bookmark = () => {
       {bookmarks.length === 0 ? (
         <div>즐겨찾기가 없습니다.</div>
       ) : (
-        bookmarks.map((restaurant) => {
-          return (
-            <>
-              <RestaurantCard
-                key={restaurant.id}
-                restaurant={{
-                  place_name: restaurant.place_name,
-                  category_name: restaurant.category_name,
-                  address: restaurant.address_name,
-                  period: null,
-                  visit: null,
-                  place_url: restaurant.place_url,
-                  id: restaurant.id,
-                }}
-                visitDate={undefined}
-                callback={handleBookmarkClick}
-              />
-            </>
-          );
-        })
+          <>
+            {
+              bookmarks.map((restaurant) => {
+                return (
+                    <RestaurantCard
+                        key={restaurant.id}
+                        restaurant={{
+                          place_name: restaurant.place_name,
+                          category_name: restaurant.category_name,
+                          address: restaurant.address_name,
+                          period: null,
+                          visit: null,
+                          place_url: restaurant.place_url,
+                          id: restaurant.id,
+                        }}
+
+                        visitDate={undefined}
+                        callback={handleBookmarkClick}
+                    />
+                );
+              })
+            }
+          </>
       )}
     </div>
   );
