@@ -1,0 +1,17 @@
+.main-toolbar {
+  &__search-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 8px;
+    max-height: 360px;
+    overflow-y: auto;
+    z-index: 1300;
+  }
+
+  &__tag-chip {
+    height: 24px;
+    font-size: 0.75rem;
+  }
+}
