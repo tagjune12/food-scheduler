@@ -48,10 +48,10 @@ const Calendar = ({
 
   const renderEventContent = (eventContent: EventContentArg) => {
     return (
-      <>
+      <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
         <b>{eventContent.timeText}</b>
-        <i>{eventContent.event.title}</i>
-      </>
+        <i style={{ marginLeft: eventContent.timeText ? '4px' : '0' }}>{eventContent.event.title}</i>
+      </div>
     );
   };
 
