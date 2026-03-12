@@ -6,12 +6,14 @@ export default function PaginationButtons({
   totalDataLength,
   btnClickListener,
   restaurantListRef,
+  isMobile,
 }: {
   page: number;
   dataPerPage: number;
   totalDataLength: number;
   btnClickListener: (page: number) => void;
   restaurantListRef: React.RefObject<HTMLDivElement>;
+  isMobile?: boolean;
 }) {
   const handleChange = (event: React.ChangeEvent<unknown>, value: number) => {
     btnClickListener(value);
@@ -24,6 +26,9 @@ export default function PaginationButtons({
         count={Math.ceil(
           totalDataLength / (dataPerPage > 0 ? dataPerPage : 10),
         )}
+        size={isMobile ? "small" : "medium"}
+        siblingCount={isMobile ? 0 : 1}
+        boundaryCount={isMobile ? 1 : 1}
         showFirstButton
         showLastButton
         page={page}

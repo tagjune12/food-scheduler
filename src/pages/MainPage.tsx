@@ -1,11 +1,11 @@
 import React, { lazy, Suspense, useState, memo } from 'react';
 import { AppStoreType } from '@src/types';
 import Modal from '@components/commons/Modal';
-import { Skeleton } from '@mui/material';
+import { Skeleton, useMediaQuery, useTheme } from '@mui/material';
 import { useModalState } from '@src/context/ModalContext';
 import SideBar from '@components/sidebar/SideBar';
 import { MainToolbar } from '@components/commons';
-import { Calendar } from '@components/calendar';
+import { Calendar, MobileCalendar } from '@components/calendar';
 import { getStoredToken } from '@lib/util';
 import { useNavigate } from 'react-router-dom';
 
@@ -37,11 +37,16 @@ const MainPage = ({ state }: { state: any }) => {
   const [isShowSidebar, setIsShowSidebar] = useState<boolean>(false);
   const [placeFilter, setPlaceFilter] = useState<PlaceFilter>('all');
   const navigate = useNavigate();
+  const isMobile = useMediaQuery('(max-width:768px)');
 
   return (
     <div className="main-page">
       {isShowCalendar && (
-        <Calendar closeCalendar={() => setIsShowCalendar(false)} />
+        isMobile ? (
+          <MobileCalendar closeCalendar={() => setIsShowCalendar(false)} />
+        ) : (
+          <Calendar closeCalendar={() => setIsShowCalendar(false)} />
+        )
       )}
       <MainToolbar
         showCalendar={() => {

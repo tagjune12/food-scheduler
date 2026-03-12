@@ -1,12 +1,12 @@
-.calendar-wrapper{
-  position:fixed;
-  top:0;
-  left:0;
+.calendar-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100vw;
-  height:100vh;
+  height: 100vh;
   z-index: 10;
-  background-color: rgba(0,0,0,0.4); 
-  display:flex;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
   justify-content: center;
   align-items: center;
 }
@@ -17,23 +17,23 @@
   max-height: 80vh;
   overflow: hidden;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-  
-  .calendar-container{
+
+  .calendar-container {
     background-color: white;
     width: 50vw;
     height: auto;
     padding: 20px;
     border-radius: 1rem 0 0 1rem;
     margin-right: 0;
-    
+
     /* FullCalendar 커스텀 스타일 */
     .fc {
       height: 100%;
-      
+
       .fc-toolbar-title {
         font-size: 1.2rem;
       }
-      
+
       .fc-button {
         background-color: #845EC2;
         border-color: #845EC2;
@@ -42,7 +42,7 @@
         text-transform: capitalize;
         transition: all 0.2s ease;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        
+
         &:hover {
           background-color: darken(#845EC2, 10%);
           border-color: darken(#845EC2, 10%);
@@ -66,7 +66,7 @@
         display: flex !important;
         align-items: center;
         gap: 6px;
-        
+
         &:hover {
           background-color: #f8f4ff !important;
           color: darken(#845EC2, 10%) !important;
@@ -86,25 +86,25 @@
         font-size: 1.2rem !important;
         padding: 0 8px !important;
         box-shadow: none !important;
-        
+
         &:hover {
           color: #333 !important;
           background-color: #f0f0f0 !important;
           transform: none !important;
         }
       }
-      
+
       .fc-event {
         cursor: pointer;
         transition: transform 0.2s;
-        
+
         &:hover {
           transform: translateY(-2px);
         }
       }
     }
   }
-  
+
   .restaurant-list-container {
     position: relative;
     background-color: white;
@@ -114,11 +114,12 @@
     padding: 20px;
     border-radius: 0 1rem 1rem 0;
     overflow-y: auto;
-    align-self: stretch; /* 부모 컨테이너 높이에 맞춤 */
+    align-self: stretch;
+    /* 부모 컨테이너 높이에 맞춤 */
     display: flex;
     flex-direction: column;
     border-left: 1px solid #eaeaea;
-    
+
     .restaurant-list-header {
       border-bottom: 2px solid #845EC2;
 
@@ -134,39 +135,41 @@
 
       .restaurant-list-header-sort-container {
         margin-right: auto;
-        .restaurant-list-header-sort {  
+
+        .restaurant-list-header-sort {
           display: flex;
           justify-content: right;
           gap: 1rem;
           align-items: center;
           cursor: pointer;
         }
+
         .selected {
           color: #845EC2;
           font-weight: bold;
         }
       }
     }
-    
 
-    
+
+
     .loading-indicator {
       text-align: center;
       padding: 2rem 0;
       color: #666;
     }
-    
+
     .no-data-message {
       text-align: center;
       padding: 2rem 0;
       color: #666;
     }
-    
+
     .restaurant-items-container {
       flex: 1;
       overflow-y: auto;
     }
-    
+
     .restaurant-item {
       padding: 12px;
       margin-bottom: 12px;
@@ -174,32 +177,32 @@
       cursor: pointer;
       transition: all 0.2s;
       border-radius: 8px;
-      
+
       &:hover {
         background-color: #f0f0f0;
         transform: translateY(-2px);
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
       }
-      
+
       .place-name {
         font-weight: bold;
         font-size: 16px;
         margin-bottom: 4px;
         color: #333;
       }
-      
+
       .category-name {
         color: #666;
         font-size: 14px;
         margin-bottom: 4px;
       }
-      
+
       .visit-date {
         color: #999;
         font-size: 12px;
       }
     }
-    
+
     .pagination-container {
       margin-top: auto;
       padding-top: 1rem;
