@@ -1,9 +1,9 @@
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import MapCard from '@components/commons/MapCard';
-import Grid from '@mui/material/Grid';
+import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
 import { useBookMarkActions } from '@src/context/BookMarkContext';
-
 const style = {
   position: 'absolute',
   top: '50%',
@@ -12,10 +12,17 @@ const style = {
   width: '80%',
   maxWidth: '1200px',
   maxHeight: '80vh',
-  overflow: 'auto',
   bgcolor: 'background.paper',
   borderRadius: '10px',
   boxShadow: 24,
+  display: 'flex',
+  flexDirection: 'column',
+  overflow: 'hidden',
+};
+
+const contentStyle = {
+  overflowY: 'auto',
+  minHeight: 0,
   p: 4,
   '&::-webkit-scrollbar': {
     width: '8px',
@@ -33,9 +40,7 @@ const style = {
   },
 };
 
-const gridItemStyle = {
-  padding: '10px',
-};
+
 
 export default function ListModal({
   open,
@@ -57,28 +62,46 @@ export default function ListModal({
       sx={{ zIndex: 1300 }}
     >
       <Box sx={style}>
-        <Grid container spacing={4}>
-          {restaurants.map((restaurant, idx) => {
-            return (
-              <Grid
-                item
-                xs={12}
-                sm={6}
-                md={4}
-                lg={3}
-                key={idx}
-                sx={gridItemStyle}
-              >
-                <MapCard
-                  restaurant={restaurant}
-                  visitDate={undefined}
-                  onBookmarkAdd={addBookmark}
-                  onBookmarkRemove={removeBookmark}
-                />
-              </Grid>
-            );
-          })}
-        </Grid>
+        <IconButton
+          aria-label="close"
+          onClick={handleClose}
+          sx={{
+            position: 'absolute',
+            right: 8,
+            top: 8,
+            color: (theme) => theme.palette.grey[500],
+            zIndex: 10,
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+        <Box sx={contentStyle}>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 2,
+              pt: 2,
+            }}
+          >
+            {restaurants.map((restaurant, idx) => {
+              return (
+                <Box
+                  key={idx}
+                  sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}
+                >
+                  <MapCard
+                    restaurant={restaurant}
+                    visitDate={undefined}
+                    onBookmarkAdd={addBookmark}
+                    onBookmarkRemove={removeBookmark}
+                  />
+                </Box>
+              );
+            })}
+          </Box>
+        </Box>
       </Box>
     </Modal>
   );

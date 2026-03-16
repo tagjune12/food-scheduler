@@ -2,8 +2,8 @@ import '@components/commons/RestaurantCard.scss';
 import { convertPlaceToRestaurant, getNumTypeToday } from '@lib/util';
 import { useModalDispatch } from '@src/context/ModalContext';
 
-import StarOutlineIcon from '@mui/icons-material/StarOutline';
-import GradeIcon from '@mui/icons-material/Grade';
+import StarIcon from '@mui/icons-material/Star';
+import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
 
 interface RestaurantCardProps {
   restaurant: any; // Supabase 또는 카카오맵 데이터 모두 수용
@@ -40,25 +40,6 @@ const RestaurantCard = ({
     modalDispatch({ type: 'showModal', payload: item });
   };
 
-  const renderTags = () => {
-    if (!restaurant.category_name) return null;
-
-    return (
-      <div id="tags">
-        <div className="tag-container">
-          {restaurant.category_name
-            .split('>')
-            .filter((elem: string) => elem !== '음식점')
-            .map((tag: string, index: number) => (
-              <div key={index} className="tag">
-                {tag}
-              </div>
-            ))}
-        </div>
-      </div>
-    );
-  };
-
   const handleBookmarkClick = () => {
     if (window.confirm('북마크를 취소하시겠습니까?')) {
       callback?.(restaurant.id);
@@ -66,48 +47,79 @@ const RestaurantCard = ({
   };
 
   return (
-    <div className={`card-container ${onMap ? 'map-card' : ''}`}>
-      <div className="title-row">
-        <h3>{restaurant.place_name}</h3>
-        <div className="bookmark-container">
-          {restaurant.bookmarked === 'N' ? (
-            <StarOutlineIcon onClick={handleBookmarkClick} />
-          ) : (
-            <GradeIcon onClick={handleBookmarkClick} />
+    <section className={`map-card-horizontal ${onMap ? 'map-card' : ''}`}>
+      <div className="content-row">
+        <div className="info-container">
+          <div className="title-row">
+            <h2>{restaurant.place_name || restaurant.name}</h2>
+            <a
+              className="map-link"
+              href={restaurant.place_url}
+              target="_blank"
+              rel="noreferrer"
+              title="카카오맵 바로가기"
+            >
+              <MapOutlinedIcon />
+            </a>
+            <button className="fav-btn" onClick={handleBookmarkClick}>
+              <StarIcon className={restaurant.bookmarked === 'N' ? 'inactive' : 'active'} />
+            </button>
+          </div>
+
+          {restaurant.category_name && (
+            <div className="tags-row">
+              {(() => {
+                const allTags = restaurant.category_name
+                  .split('>')
+                  .filter((elem: string) => elem !== '음식점')
+                  .map((t: string) => t.trim())
+                  .filter(Boolean);
+
+                const maxTags = 3;
+                const visibleTags = allTags.slice(0, maxTags);
+                const hasMore = allTags.length > maxTags;
+
+                return (
+                  <>
+                    {visibleTags.map((tag: string, index: number) => (
+                      <span key={index} className="tag-item">
+                        {tag}
+                      </span>
+                    ))}
+                    {hasMore && <span className="tag-item tag-more">...</span>}
+                  </>
+                );
+              })()}
+            </div>
           )}
         </div>
       </div>
-      <div className="progress-wrapper">
-        <progress value={visitDate ? getDiffDate(visitDate) : 0} max={28} />
-      </div>
-      <div>
-        <a
-          id="kakao-map-link"
-          href={restaurant.place_url}
-          target="_blank"
-          rel="noreferrer"
+
+      {visitDate && (
+        <div className="progress-wrapper">
+          <progress value={getDiffDate(visitDate)} max={28} />
+        </div>
+      )}
+
+      <div className="actions-row">
+        <button
+          className={onMap ? 'add-btn add-event-btn' : 'add-btn'}
+          onClick={handleButtonClick}
+          data-restaurant={JSON.stringify({
+            name: restaurant.place_name || restaurant.name,
+            tags: restaurant.category_name
+              ? restaurant.category_name
+                  .split('>')
+                  .filter((elem: string) => elem !== '음식점')
+              : [],
+            address: restaurant.address_name,
+            period: 0,
+          })}
         >
-          카카오맵 바로가기
-        </a>
+          오늘은 이거다
+        </button>
       </div>
-      {renderTags()}
-      <button
-        className={onMap ? 'add-event-btn' : ''}
-        onClick={handleButtonClick}
-        data-restaurant={JSON.stringify({
-          name: restaurant.place_name,
-          tags: restaurant.category_name
-            ? restaurant.category_name
-                .split('>')
-                .filter((elem: string) => elem !== '음식점')
-            : [],
-          address: restaurant.address_name,
-          period: 0,
-        })}
-      >
-        오늘은 이거다
-      </button>
-    </div>
+    </section>
   );
 };
 
