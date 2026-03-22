@@ -19,7 +19,7 @@ const LoginPage = () => {
     <div className="login-page">
       <div className="login-container">
         <div className="login-card">
-          <h1>Food Scheduler</h1>
+          <h1>머먹지</h1>
           <p>음식 스케줄러에 오신 것을 환영합니다!</p>
           <p>Google 계정으로 로그인하여 캘린더 기능을 사용해보세요.</p>
 
@@ -54,6 +54,12 @@ const LoginPage = () => {
               <li>식당 북마크</li>
               {/* <li>위치 기반 식당 검색</li> */}
             </ul>
+          </div>
+
+          <div className="privacy-policy">
+            <a href="https://tagjune12.github.io/privacy_url/" target="_blank" rel="noopener noreferrer">
+              개인정보처리방침
+            </a>
           </div>
         </div>
       </div>
