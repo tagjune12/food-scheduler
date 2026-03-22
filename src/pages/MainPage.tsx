@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useState, memo } from 'react';
+import React, { lazy, Suspense, useState, memo, useEffect } from 'react';
 import './MainPage.scss';
 import { AppStoreType } from '@src/types';
 import Modal from '@components/commons/Modal';
@@ -9,6 +9,7 @@ import { MainToolbar } from '@components/commons';
 import { Calendar, MobileCalendar } from '@components/calendar';
 import { getStoredToken } from '@lib/util';
 import { useNavigate } from 'react-router-dom';
+import IntroModal from '@components/commons/IntroModal';
 
 // 필터 타입 정의
 export type PlaceFilter = 'all' | 'restaurant' | 'cafe';
@@ -37,8 +38,19 @@ const MainPage = ({ state }: { state: any }) => {
   const [isShowCalendar, setIsShowCalendar] = useState<boolean>(false);
   const [isShowSidebar, setIsShowSidebar] = useState<boolean>(false);
   const [placeFilter, setPlaceFilter] = useState<PlaceFilter>('all');
+  const [showIntroModal, setShowIntroModal] = useState<boolean>(false);
   const navigate = useNavigate();
   const isMobile = useMediaQuery('(max-width:768px)');
+
+  useEffect(() => {
+    const isLoggedOut = getStoredToken() === null;
+    if (isLoggedOut) {
+      const hideUntil = localStorage.getItem('hide_intro_modal_until');
+      if (!hideUntil || new Date().getTime() > parseInt(hideUntil, 10)) {
+        setShowIntroModal(true);
+      }
+    }
+  }, []);
 
   return (
     <div className="main-page">
@@ -65,6 +77,7 @@ const MainPage = ({ state }: { state: any }) => {
         showSidebar={setIsShowSidebar}
       />
       {modalState.isVisible && <Modal restaurant={modalState.target} />}
+      <IntroModal open={showIntroModal} onClose={() => setShowIntroModal(false)} />
       <Suspense
         fallback={
           <Skeleton
