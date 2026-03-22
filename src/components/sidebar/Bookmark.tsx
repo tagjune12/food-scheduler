@@ -19,7 +19,7 @@ export const Bookmark = () => {
         alert("북마크를 가져오는데 실패했습니다.")
       }
     }
-  }, [bookmarks]);
+  }, [isLogin]);
 
   const handleBookmarkClick = async (restaurantId: string) => {
     await removeBookmark(restaurantId);
