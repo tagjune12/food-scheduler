@@ -20,7 +20,7 @@ const LoginPage = () => {
       <div className="login-container">
         <div className="login-card">
           <h1>머먹지</h1>
-          <p>음식 스케줄러에 오신 것을 환영합니다!</p>
+          <p>'머먹지'는 사용자의 맛집 탐방과 식사 계획을 돕는 도구입니다. 사용자가 선택한 식당 정보와 식사 약속을 본인의 구글 캘린더에 자동으로 동기화하여, 일상 스케줄과 함께 효율적으로 식사 일정을 관리할 수 있도록 돕습니다.</p>
           <p>Google 계정으로 로그인하여 캘린더 기능을 사용해보세요.</p>
 
           <button className="login-button" onClick={handleLogin}>
@@ -48,6 +48,7 @@ const LoginPage = () => {
           </button>
 
           <div className="login-info">
+
             <p>로그인하면 다음 기능을 사용할 수 있습니다:</p>
             <ul>
               <li>구글 캘린더 연동</li>
