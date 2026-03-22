@@ -1,4 +1,5 @@
 import React, { lazy, Suspense, useState, memo } from 'react';
+import './MainPage.scss';
 import { AppStoreType } from '@src/types';
 import Modal from '@components/commons/Modal';
 import { Skeleton, useMediaQuery, useTheme } from '@mui/material';
@@ -98,6 +99,11 @@ const MainPage = ({ state }: { state: any }) => {
           setPlaceFilter={setPlaceFilter}
         />
       </Suspense>
+      <div className="main-page-footer">
+        <a href="/privacy" target="_blank" rel="noopener noreferrer">
+          개인정보처리방침
+        </a>
+      </div>
     </div>
   );
 };
