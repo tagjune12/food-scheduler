@@ -15,6 +15,12 @@
   padding-top: 1rem;
   overflow-y: auto;
 
+  /* Prevent text selection and drag */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+
   .mobile-calendar-header {
     width: 90vw;
     display: flex;
@@ -220,6 +226,10 @@
         font-size: 0.85rem;
         color: #334155;
         background: transparent;
+        -webkit-user-select: auto;
+        -moz-user-select: auto;
+        -ms-user-select: auto;
+        user-select: auto;
 
         &::placeholder {
           color: #94a3b8;
