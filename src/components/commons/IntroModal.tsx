@@ -40,7 +40,17 @@ const IntroModal: React.FC<IntroModalProps> = ({ open, onClose }) => {
           }
           label={<Typography variant="body2">일주일 동안 이 창 보지 않기</Typography>}
         />
-        <Button onClick={handleClose} variant="contained" disableElevation>
+        <Button
+          onClick={handleClose}
+          variant="contained"
+          disableElevation
+          sx={{
+            backgroundColor: 'rgb(132, 94, 194)',
+            '&:hover': {
+              backgroundColor: 'rgb(102, 64, 164)'
+            }
+          }}
+        >
           닫기
         </Button>
       </DialogActions>
