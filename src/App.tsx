@@ -31,6 +31,7 @@ import {
   useNavigate,
 } from 'react-router-dom';
 import LoginPage from '@pages/LoginPage';
+import PrivacyPage from '@pages/PrivacyPage';
 
 export const UseDispatch = createContext<Function>(() => { });
 
@@ -267,6 +268,7 @@ const App = () => {
         <Route path="*" element={<Navigate to="/login" replace />} /> */}
         <Route path="/" element={<AuthenticatedApp />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
