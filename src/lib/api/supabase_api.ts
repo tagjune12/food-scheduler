@@ -370,7 +370,7 @@ export const getUserCalendar = async (userId: string) => {
 
     const { data, error } = await supabase
       .from('calendar')
-      .select('*')
+      .select('calendar_id')
       .eq('user_id', userId);
 
     if (error) {
@@ -399,7 +399,7 @@ export const setUserCalendar = async (userId: string, calendarId: string) => {
           calendar_id: calendarId,
           updated_at: new Date().toISOString(),
         },
-        { onConflict: 'user_id,calendar_id' },
+        { onConflict: 'user_id' },
       )
       .select();
 

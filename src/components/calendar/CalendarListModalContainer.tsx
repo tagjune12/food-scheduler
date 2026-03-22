@@ -26,9 +26,11 @@ export default function CalendarListModalContainer({
   const handleCalendarSelect = (id: string, summary: string) => {
     if (window.confirm(`${summary}를 선택하시겠습니까?`)) {
       const userId = getStoredUserId();
+      // console.log(userId)
       try {
         if (userId) {
           setUserCalendar(userId, id).then(() => {
+            // console.log('캘린더 선택 성공', userId, id);
             onSelect(id);
             onClose();
           });

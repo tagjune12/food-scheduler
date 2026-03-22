@@ -37,24 +37,32 @@ export default function CalendarContainer({
   const [calendarList, setCalendarList] = useState<any>(null);
   const [currentCalendarId, setCurrentCalendarId] = useState<string>('');
 
-  const handleEventClick = (clickInfo: EventClickArg) => {
+  const handleEventClick = async (clickInfo: EventClickArg) => {
     if (window.confirm(`일정을 삭제하시겠습니까? '${clickInfo.event.title}'`)) {
       try {
         const eventId = clickInfo.event._def.publicId;
-        deleteEvent(eventId);
+        const userId = getStoredUserId() ?? "";
+        const userCalendar = await getUserCalendar(userId);
+        const calendarId = userCalendar[0]?.calendar_id;
+        deleteEvent(eventId, calendarId);
         clickInfo.event.remove();
         todayRestaurantDispatch({ type: 'deleteEvent' });
-      } catch (e) {}
+      } catch (e) { }
     }
   };
 
-  const handleEventDrop = (dragInfo: EventDropArg) => {
+  const handleEventDrop = async (dragInfo: EventDropArg) => {
     try {
       if (window.confirm('일정을 변경하시겠습니까?')) {
+        const userId = getStoredUserId() ?? "";
+        const userCalendar = await getUserCalendar(userId);
+        const calendarId = userCalendar[0]?.calendar_id;
+
         updateEvent(
           dragInfo.event.title,
           dragInfo.event.id,
           new Date(dragInfo.event.start || new Date()),
+          calendarId
         ).then(() => {
           alert('일정을 변경하였습니다.');
         });
@@ -120,9 +128,10 @@ export default function CalendarContainer({
     const userId = getStoredUserId() || '';
 
     if (!currentCalendarId) {
-      getUserCalendar(userId).then((userCalendar) => {
-        if (userCalendar && userCalendar.length > 0) {
-          setCurrentCalendarId(userCalendar[0].calendar_id);
+      getUserCalendar(userId).then((userCalendarIds) => {
+        // console.log("TEST getUserCalendar", userCalendarIds);
+        if (userCalendarIds && userCalendarIds.length > 0) {
+          setCurrentCalendarId(userCalendarIds[0].calendar_id);
         } else {
           setCurrentCalendarId('primary');
         }

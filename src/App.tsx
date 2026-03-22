@@ -32,7 +32,7 @@ import {
 } from 'react-router-dom';
 import LoginPage from '@pages/LoginPage';
 
-export const UseDispatch = createContext<Function>(() => {});
+export const UseDispatch = createContext<Function>(() => { });
 
 // 해시에서 토큰 파싱
 const hashParams = qs.parse(window.location.hash.substring(1));
@@ -45,6 +45,7 @@ const initializeToken = () => {
     const token = hashParams.access_token as string;
     const expiresIn = parseInt((hashParams.expires_in as string) || '3600');
     saveToken(token, expiresIn);
+
 
     // URL에서 해시 제거
     window.history.replaceState({}, document.title, window.location.pathname);
@@ -98,29 +99,34 @@ const AuthenticatedApp = () => {
   const navigate = useNavigate();
 
   // // 사용자 ID 초기화 함수
-  // const initializeUserId = async () => {
-  //   // 먼저 localStorage에서 저장된 userId 확인
-  //   const storedUserId = getStoredUserId();
-  //   if (storedUserId) {
-  //     userId.current = storedUserId;
-  //     // console.log('저장된 사용자 ID 사용:', storedUserId);
-  //     return;
-  //   }
+  const initializeUserId = async () => {
+    // 먼저 localStorage에서 저장된 userId 확인
+    const storedUserId = getStoredUserId();
+    if (storedUserId) {
+      userId.current = storedUserId;
+      // console.log('저장된 사용자 ID 사용:', storedUserId);
+      return;
+    }
 
-  //   // localStorage에 없으면 Google API에서 가져오기
-  //   try {
-  //     const userInfo = await getUserInfo();
-  //     // console.log('사용자 정보:', userInfo);
-  //     const newUserId = userInfo.email?.split('@')[0];
-  //     if (newUserId) {
-  //       userId.current = newUserId;
-  //       saveUserId(newUserId); // localStorage에 저장
-  //       // console.log('새로운 사용자 ID 저장:', newUserId);
-  //     }
-  //   } catch (error) {
-  //     console.error('사용자 정보 가져오기 실패:', error);
-  //   }
-  // };
+    // localStorage에 없으면 Google API에서 가져오기
+    try {
+      const userInfo = await getUserInfo();
+      // console.log('사용자 정보:', userInfo);
+      const newUserId = userInfo.email?.split('@')[0];
+      if (newUserId) {
+        userId.current = newUserId;
+        saveUserId(newUserId); // localStorage에 저장
+        // console.log('새로운 사용자 ID 저장:', newUserId);
+      }
+    } catch (error) {
+      console.error('사용자 정보 가져오기 실패:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (!access_token) return;
+    initializeUserId();
+  }, []);
 
   // 토큰 상태 설정 및 인터벌 설정
   // useEffect(() => {
@@ -233,9 +239,9 @@ const AuthenticatedApp = () => {
       <AuthProvider>
         <BookmarkProvider userId={userId.current ?? ''}>
           {/* <TodayRestaurantProvider userId={userId.current ?? ''}> */}
-            <ModalProvider>
-              <MainPage state={state} />
-            </ModalProvider>
+          <ModalProvider>
+            <MainPage state={state} />
+          </ModalProvider>
           {/* </TodayRestaurantProvider> */}
         </BookmarkProvider>
       </AuthProvider>

@@ -3,20 +3,27 @@ import { getHistory, insertEvent, updateEvent } from '@lib/api/calendar_api';
 import '@components/commons/Modal.scss';
 import { useModalDispatch, useModalState } from '@src/context/ModalContext';
 import { useTodayRestaurantDispatch } from '@src/context/TodayRestaurantContext';
-import { insertHistory } from '@lib/api/supabase_api';
+import { getUserCalendar, insertHistory } from '@lib/api/supabase_api';
 import { useRef } from 'react';
 import { useBookMarkState } from '@src/context/BookMarkContext';
+import { getStoredUserId } from '@lib/util';
 
 const Modal = ({ restaurant }: { restaurant: Restaurant }) => {
   const modalDispatch = useModalDispatch();
   const modalState = useModalState();
   const todayRestaurantDispatch = useTodayRestaurantDispatch();
   const calendarEvent = useRef<any>(null);
-  const { userId } = useBookMarkState();
+  // const { userId } = useBookMarkState();
 
-  const insertTodayRestaurant = () => {
+  const insertTodayRestaurant = async () => {
     try {
-      insertEvent(restaurant.name, new Date()).then((result) => {
+      // supabase에서 calendar_id 가져오기
+      const userId = getStoredUserId() ?? "";
+      const userCalendar = await getUserCalendar(userId);
+      const calendarId = userCalendar[0]?.calendar_id;
+      // console.log("TEST", userCalendar, calendarId);
+
+      insertEvent(restaurant.name, new Date(), calendarId).then((result) => {
         todayRestaurantDispatch({
           type: 'selectRestaurant',
           payload: { ...restaurant },
@@ -26,22 +33,28 @@ const Modal = ({ restaurant }: { restaurant: Restaurant }) => {
           modalState.callbackFn(calendarEvent.current);
         }
         modalDispatch({ type: 'hideModal' });
-        insertHistory(
-          userId,
-          restaurant.name,
-          result.start.date,
-          result.id,
-          'day',
-        );
+        // insertHistory(
+        //   userId,
+        //   restaurant.name,
+        //   result.start.date,
+        //   result.id,
+        //   'day',
+        // );
       });
     } catch (error) {
+      console.error(error);
       alert('일정 추가에 실패했습니다.');
     }
   };
 
-  const updateTodayRestaurant = (todayEvent: JSONResponse) => {
+  const updateTodayRestaurant = async (todayEvent: JSONResponse) => {
     try {
-      updateEvent(restaurant.name, todayEvent.id, new Date()).then((result) => {
+      // supabase에서 calendar_id 가져오기
+      const userId = getStoredUserId() ?? "";
+      const userCalendar = await getUserCalendar(userId);
+      const calendarId = userCalendar[0]?.calendar_id;
+
+      updateEvent(restaurant.name, todayEvent.id, new Date(), calendarId).then((result) => {
         todayRestaurantDispatch({
           type: 'selectRestaurant',
           payload: { ...restaurant },
@@ -52,13 +65,13 @@ const Modal = ({ restaurant }: { restaurant: Restaurant }) => {
         }
 
         modalDispatch({ type: 'hideModal' });
-        insertHistory(
-          userId,
-          restaurant.name,
-          todayEvent.start.date,
-          todayEvent.id,
-          'day',
-        );
+        // insertHistory(
+        //   userId,
+        //   restaurant.name,
+        //   todayEvent.start.date,
+        //   todayEvent.id,
+        //   'day',
+        // );
       });
     } catch (error) {
       alert('일정 업데이트에 실패했습니다.');
@@ -66,7 +79,11 @@ const Modal = ({ restaurant }: { restaurant: Restaurant }) => {
   };
 
   const onSaveBtnClickListener = async () => {
-    const data: JSONResponse[] = (await getHistory()).items;
+    const userId = getStoredUserId() ?? "";
+    const userCalendar = await getUserCalendar(userId);
+    const calendarId = userCalendar[0]?.calendar_id;
+
+    const data: JSONResponse[] = (await getHistory(undefined, undefined, calendarId)).items;
     if (data.length > 0) {
       updateTodayRestaurant(data[0]);
     } else {
