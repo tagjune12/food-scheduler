@@ -24,6 +24,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
 
 import './MainToolbar.scss';
+import type { PlaceRow } from '@src/types';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -69,7 +70,7 @@ export interface MainToolbarProps {
   showCalendar: () => void;
   showSidebar: React.Dispatch<React.SetStateAction<boolean>>;
   inputValue: string;
-  options: any[];
+  options: PlaceRow[];
   open: boolean;
   loading: boolean;
   highlightIndex: number;
@@ -80,7 +81,7 @@ export interface MainToolbarProps {
   tagsContainerRef: React.RefObject<HTMLDivElement | null>;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
-  handleSelect: (option: any) => void;
+  handleSelect: (option: PlaceRow) => void;
   handleLogout: () => void;
   removeTag: (tag: string) => void;
   setOpen: (open: boolean) => void;
@@ -206,7 +207,7 @@ const MainToolbar = ({
             <Box sx={{ p: 2, color: 'text.secondary' }}>결과 없음</Box>
           ) : (
             <List>
-              {options.map((opt: any, idx: number) => (
+              {options.map((opt, idx) => (
                 <ListItemButton
                   key={opt.id}
                   selected={idx === highlightIndex}

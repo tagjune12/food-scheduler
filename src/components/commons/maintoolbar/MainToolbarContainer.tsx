@@ -7,6 +7,7 @@ import {
 } from '@lib/api/supabase_api';
 import { removeStoredUserId } from '@lib/util';
 import { useAuth } from '@src/context/AuthContext';
+import type { PlaceRow } from '@src/types';
 import MainToolbar from './MainToolbar';
 
 interface MainToolbarContainerProps {
@@ -19,7 +20,7 @@ const MainToolbarContainer = ({
   showSidebar,
 }: MainToolbarContainerProps) => {
   const [inputValue, setInputValue] = React.useState<string>('');
-  const [options, setOptions] = React.useState<any[]>([]);
+  const [options, setOptions] = React.useState<PlaceRow[]>([]);
   const [open, setOpen] = React.useState<boolean>(false);
   const [loading, setLoading] = React.useState<boolean>(false);
   const [highlightIndex, setHighlightIndex] = React.useState<number>(-1);
@@ -123,17 +124,17 @@ const MainToolbarContainer = ({
 
       setLoading(true);
       try {
-        let result: any[] = [];
+        let result: PlaceRow[] = [];
 
         if (hasActiveTags) {
           const resultsList = await Promise.all(
             tags.map((tag) => searchRestaurantsByTag(tag, keyword)),
           );
-          let intersection: any[] = (resultsList[0] ?? []) as any[];
+          let intersection: PlaceRow[] = resultsList[0] ?? [];
           for (let i = 1; i < resultsList.length; i += 1) {
             const list = resultsList[i] ?? [];
-            const ids = new Set(list.map((r: any) => r.id));
-            intersection = intersection.filter((r: any) => ids.has(r.id));
+            const ids = new Set(list.map((r) => r.id));
+            intersection = intersection.filter((r) => ids.has(r.id));
           }
           result = intersection.filter(
             (item, index, self) =>
@@ -165,7 +166,7 @@ const MainToolbarContainer = ({
     setHighlightIndex(options.length > 0 ? 0 : -1);
   }, [options]);
 
-  const handleSelect = (option: any) => {
+  const handleSelect = (option: PlaceRow) => {
     setInputValue(option?.place_name ?? '');
     setOpen(false);
     const event = new CustomEvent('openPlaceFromSearch', { detail: option });

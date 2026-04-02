@@ -54,7 +54,7 @@ const Modal = ({ restaurant }: { restaurant: Restaurant }) => {
       const userCalendar = await getUserCalendar(userId);
       const calendarId = userCalendar[0]?.calendar_id;
 
-      updateEvent(restaurant.name, todayEvent.id, new Date(), calendarId).then((result) => {
+      updateEvent(restaurant.name, todayEvent.id as string, new Date(), calendarId).then((result) => {
         todayRestaurantDispatch({
           type: 'selectRestaurant',
           payload: { ...restaurant },

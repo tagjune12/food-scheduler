@@ -10,7 +10,9 @@ const initialState: MapInitState = {
   access_token: null,
 };
 
-function mapInitReducer(prevState: MapInitState, action: any) {
+type MapInitAction = { type: 'setAccessToken'; payload: string };
+
+function mapInitReducer(prevState: MapInitState, action: MapInitAction): MapInitState {
   switch (action.type) {
     case 'setAccessToken': {
       const result = {
@@ -30,11 +32,7 @@ export const MapInitContext = createContext<{ initialized: boolean }>({
   initialized: false,
 });
 
-const MapInitDispatchContext = createContext<{
-  dispatch: Dispatch<any>;
-}>({
-  dispatch: () => {},
-});
+const MapInitDispatchContext = createContext<Dispatch<MapInitAction> | undefined>(undefined);
 
 export const MapInitProvider = ({
   children,
@@ -47,7 +45,7 @@ export const MapInitProvider = ({
   );
   return (
     <MapInitContext.Provider value={mapInitState}>
-      <MapInitDispatchContext.Provider value={{ dispatch: mapInitDispatch }}>
+      <MapInitDispatchContext.Provider value={mapInitDispatch}>
         {children}
       </MapInitDispatchContext.Provider>
     </MapInitContext.Provider>
@@ -68,5 +66,5 @@ export const useMapInitDispatch = () => {
   if (context === undefined) {
     throw new Error('useMapInitDispatch must be used within a MapInitProvider');
   }
-  return context.dispatch;
+  return context;
 };

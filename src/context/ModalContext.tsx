@@ -1,9 +1,14 @@
 import { createContext, Dispatch, useReducer, useContext } from 'react';
+import type { Restaurant } from '@src/types';
+
+type ModalAction =
+  | { type: 'showModal'; payload: Restaurant; callbackFn?: (event?: unknown) => void }
+  | { type: 'hideModal' };
 
 interface ModalState {
   isVisible: boolean;
-  target: any;
-  callbackFn?: () => void;
+  target: Restaurant | null;
+  callbackFn?: (event?: unknown) => void;
 }
 
 const initialState: ModalState = {
@@ -12,7 +17,7 @@ const initialState: ModalState = {
   callbackFn: undefined,
 };
 
-function modalReducer(prevState: ModalState, action: any) {
+function modalReducer(prevState: ModalState, action: ModalAction): ModalState {
   switch (action.type) {
     case 'showModal': {
       return {
@@ -24,14 +29,12 @@ function modalReducer(prevState: ModalState, action: any) {
     }
 
     case 'hideModal': {
-      const result = {
+      return {
         ...prevState,
         isVisible: false,
         target: null,
         callbackFn: undefined,
       };
-
-      return result;
     }
 
     default:
@@ -39,21 +42,15 @@ function modalReducer(prevState: ModalState, action: any) {
   }
 }
 
-const ModalStatContext = createContext<any>({
-  state: initialState,
-});
+const ModalStatContext = createContext<ModalState | undefined>(undefined);
 
-const ModalDispatchContext = createContext<{
-  dispatch: Dispatch<any>;
-}>({
-  dispatch: () => {},
-});
+const ModalDispatchContext = createContext<Dispatch<ModalAction> | undefined>(undefined);
 
 export const ModalProvider = ({ children }: { children: React.ReactNode }) => {
   const [modalState, modalDispatch] = useReducer(modalReducer, initialState);
   return (
     <ModalStatContext.Provider value={modalState}>
-      <ModalDispatchContext.Provider value={{ dispatch: modalDispatch }}>
+      <ModalDispatchContext.Provider value={modalDispatch}>
         {children}
       </ModalDispatchContext.Provider>
     </ModalStatContext.Provider>
@@ -74,5 +71,5 @@ export const useModalDispatch = () => {
   if (context === undefined) {
     throw new Error('useModalDispatch must be used within a ModalProvider');
   }
-  return context.dispatch;
+  return context;
 };

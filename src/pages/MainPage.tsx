@@ -76,7 +76,7 @@ const MainPage = ({ state }: { state: any }) => {
         // showSidbar={() => setIsShowSidebar((prev) => !prev)}
         showSidebar={setIsShowSidebar}
       />
-      {modalState.isVisible && <Modal restaurant={modalState.target} />}
+      {modalState.isVisible && modalState.target && <Modal restaurant={modalState.target} />}
       <IntroModal open={showIntroModal} onClose={() => setShowIntroModal(false)} />
       <Suspense
         fallback={

@@ -1,14 +1,15 @@
 import '@components/commons/RestaurantCard.scss';
-import { convertPlaceToRestaurant, getNumTypeToday } from '@lib/util';
+import { getNumTypeToday } from '@lib/util';
 import { useModalDispatch } from '@src/context/ModalContext';
+import type { PlaceWithBookmark, Restaurant } from '@src/types';
 import StarIcon from '@mui/icons-material/Star';
 import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
 import { useState } from 'react';
 
 interface MapCardProps {
-  restaurant: any; // Supabase 또는 카카오맵 데이터 모두 수용
+  restaurant: PlaceWithBookmark;
   visitDate?: string;
-  onBookmarkAdd?: (placeId: string, bookmarkData: any) => Promise<void>;
+  onBookmarkAdd?: (placeId: string, bookmarkData: PlaceWithBookmark) => Promise<void>;
   onBookmarkRemove?: (placeId: string) => Promise<void>;
 }
 
@@ -37,14 +38,21 @@ const MapCard = ({
   };
 
   const handleButtonClick = () => {
-    if (restaurant.name) {
-      modalDispatch({ type: 'showModal', payload: restaurant });
-    } else {
-      modalDispatch({
-        type: 'showModal',
-        payload: convertPlaceToRestaurant(restaurant),
-      });
-    }
+    const payload: Restaurant = {
+      name: restaurant.place_name ?? '',
+      tags: restaurant.category_name
+        ? restaurant.category_name.split('>').map((t) => t.trim()).filter(Boolean)
+        : [],
+      address: restaurant.address_name ?? '',
+      period: 0,
+      position:
+        restaurant.latitude && restaurant.longitude
+          ? { x: restaurant.longitude, y: restaurant.latitude }
+          : undefined,
+      id: restaurant.id,
+      place_url: restaurant.place_url ?? undefined,
+    };
+    modalDispatch({ type: 'showModal', payload });
   };
 
   const handleBookmarkClick = async () => {
@@ -66,7 +74,7 @@ const MapCard = ({
       <div className="content-row">
         <div className="info-container">
           <div className="title-row">
-            <h2>{restaurant.place_name || restaurant.name}</h2>
+            <h2>{restaurant.place_name}</h2>
             <a
               className="map-link"
               href={restaurant.place_url}
@@ -122,7 +130,7 @@ const MapCard = ({
           className="add-btn"
           onClick={handleButtonClick}
           data-restaurant={JSON.stringify({
-            name: restaurant.place_name || restaurant.name,
+            name: restaurant.place_name,
             tags: restaurant.category_name
               ? restaurant.category_name
                   .split('>')

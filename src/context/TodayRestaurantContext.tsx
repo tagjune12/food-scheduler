@@ -7,48 +7,46 @@ import {
   useContext,
   useEffect,
 } from 'react';
+import type { Restaurant } from '@src/types';
+
+type TodayRestaurantAction =
+  | { type: 'selectRestaurant'; payload: Restaurant }
+  | { type: 'deleteEvent' };
 
 interface TodayRestaurantState {
-  todayRestaurant: any;
+  todayRestaurant: Restaurant | null;
 }
 
 const initialState: TodayRestaurantState = {
-  todayRestaurant: {},
+  todayRestaurant: null,
 };
 
-function todayRestaurantReducer(prevState: TodayRestaurantState, action: any) {
+function todayRestaurantReducer(
+  prevState: TodayRestaurantState,
+  action: TodayRestaurantAction,
+): TodayRestaurantState {
   switch (action.type) {
     case 'selectRestaurant': {
-      const result = {
+      return {
         ...prevState,
         todayRestaurant: { ...action.payload },
       };
-
-      return result;
     }
 
     case 'deleteEvent': {
-      const result = {
+      return {
         ...prevState,
-        todayRestaurant: {},
+        todayRestaurant: null,
       };
-
-      return result;
     }
     default:
       return prevState;
   }
 }
 
-const TodayRestaurantStatContext = createContext<any>({
-  state: initialState,
-});
+const TodayRestaurantStatContext = createContext<TodayRestaurantState | undefined>(undefined);
 
-const TodayRestaurantDispatchContext = createContext<{
-  dispatch: Dispatch<any>;
-}>({
-  dispatch: () => {},
-});
+const TodayRestaurantDispatchContext = createContext<Dispatch<TodayRestaurantAction> | undefined>(undefined);
 
 export const TodayRestaurantProvider = ({
   children,
@@ -70,7 +68,7 @@ export const TodayRestaurantProvider = ({
       )[0];
       todayRestaurantDispatch({
         type: 'selectRestaurant',
-        payload: todayRestaurant,
+        payload: todayRestaurant as unknown as Restaurant,
       });
     };
 
@@ -80,7 +78,7 @@ export const TodayRestaurantProvider = ({
   return (
     <TodayRestaurantStatContext.Provider value={todayRestaurantState}>
       <TodayRestaurantDispatchContext.Provider
-        value={{ dispatch: todayRestaurantDispatch }}
+        value={todayRestaurantDispatch}
       >
         {children}
       </TodayRestaurantDispatchContext.Provider>
@@ -106,5 +104,5 @@ export const useTodayRestaurantDispatch = () => {
       'useTodayRestaurantDispatch must be used within a TodayRestaurantProvider',
     );
   }
-  return context.dispatch;
+  return context;
 };

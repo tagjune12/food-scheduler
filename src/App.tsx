@@ -14,10 +14,7 @@ import {
   removeStoredToken,
 } from '@lib/util';
 import '@src/App.scss';
-// import {
-//   TodayRestaurantProvider,
-//   useTodayRestaurantDispatch,
-// } from '@src/context/TodayRestaurantContext';
+import { TodayRestaurantProvider } from '@src/context/TodayRestaurantContext';
 import { ModalProvider } from '@src/context/ModalContext';
 import { useMapInitDispatch } from '@src/context/MapInitContext';
 import { getUserInfo } from '@lib/api/user_api';
@@ -73,15 +70,13 @@ const AuthenticatedApp = () => {
   const initialState = {
     histories: {},
   };
-  const reducer = (prevState: Object, action: StringKeyObj) => {
+  const reducer = (prevState: typeof initialState, action: StringKeyObj) => {
     switch (action.type) {
       case 'setHistory': {
-        const result = {
+        return {
           ...prevState,
-          histories: { ...action.payload },
+          histories: { ...(action.payload as HistoryType) },
         };
-
-        return result;
       }
 
       default:
@@ -239,11 +234,11 @@ const AuthenticatedApp = () => {
     <UseDispatch.Provider value={dispatch}>
       <AuthProvider>
         <BookmarkProvider userId={userId.current ?? ''}>
-          {/* <TodayRestaurantProvider userId={userId.current ?? ''}> */}
-          <ModalProvider>
-            <MainPage state={state} />
-          </ModalProvider>
-          {/* </TodayRestaurantProvider> */}
+          <TodayRestaurantProvider userId={userId.current ?? ''}>
+            <ModalProvider>
+              <MainPage state={state} />
+            </ModalProvider>
+          </TodayRestaurantProvider>
         </BookmarkProvider>
       </AuthProvider>
     </UseDispatch.Provider>

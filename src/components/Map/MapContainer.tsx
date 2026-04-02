@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useCallback, useState } from 'react';
-import { AppStoreType, Restaurant } from '@src/types';
+import { AppStoreType, PlaceRow, PlaceWithBookmark } from '@src/types';
 import { createRoot } from 'react-dom/client';
 import {
   getPlacesWithNameAndBookmarks,
@@ -12,7 +12,6 @@ import {
   useBookMarkActions,
   useBookMarkState,
 } from '@src/context/BookMarkContext';
-import { convertPlaceToRestaurant } from '@lib/util';
 import { PlaceFilter } from '@pages/MainPage';
 
 // Presentational 컴포넌트 Import
@@ -20,7 +19,7 @@ import Map, { FilterOption } from './Map';
 
 interface MapMarker {
   marker: kakao.maps.Marker;
-  restaurant: any;
+  restaurant: PlaceWithBookmark;
 }
 
 const DEFAULT_CENTER = { lat: 37.4028207, lng: 127.1115201 };
@@ -39,7 +38,7 @@ const MapContainer = ({ state, placeFilter = 'all', setPlaceFilter }: MapContain
   // 지도의 각종 상태 데이터 및 Ref 의존성 정의
   const [isMapInitialized, setIsMapInitialized] = useState<boolean>(false);
   const [showListModal, setShowListModal] = useState<boolean>(false);
-  const [clusterRestaurants, setClusterRestaurants] = useState<any[]>([]);
+  const [clusterRestaurants, setClusterRestaurants] = useState<PlaceWithBookmark[]>([]);
   const { userId } = useBookMarkState();
   
   const mapRef = useRef<kakao.maps.Map | null>(null);
@@ -62,7 +61,7 @@ const MapContainer = ({ state, placeFilter = 'all', setPlaceFilter }: MapContain
   ];
 
   const createMarkerOverlay = useCallback(
-    (restaurant: any) => {
+    (restaurant: PlaceWithBookmark) => {
       const content = document.createElement('div');
       const root = document.createElement('div');
       content.appendChild(root);
@@ -127,7 +126,7 @@ const MapContainer = ({ state, placeFilter = 'all', setPlaceFilter }: MapContain
     [userId, placeFilter],
   );
 
-  const createMarker = useCallback((restaurant: any) => {
+  const createMarker = useCallback((restaurant: PlaceWithBookmark) => {
     try {
       const lat = parseFloat(restaurant.latitude ?? '0');
       const lng = parseFloat(restaurant.longitude ?? '0');
@@ -196,11 +195,12 @@ const MapContainer = ({ state, placeFilter = 'all', setPlaceFilter }: MapContain
       const addEventBtn = document.querySelector('.info-window-container');
       const closeInfoWindowBtn = document.querySelector('.info-window-container .close-btn');
 
-      addEventBtn?.addEventListener('click', (e: any) => {
-        if (e.target.classList.contains('add-event-btn')) {
+      addEventBtn?.addEventListener('click', (e: Event) => {
+        const target = e.target as HTMLElement;
+        if (target.classList.contains('add-event-btn')) {
           modalDispatch({
             type: 'showModal',
-            payload: JSON.parse(e.target.dataset.restaurant),
+            payload: JSON.parse(target.dataset.restaurant ?? '{}'),
           });
         }
       });
@@ -221,7 +221,7 @@ const MapContainer = ({ state, placeFilter = 'all', setPlaceFilter }: MapContain
       const restaurants = await getPlacesWithUserBookmarks(userId, placeFilter);
       const newMarkers: kakao.maps.Marker[] = [];
       
-      restaurants.forEach((restaurant: any) => {
+      restaurants.forEach((restaurant) => {
         const marker = createMarker(restaurant);
         if (marker) {
           markersRef.current.push({ marker, restaurant });
@@ -316,43 +316,33 @@ const MapContainer = ({ state, placeFilter = 'all', setPlaceFilter }: MapContain
     if (isInitialLoad || prevFilterRef.current !== placeFilter || prevUserIdRef.current !== userId) {
       didInitialMarkerLoadRef.current = true;
       prevFilterRef.current = placeFilter;
-      prevUserIdRef.current = userId as any;
+      prevUserIdRef.current = userId;
       loadRestaurantsAndCreateMarkers();
     }
   }, [isMapInitialized, placeFilter, userId, loadRestaurantsAndCreateMarkers]);
 
   useEffect(() => {
-    const handler = (e: any) => {
+    const handler = (e: CustomEvent<PlaceRow>) => {
       if (!mapRef.current) return;
       const place = e.detail;
-      const lat = parseFloat(place.latitude ?? place.y ?? '0');
-      const lng = parseFloat(place.longitude ?? place.x ?? '0');
+      const lat = parseFloat(place.latitude ?? '0');
+      const lng = parseFloat(place.longitude ?? '0');
       if (isNaN(lat) || isNaN(lng) || lat === 0 || lng === 0) return;
 
       const pos = new kakao.maps.LatLng(lat, lng);
       mapRef.current.setCenter(pos);
       mapRef.current.setLevel(1);
 
-      const overlay = createMarkerOverlay({ ...place, latitude: String(lat), longitude: String(lng) });
+      const overlay = createMarkerOverlay({
+        ...place,
+        latitude: String(lat),
+        longitude: String(lng),
+        bookmarked: 'N',
+      } as PlaceWithBookmark);
       if (overlay) {
         overlay.setMap(mapRef.current);
         currentOverlayRef.current?.setMap(null);
         currentOverlayRef.current = overlay;
-
-        setTimeout(() => {
-          document.querySelector('.add-event-btn')?.addEventListener('click', () => {
-            try {
-              modalDispatch({
-                type: 'showModal',
-                payload: convertPlaceToRestaurant({
-                  ...place, x: String(lng), y: String(lat)
-                } as any)
-              });
-            } finally {
-              closeCurrentOverlay();
-            }
-          });
-        }, 0);
       }
     };
 

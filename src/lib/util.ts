@@ -1,3 +1,5 @@
+import type { Restaurant } from '@src/types';
+
 function getNumTypeToday(): { year: number; month: number; date: number } {
   const today: Date = new Date();
   const year = today.getFullYear();
@@ -78,38 +80,6 @@ function removeStoredToken(): void {
   localStorage.removeItem('token_expiry');
 }
 
-// Kakao Places API의 PlacesSearchResult를 Restaurant 타입으로 변환하는 함수
-interface PlacesSearchResult {
-  address_name: string;
-  category_group_code: string;
-  category_group_name: string;
-  category_name: string;
-  distance: string;
-  id: string;
-  phone: string;
-  place_name: string;
-  place_url: string;
-  road_address_name: string;
-  x: string;
-  y: string;
-}
-
-// Restaurant 타입 정의 (index.d.ts와 일치해야 함)
-interface Restaurant {
-  name: string;
-  tags: string[];
-  address: string;
-  period: number;
-  position?: {
-    x: string;
-    y: string;
-  };
-  visit?: string;
-  place_url?: string;
-  id?: string;
-  distance?: string;
-}
-
 /**
  * Kakao Maps API의 PlacesSearchResult 객체를 Restaurant 타입으로 변환합니다.
  * @param place Kakao Places API 검색 결과 객체
@@ -117,7 +87,7 @@ interface Restaurant {
  * @returns Restaurant 타입으로 변환된 객체
  */
 function convertPlaceToRestaurant(
-  place: PlacesSearchResult,
+  place: kakao.maps.services.PlacesSearchResult,
   visitDate?: string,
 ): Restaurant {
   // 카테고리 이름을 > 기준으로 분리하여 태그 배열로 변환
@@ -159,7 +129,7 @@ function convertPlaceToRestaurant(
  * @returns Restaurant 타입 배열
  */
 function convertPlacesToRestaurants(
-  places: PlacesSearchResult[],
+  places: kakao.maps.services.PlacesSearchResult[],
 ): Restaurant[] {
   return places.map((place) => convertPlaceToRestaurant(place));
 }

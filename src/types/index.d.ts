@@ -1,3 +1,9 @@
+import type { Database } from './supabase';
+
+type PlaceRow = Database['public']['Tables']['places']['Row'];
+type PlaceWithBookmark =
+  Database['public']['Functions']['get_places_with_bookmarks']['Returns'][number];
+
 type Restaurant = {
   name: string;
   tags: string[];
@@ -20,26 +26,24 @@ type HistoryType = {
   };
 };
 
-type JSONResponse = {
-  [key: string]: any;
-};
-type NestObjType = {
-  [key: string]: Object;
-};
+type JSONResponse = Record<string, unknown>;
 
-type StringKeyObj = {
-  [key: string]: any;
-};
+type NestObjType = Record<string, object>;
+
+type StringKeyObj = Record<string, unknown>;
 
 type AppStoreType = {
   state: {
-    [key: string]: any;
+    histories: HistoryType;
+    [key: string]: unknown;
   };
   userId?: string;
 };
 
 export type {
   Restaurant,
+  PlaceRow,
+  PlaceWithBookmark,
   HistoryType,
   JSONResponse,
   NestObjType,
