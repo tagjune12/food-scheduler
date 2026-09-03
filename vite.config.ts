@@ -21,7 +21,7 @@ export default defineConfig(({ mode }) => {
     plugins: [react()],
     resolve: { alias },
     define: {
-      'process.env': '({})',
+      'process.env': 'import.meta.env',
       ...Object.fromEntries(
         Object.entries(env).map(([key, value]) => [
           `process.env.${key}`,
