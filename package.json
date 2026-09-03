@@ -49,7 +49,7 @@
     "@types/navermaps": "^3.6.4",
     "@vitejs/plugin-react": "^4",
     "i": "^0.3.7",
-    "sass": "^1",
+    "sass": "1.99.0",
     "supabase": "^2.20.12",
     "vite": "^6"
   },
