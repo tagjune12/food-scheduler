@@ -25,7 +25,7 @@
 
 ### 기술 스택
 
-- **Frontend**: React 18, TypeScript, CRA + CRACO, MUI v6, SCSS
+- **Frontend**: React 18, TypeScript, Vite 6, MUI v6, SCSS
 - **지도**: Kakao Maps JavaScript SDK
 - **캘린더**: FullCalendar v6 (daygrid, interaction 플러그인)
 - **인증/캘린더 API**: Google OAuth 2.0 (Implicit Flow), Google Calendar API
@@ -40,7 +40,7 @@
 
 ### 환경 변수 설정 (.env)
 
-CRA는 `REACT_APP_` 접두사가 있는 변수만 클라이언트로 주입됩니다. 프로젝트 루트에 `.env` 파일을 만들고 아래 값을 설정하세요.
+`REACT_APP_` 접두사가 있는 변수만 클라이언트로 주입됩니다(`vite.config.ts`의 `envPrefix` 설정). 프로젝트 루트에 `.env` 파일을 만들고 아래 값을 설정하세요.
 
 ```bash
 # Google OAuth / Calendar
@@ -66,17 +66,17 @@ REACT_APP_SUPABASE_ANON_KEY=your_anon_key
 ### 설치 및 실행
 
 ```bash
-# 의존성 설치
-npm install
+# @types/node는 이전 버전(^16)을 유지하므로 vite의 peer 범위와 충돌한다 — 항상 이 플래그로 설치한다
+npm install --legacy-peer-deps
 
-# 개발 서버 실행
+# 개발 서버 실행 (http://localhost:3000)
 npm start
-
-# 테스트
-npm test
 
 # 프로덕션 빌드
 npm run build
+
+# 프로덕션 번들 로컬 확인
+npm run preview
 ```
 
 ### 라우팅/인증 흐름
