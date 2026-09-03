@@ -15,7 +15,7 @@ const alias = Object.entries(
 }));
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), 'REACT_APP_');
+  const env = loadEnv(mode, path.resolve(__dirname), 'REACT_APP_');
 
   return {
     plugins: [react()],
@@ -31,6 +31,7 @@ export default defineConfig(({ mode }) => {
     },
     envPrefix: 'REACT_APP_',
     server: { port: 3000, strictPort: true },
+    preview: { port: 3000, strictPort: true },
     build: { outDir: 'build' },
     css: {
       preprocessorOptions: {
