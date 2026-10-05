@@ -13,7 +13,7 @@
     "@mui/icons-material": "^6.4.8",
     "@mui/material": "^6.4.8",
     "@supabase/supabase-js": "^2.49.4",
-    "@types/node": "^16.18.12",
+    "@types/node": "^18.19.1",
     "@types/react": "^18.0.28",
     "@types/react-bootstrap": "^0.32.32",
     "@types/react-dom": "^18.0.11",
@@ -47,6 +47,7 @@
   },
   "devDependencies": {
     "@types/navermaps": "^3.6.4",
+    "@types/qs": "^6.15.1",
     "@vitejs/plugin-react": "^4",
     "i": "^0.3.7",
     "sass": "1.99.0",
