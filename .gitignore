@@ -88,6 +88,8 @@ lerna-debug.log
 Thumbs.db
 
 GEMINI.md
+CLAUDE.md
+docs/
 *.png
 *ico
 *.txt

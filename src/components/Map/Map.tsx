@@ -2,6 +2,7 @@ import React from 'react';
 import './Map.scss'; // 로컬 스타일시트 호출
 import ListModal from '@components/ListModal';
 import { PlaceFilter } from '@pages/MainPage';
+import type { PlaceWithBookmark } from '@src/types';
 import FilterButton from './FilterButton';
 
 export interface FilterOption {
@@ -17,7 +18,7 @@ interface MapProps {
   filterOptions: FilterOption[];
   showListModal: boolean;
   onCloseListModal: () => void;
-  clusterRestaurants: any[];
+  clusterRestaurants: PlaceWithBookmark[];
 }
 
 const Map = ({

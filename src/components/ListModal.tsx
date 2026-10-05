@@ -1,108 +1,62 @@
-import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
-import MapCard from '@components/commons/MapCard';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
+import PlaceListItem from '@components/commons/PlaceListItem';
 import { useBookMarkActions } from '@src/context/BookMarkContext';
-const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: '80%',
-  maxWidth: '1200px',
-  maxHeight: '80vh',
-  bgcolor: 'background.paper',
-  borderRadius: '10px',
-  boxShadow: 24,
-  display: 'flex',
-  flexDirection: 'column',
-  overflow: 'hidden',
-};
+import { useModalDispatch } from '@src/context/ModalContext';
+import { convertPlaceRowToRestaurant } from '@lib/util';
+import type { PlaceWithBookmark } from '@src/types';
+import '@components/ListModal.scss';
 
-const contentStyle = {
-  overflowY: 'auto',
-  minHeight: 0,
-  p: 4,
-  '&::-webkit-scrollbar': {
-    width: '8px',
-  },
-  '&::-webkit-scrollbar-track': {
-    background: '#f1f1f1',
-    borderRadius: '10px',
-  },
-  '&::-webkit-scrollbar-thumb': {
-    background: '#888',
-    borderRadius: '10px',
-  },
-  '&::-webkit-scrollbar-thumb:hover': {
-    background: '#555',
-  },
-};
-
-
-
-export default function ListModal({
-  open,
-  handleClose,
-  restaurants,
-}: {
+type ListModalProps = {
   open: boolean;
   handleClose: () => void;
-  restaurants: any[];
-}) {
+  restaurants: PlaceWithBookmark[];
+};
+
+const TITLE_ID = 'place-list-modal-title';
+
+export default function ListModal({ open, handleClose, restaurants }: ListModalProps) {
   const { addBookmark, removeBookmark } = useBookMarkActions();
+  const modalDispatch = useModalDispatch();
+
+  const handleSelect = (place: PlaceWithBookmark) => {
+    modalDispatch({ type: 'showModal', payload: convertPlaceRowToRestaurant(place) });
+  };
 
   return (
     <Modal
       open={open}
       onClose={handleClose}
-      aria-labelledby="modal-modal-title"
-      aria-describedby="modal-modal-description"
+      aria-labelledby={TITLE_ID}
       sx={{ zIndex: 1300 }}
     >
-      <Box sx={style}>
-        <IconButton
-          aria-label="close"
-          onClick={handleClose}
-          sx={{
-            position: 'absolute',
-            right: 8,
-            top: 8,
-            color: (theme) => theme.palette.grey[500],
-            zIndex: 10,
-          }}
-        >
-          <CloseIcon />
-        </IconButton>
-        <Box sx={contentStyle}>
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: 2,
-              pt: 2,
-            }}
-          >
-            {restaurants.map((restaurant, idx) => {
-              return (
-                <Box
-                  key={idx}
-                  sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}
-                >
-                  <MapCard
-                    restaurant={restaurant}
-                    visitDate={undefined}
-                    onBookmarkAdd={addBookmark}
-                    onBookmarkRemove={removeBookmark}
-                  />
-                </Box>
-              );
-            })}
-          </Box>
-        </Box>
-      </Box>
+      <div className="place-list-modal">
+        <header className="place-list-modal-header">
+          <h2 id={TITLE_ID}>
+            이 근처 <span className="count">{restaurants.length}</span>곳
+          </h2>
+          <IconButton aria-label="닫기" onClick={handleClose} size="small">
+            <CloseIcon />
+          </IconButton>
+        </header>
+
+        {restaurants.length === 0 ? (
+          <p className="place-list-empty">이 영역에 표시할 장소가 없어요</p>
+        ) : (
+          <ul className="place-list">
+            {restaurants.map((place) => (
+              <PlaceListItem
+                key={place.id}
+                place={place}
+                onBookmarkAdd={addBookmark}
+                onBookmarkRemove={removeBookmark}
+                onSelect={handleSelect}
+              />
+            ))}
+          </ul>
+        )}
+      </div>
     </Modal>
   );
 }
