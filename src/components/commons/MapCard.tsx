@@ -1,7 +1,7 @@
 import '@components/commons/RestaurantCard.scss';
-import { getNumTypeToday } from '@lib/util';
+import { convertPlaceRowToRestaurant, getNumTypeToday } from '@lib/util';
 import { useModalDispatch } from '@src/context/ModalContext';
-import type { PlaceWithBookmark, Restaurant } from '@src/types';
+import type { PlaceWithBookmark } from '@src/types';
 import StarIcon from '@mui/icons-material/Star';
 import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
 import { useState } from 'react';
@@ -38,21 +38,7 @@ const MapCard = ({
   };
 
   const handleButtonClick = () => {
-    const payload: Restaurant = {
-      name: restaurant.place_name ?? '',
-      tags: restaurant.category_name
-        ? restaurant.category_name.split('>').map((t) => t.trim()).filter(Boolean)
-        : [],
-      address: restaurant.address_name ?? '',
-      period: 0,
-      position:
-        restaurant.latitude && restaurant.longitude
-          ? { x: restaurant.longitude, y: restaurant.latitude }
-          : undefined,
-      id: restaurant.id,
-      place_url: restaurant.place_url ?? undefined,
-    };
-    modalDispatch({ type: 'showModal', payload });
+    modalDispatch({ type: 'showModal', payload: convertPlaceRowToRestaurant(restaurant) });
   };
 
   const handleBookmarkClick = async () => {

@@ -1,4 +1,4 @@
-import type { Restaurant } from '@src/types';
+import type { PlaceWithBookmark, Restaurant } from '@src/types';
 
 function getNumTypeToday(): { year: number; month: number; date: number } {
   const today: Date = new Date();
@@ -134,6 +134,28 @@ function convertPlacesToRestaurants(
   return places.map((place) => convertPlaceToRestaurant(place));
 }
 
+/**
+ * Supabase places 행을 일정 추가 모달에 넘길 Restaurant 타입으로 변환합니다.
+ * @param place 북마크 여부가 포함된 places 행
+ * @returns Restaurant 타입으로 변환된 객체
+ */
+function convertPlaceRowToRestaurant(place: PlaceWithBookmark): Restaurant {
+  return {
+    name: place.place_name ?? '',
+    tags: place.category_name
+      ? place.category_name.split('>').map((t) => t.trim()).filter(Boolean)
+      : [],
+    address: place.address_name ?? '',
+    period: 0,
+    position:
+      place.latitude && place.longitude
+        ? { x: place.longitude, y: place.latitude }
+        : undefined,
+    id: place.id,
+    place_url: place.place_url ?? undefined,
+  };
+}
+
 export {
   getNumTypeToday,
   getStringDate,
@@ -146,5 +168,6 @@ export {
   removeStoredToken,
   convertPlaceToRestaurant,
   convertPlacesToRestaurants,
+  convertPlaceRowToRestaurant,
   getStringTypeToday,
 };
