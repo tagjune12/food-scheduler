@@ -12,8 +12,6 @@ export const getRestaurants = async (categoryFilter?: string) => {
   try {
     if (!supabase) {
       throw new Error('Supabase client not initialized');
-    } else {
-      console.log('supabase client initialized');
     }
 
     let query = supabase.from('places').select('*');
@@ -46,8 +44,6 @@ export const getRestaurantsWithName = async (names: string[]) => {
   try {
     if (!supabase) {
       throw new Error('Supabase client not initialized');
-    } else {
-      console.log('supabase client initialized');
     }
 
     const { data, error } = await supabase
@@ -74,8 +70,6 @@ export const searchRestaurantwithName = async (
   try {
     if (!supabase) {
       throw new Error('Supabase client not initialized');
-    } else {
-      console.log('supabase client initialized');
     }
 
     let query = supabase.from('places').select('*');
@@ -113,8 +107,6 @@ export const getRestaurantsWithPagination = async (
   try {
     if (!supabase) {
       throw new Error('Supabase client not initialized');
-    } else {
-      console.log('supabase client initialized');
     }
 
     const { data, error } = await supabase
@@ -258,8 +250,6 @@ export const searchRestaurantsByTag = async (
   try {
     if (!supabase) {
       throw new Error('Supabase client not initialized');
-    } else {
-      console.log('supabase client initialized');
     }
 
     let query = supabase.from('places').select('*');

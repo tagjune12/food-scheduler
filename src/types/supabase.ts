@@ -14,48 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      bookmarks: {
-        Row: {
-          created_at: string
-          id: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      calendar: {
-        Row: {
-          calendar_id: string
-          created_at: string
-          updated_at: string | null
-          use_yn: string
-          user_id: string
-        }
-        Insert: {
-          calendar_id: string
-          created_at?: string
-          updated_at?: string | null
-          use_yn?: string
-          user_id: string
-        }
-        Update: {
-          calendar_id?: string
-          created_at?: string
-          updated_at?: string | null
-          use_yn?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       centers: {
         Row: {
           id: number
@@ -77,33 +35,6 @@ export type Database = {
           longitude_x?: string | null
           name?: string | null
           radius?: string | null
-        }
-        Relationships: []
-      }
-      history: {
-        Row: {
-          created_at: string
-          day_night: string
-          event_id: string
-          place_name: string
-          user_id: string
-          visit_date: string
-        }
-        Insert: {
-          created_at?: string
-          day_night?: string
-          event_id: string
-          place_name: string
-          user_id: string
-          visit_date: string
-        }
-        Update: {
-          created_at?: string
-          day_night?: string
-          event_id?: string
-          place_name?: string
-          user_id?: string
-          visit_date?: string
         }
         Relationships: []
       }
@@ -176,20 +107,6 @@ export type Database = {
             foreignKeyName: "user_bookmarks_place_id_fkey"
             columns: ["place_id"]
             isOneToOne: false
-            referencedRelation: "call_bookmarks_with_places"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_bookmarks_place_id_fkey"
-            columns: ["place_id"]
-            isOneToOne: false
-            referencedRelation: "call_places_with_history"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_bookmarks_place_id_fkey"
-            columns: ["place_id"]
-            isOneToOne: false
             referencedRelation: "places"
             referencedColumns: ["id"]
           },
@@ -222,20 +139,6 @@ export type Database = {
             foreignKeyName: "visits_place_id_fkey"
             columns: ["place_id"]
             isOneToOne: false
-            referencedRelation: "call_bookmarks_with_places"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "visits_place_id_fkey"
-            columns: ["place_id"]
-            isOneToOne: false
-            referencedRelation: "call_places_with_history"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "visits_place_id_fkey"
-            columns: ["place_id"]
-            isOneToOne: false
             referencedRelation: "places"
             referencedColumns: ["id"]
           },
@@ -243,59 +146,9 @@ export type Database = {
       }
     }
     Views: {
-      call_bookmarks_with_places: {
-        Row: {
-          address_name: string | null
-          category_group_code: string | null
-          category_group_name: string | null
-          category_name: string | null
-          created_at: string | null
-          id: string | null
-          latitude: string | null
-          longitude: string | null
-          phone: string | null
-          place_name: string | null
-          place_url: string | null
-          road_address_name: string | null
-          updated_at: string | null
-          user_id: string | null
-        }
-        Relationships: []
-      }
-      call_places_with_history: {
-        Row: {
-          address_name: string | null
-          category_name: string | null
-          event_id: string | null
-          id: string | null
-          place_name: string | null
-          place_url: string | null
-          user_id: string | null
-          visit_date: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
-      get_bookmarked_places: {
-        Args: { p_user_id: string }
-        Returns: {
-          address_name: string
-          bookmarked: string
-          category_group_code: string
-          category_group_name: string
-          category_name: string
-          created_at: string
-          id: string
-          latitude: string
-          longitude: string
-          phone: string
-          place_name: string
-          place_url: string
-          road_address_name: string
-          updated_at: string
-        }[]
-      }
       get_places_by_names_with_my_bookmarks: {
         Args: { p_place_names: string[] }
         Returns: {
@@ -315,46 +168,8 @@ export type Database = {
           updated_at: string
         }[]
       }
-      get_places_with_bookmarks: {
-        Args: { p_user_id: string }
-        Returns: {
-          address_name: string
-          bookmarked: string
-          category_group_code: string
-          category_group_name: string
-          category_name: string
-          created_at: string
-          id: string
-          latitude: string
-          longitude: string
-          phone: string
-          place_name: string
-          place_url: string
-          road_address_name: string
-          updated_at: string
-        }[]
-      }
       get_places_with_my_bookmarks: {
         Args: never
-        Returns: {
-          address_name: string
-          bookmarked: string
-          category_group_code: string
-          category_group_name: string
-          category_name: string
-          created_at: string
-          id: string
-          latitude: string
-          longitude: string
-          phone: string
-          place_name: string
-          place_url: string
-          road_address_name: string
-          updated_at: string
-        }[]
-      }
-      get_places_with_name_and_bookmarks: {
-        Args: { p_place_names: string[]; p_user_id: string }
         Returns: {
           address_name: string
           bookmarked: string

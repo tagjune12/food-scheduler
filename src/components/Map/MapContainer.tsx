@@ -318,6 +318,12 @@ const MapContainer = ({ state, placeFilter = 'all', setPlaceFilter }: MapContain
     };
   }, [initializeMap, isMapInitialized, appInitialized]);
 
+  // 열린 카드는 만들 때의 addBookmark/removeBookmark/modalDispatch를 붙잡고 있으므로,
+  // 로그인·로그아웃 뒤에 이전 사용자 상태로 동작하지 않게 닫는다
+  useEffect(() => {
+    closeCurrentOverlay();
+  }, [userId, closeCurrentOverlay]);
+
   useEffect(() => {
     if (!isMapInitialized || !mapRef.current || !markerClustererRef.current) return;
 

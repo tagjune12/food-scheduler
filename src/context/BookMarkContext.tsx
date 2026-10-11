@@ -278,26 +278,8 @@ export const useBookMarkActions = () => {
     }
   };
 
-  // 북마크 조회 함수
-  const fetchBookmarks = async () => {
-    dispatch({ type: 'FETCH_BOOKMARKS_START' });
-    try {
-      const bookmarks: BookmarkItem[] = await getBookmarks();
-      dispatch({ type: 'FETCH_BOOKMARKS_SUCCESS', payload: bookmarks || [] });
-    } catch (error) {
-      dispatch({
-        type: 'FETCH_BOOKMARKS_ERROR',
-        payload:
-          error instanceof Error
-            ? error.message
-            : '북마크를 가져오는데 실패했습니다.',
-      });
-    }
-  };
-
   return {
     addBookmark,
     removeBookmark,
-    fetchBookmarks,
   };
 };
