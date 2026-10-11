@@ -1,29 +1,18 @@
-import qs from 'qs';
+import { useAuth } from '@src/context/AuthContext';
 import './LoginPage.scss';
 
 const LoginPage = () => {
-  const queryStr = qs.stringify({
-    client_id: process.env.REACT_APP_GOOGLECALENDAR_CLIENT_ID,
-    redirect_uri: process.env.REACT_APP_GOOGLE_LOGIN_REDIRECT_URL,
-    response_type: 'token',
-    scope:
-      'https://www.googleapis.com/auth/calendar.events.owned https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/calendar.calendarlist.readonly',
-  });
-  const loginUrl = `https://accounts.google.com/o/oauth2/v2/auth?${queryStr}`;
-
-  const handleLogin = () => {
-    window.location.href = loginUrl;
-  };
+  const { signInWithGoogle } = useAuth();
 
   return (
     <div className="login-page">
       <div className="login-container">
         <div className="login-card">
           <h1>머먹지</h1>
-          <p>'머먹지'는 사용자의 맛집 탐방과 식사 계획을 돕는 도구입니다. 사용자가 선택한 식당 정보와 식사 약속을 본인의 구글 캘린더에 자동으로 동기화하여, 일상 스케줄과 함께 효율적으로 식사 일정을 관리할 수 있도록 돕습니다.</p>
-          <p>Google 계정으로 로그인하여 캘린더 기능을 사용해보세요.</p>
+          <p>'머먹지'는 사용자의 맛집 탐방과 식사 계획을 돕는 도구입니다. 지도에서 고른 식당을 방문 일정으로 기록하고, 캘린더에서 한눈에 관리할 수 있습니다.</p>
+          <p>Google 계정으로 로그인하여 방문 일정과 북마크 기능을 사용해보세요.</p>
 
-          <button className="login-button" onClick={handleLogin}>
+          <button className="login-button" onClick={signInWithGoogle}>
             <div className="google-icon">
               <svg width="20" height="20" viewBox="0 0 24 24">
                 <path
@@ -51,10 +40,8 @@ const LoginPage = () => {
 
             <p>로그인하면 다음 기능을 사용할 수 있습니다:</p>
             <ul>
-              <li>구글 캘린더 연동</li>
-              <li>구글 캘린더 일정 추가, 수정, 삭제</li>
+              <li>방문 일정 추가, 이동, 삭제</li>
               <li>식당 북마크</li>
-              {/* <li>위치 기반 식당 검색</li> */}
             </ul>
           </div>
 

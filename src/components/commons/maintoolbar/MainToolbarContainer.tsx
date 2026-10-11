@@ -5,7 +5,6 @@ import {
   searchRestaurantwithName,
   searchRestaurantsByTag,
 } from '@lib/api/supabase_api';
-import { removeStoredUserId } from '@lib/util';
 import { useAuth } from '@src/context/AuthContext';
 import type { PlaceRow } from '@src/types';
 import MainToolbar from './MainToolbar';
@@ -28,7 +27,7 @@ const MainToolbarContainer = ({
   const tagsContainerRef = React.useRef<HTMLDivElement | null>(null);
   const [tagsWidth, setTagsWidth] = React.useState<number>(0);
   const [searchOpen, setSearchOpen] = React.useState<boolean>(false);
-  const { isLogin, setIsLogin } = useAuth();
+  const { isLogin, signOut } = useAuth();
 
   const navigate = useNavigate();
 
@@ -173,18 +172,11 @@ const MainToolbarContainer = ({
     window.dispatchEvent(event);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     if (!window.confirm('로그아웃 하시겠습니까?')) {
       return;
     }
-    try {
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('token_expiry');
-      removeStoredUserId();
-      setIsLogin(false);
-    } finally {
-      // 필요 시 navigate('/login', { replace: true });
-    }
+    await signOut();
   };
 
   const navigateToLogin = () => navigate('/login');

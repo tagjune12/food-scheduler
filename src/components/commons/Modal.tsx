@@ -1,108 +1,56 @@
-import { Restaurant, JSONResponse } from '@src/types';
-import { getHistory, insertEvent, updateEvent } from '@lib/api/calendar_api';
-import '@components/commons/Modal.scss';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Restaurant } from '@src/types';
+import { addVisit } from '@lib/api/visit_api';
+import { toLocalDateString } from '@lib/util';
 import { useModalDispatch, useModalState } from '@src/context/ModalContext';
-import { useTodayRestaurantDispatch } from '@src/context/TodayRestaurantContext';
-import { getUserCalendar, insertHistory } from '@lib/api/supabase_api';
-import { useRef } from 'react';
-import { useBookMarkState } from '@src/context/BookMarkContext';
-import { getStoredUserId } from '@lib/util';
+import { useAuth } from '@src/context/AuthContext';
+import '@components/commons/Modal.scss';
 
 const Modal = ({ restaurant }: { restaurant: Restaurant }) => {
   const modalDispatch = useModalDispatch();
   const modalState = useModalState();
-  const todayRestaurantDispatch = useTodayRestaurantDispatch();
-  const calendarEvent = useRef<any>(null);
-  // const { userId } = useBookMarkState();
-
-  const insertTodayRestaurant = async () => {
-    try {
-      // supabase에서 calendar_id 가져오기
-      const userId = getStoredUserId() ?? "";
-      const userCalendar = await getUserCalendar(userId);
-      const calendarId = userCalendar[0]?.calendar_id;
-      // console.log("TEST", userCalendar, calendarId);
-
-      insertEvent(restaurant.name, new Date(), calendarId).then((result) => {
-        todayRestaurantDispatch({
-          type: 'selectRestaurant',
-          payload: { ...restaurant },
-        });
-        calendarEvent.current = result;
-        if (modalState.callbackFn) {
-          modalState.callbackFn(calendarEvent.current);
-        }
-        modalDispatch({ type: 'hideModal' });
-        // insertHistory(
-        //   userId,
-        //   restaurant.name,
-        //   result.start.date,
-        //   result.id,
-        //   'day',
-        // );
-      });
-    } catch (error) {
-      console.error(error);
-      alert('일정 추가에 실패했습니다.');
-    }
-  };
-
-  const updateTodayRestaurant = async (todayEvent: JSONResponse) => {
-    try {
-      // supabase에서 calendar_id 가져오기
-      const userId = getStoredUserId() ?? "";
-      const userCalendar = await getUserCalendar(userId);
-      const calendarId = userCalendar[0]?.calendar_id;
-
-      updateEvent(restaurant.name, todayEvent.id as string, new Date(), calendarId).then((result) => {
-        todayRestaurantDispatch({
-          type: 'selectRestaurant',
-          payload: { ...restaurant },
-        });
-        calendarEvent.current = result;
-        if (modalState.callbackFn) {
-          modalState.callbackFn(calendarEvent.current);
-        }
-
-        modalDispatch({ type: 'hideModal' });
-        // insertHistory(
-        //   userId,
-        //   restaurant.name,
-        //   todayEvent.start.date,
-        //   todayEvent.id,
-        //   'day',
-        // );
-      });
-    } catch (error) {
-      alert('일정 업데이트에 실패했습니다.');
-    }
-  };
-
-  const onSaveBtnClickListener = async () => {
-    const userId = getStoredUserId() ?? "";
-    const userCalendar = await getUserCalendar(userId);
-    const calendarId = userCalendar[0]?.calendar_id;
-
-    const data: JSONResponse[] = (await getHistory(undefined, undefined, calendarId)).items;
-    if (data.length > 0) {
-      updateTodayRestaurant(data[0]);
-    } else {
-      insertTodayRestaurant();
-    }
-  };
+  const { isLogin } = useAuth();
+  const navigate = useNavigate();
+  const [isSaving, setIsSaving] = useState<boolean>(false);
 
   const hideModal = () => {
     modalDispatch({ type: 'hideModal' });
   };
 
+  const onSaveBtnClickListener = async () => {
+    if (!isLogin) {
+      if (window.confirm('로그인이 필요합니다. 로그인하시겠습니까?')) {
+        hideModal();
+        navigate('/login', { replace: true });
+      }
+      return;
+    }
+    if (!restaurant.id) {
+      alert('식당 정보를 찾을 수 없습니다.');
+      return;
+    }
+
+    setIsSaving(true);
+    const visit = await addVisit(restaurant.id, toLocalDateString(new Date()));
+    setIsSaving(false);
+
+    if (!visit) {
+      alert('일정 추가에 실패했습니다.');
+      return;
+    }
+    modalState.callbackFn?.(visit);
+    hideModal();
+  };
+
   return (
     <div className="modal-wrapper">
       <div className="modal-container">
-        <h2 className="title">오늘의 식당 선택</h2>
-        <p>선택하신 식당을 오늘의 식당으로 저장하시겠습니까?</p>
+        <h2 className="title">오늘 방문 일정 추가</h2>
+        <p>선택하신 식당을 오늘 방문 일정에 추가하시겠습니까?</p>
         <div className="name">{restaurant.name}</div>
         <div className="btn-container">
-          <button className="yes" onClick={onSaveBtnClickListener}>
+          <button className="yes" onClick={onSaveBtnClickListener} disabled={isSaving}>
             확인
           </button>
           <button className="no" onClick={hideModal}>

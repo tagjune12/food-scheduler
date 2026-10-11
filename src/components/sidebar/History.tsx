@@ -10,7 +10,7 @@ const History = ({ histories }: { histories: HistoryType }) => {
 
   useEffect(() => {
     const fetchHistory = async () => {
-      const response = await getPlacesWithUserBookmarks(userId);
+      const response = await getPlacesWithUserBookmarks();
       setHistoryRestaurants(response);
     };
     fetchHistory();

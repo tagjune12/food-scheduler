@@ -7,7 +7,7 @@ import { useModalState } from '@src/context/ModalContext';
 import SideBar from '@components/sidebar/SideBar';
 import { MainToolbar } from '@components/commons';
 import { Calendar, MobileCalendar } from '@components/calendar';
-import { getStoredToken } from '@lib/util';
+import { useAuth } from '@src/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import IntroModal from '@components/commons/IntroModal';
 
@@ -41,16 +41,17 @@ const MainPage = ({ state }: { state: any }) => {
   const [showIntroModal, setShowIntroModal] = useState<boolean>(false);
   const navigate = useNavigate();
   const isMobile = useMediaQuery('(max-width:768px)');
+  const { isLogin, isAuthLoading } = useAuth();
 
   useEffect(() => {
-    const isLoggedOut = getStoredToken() === null;
-    if (isLoggedOut) {
-      const hideUntil = localStorage.getItem('hide_intro_modal_until');
-      if (!hideUntil || new Date().getTime() > parseInt(hideUntil, 10)) {
-        setShowIntroModal(true);
-      }
+    if (isAuthLoading || isLogin) {
+      return;
     }
-  }, []);
+    const hideUntil = localStorage.getItem('hide_intro_modal_until');
+    if (!hideUntil || new Date().getTime() > parseInt(hideUntil, 10)) {
+      setShowIntroModal(true);
+    }
+  }, [isAuthLoading, isLogin]);
 
   return (
     <div className="main-page">
@@ -63,15 +64,13 @@ const MainPage = ({ state }: { state: any }) => {
       )}
       <MainToolbar
         showCalendar={() => {
-          if(getStoredToken() === null){
-            if(window.confirm('로그인이 필요합니다. 로그인하시겠습니까?') ){
+          if (!isLogin) {
+            if (window.confirm('로그인이 필요합니다. 로그인하시겠습니까?')) {
               navigate('/login', { replace: true });
-            }else{
-              return;
-            } 
-          }else{
-            setIsShowCalendar(true);
+            }
+            return;
           }
+          setIsShowCalendar(true);
         }}
         // showSidbar={() => setIsShowSidebar((prev) => !prev)}
         showSidebar={setIsShowSidebar}

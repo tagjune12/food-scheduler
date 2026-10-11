@@ -106,6 +106,7 @@ const RestaurantCard = ({
           className={onMap ? 'add-btn add-event-btn' : 'add-btn'}
           onClick={handleButtonClick}
           data-restaurant={JSON.stringify({
+            id: restaurant.id,
             name: restaurant.place_name || restaurant.name,
             tags: restaurant.category_name
               ? restaurant.category_name

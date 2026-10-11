@@ -1,4 +1,5 @@
-import type { PlaceWithBookmark, Restaurant } from '@src/types';
+import type { EventInput } from '@fullcalendar/core';
+import type { PlaceWithBookmark, Restaurant, VisitWithPlace } from '@src/types';
 
 function getNumTypeToday(): { year: number; month: number; date: number } {
   const today: Date = new Date();
@@ -32,52 +33,32 @@ function getStringDate({
     .padStart(2, '0')}`;
 }
 
-// 토큰 저장 함수
-function saveToken(token: string, expiresIn: number): void {
-  const expiryTime = new Date().getTime() + expiresIn * 1000;
-  localStorage.setItem('access_token', token);
-  localStorage.setItem('token_expiry', expiryTime.toString());
+/**
+ * Date를 로컬 시간 기준 'YYYY-MM-DD' 문자열로 변환합니다.
+ * toISOString()은 UTC 기준이라 KST 00시~09시 사이에는 전날 날짜가 되므로 쓰지 않습니다.
+ * @param date 변환할 날짜
+ * @returns 'YYYY-MM-DD'
+ */
+function toLocalDateString(date: Date): string {
+  return getStringDate({
+    year: date.getFullYear(),
+    month: date.getMonth() + 1,
+    date: date.getDate(),
+  });
 }
 
-// 토큰 유효성 검사 함수
-function isTokenValid(): boolean {
-  const expiryTime = localStorage.getItem('token_expiry');
-  if (!expiryTime) return false;
-
-  const now = new Date().getTime();
-  return now < parseInt(expiryTime);
-}
-
-// 저장된 토큰 가져오기 함수
-function getStoredToken(): string | null {
-  if (!isTokenValid()) {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('token_expiry');
-    return null;
-  }
-
-  return localStorage.getItem('access_token');
-}
-
-// 사용자 ID 저장 함수
-function saveUserId(userId: string): void {
-  localStorage.setItem('user_id', userId);
-}
-
-// 저장된 사용자 ID 가져오기 함수
-function getStoredUserId(): string | null {
-  return localStorage.getItem('user_id');
-}
-
-// 사용자 ID 삭제 함수
-function removeStoredUserId(): void {
-  localStorage.removeItem('user_id');
-}
-
-// 토큰 삭제 함수
-function removeStoredToken(): void {
-  localStorage.removeItem('access_token');
-  localStorage.removeItem('token_expiry');
+/**
+ * 방문 일정을 FullCalendar 종일 이벤트로 변환합니다.
+ * @param visit places(place_name)이 포함된 visits 행
+ * @returns FullCalendar EventInput
+ */
+function visitToEvent(visit: VisitWithPlace): EventInput {
+  return {
+    id: visit.id,
+    title: visit.places?.place_name ?? '(알 수 없는 식당)',
+    start: visit.visit_date,
+    allDay: true,
+  };
 }
 
 /**
@@ -159,13 +140,8 @@ function convertPlaceRowToRestaurant(place: PlaceWithBookmark): Restaurant {
 export {
   getNumTypeToday,
   getStringDate,
-  saveToken,
-  isTokenValid,
-  getStoredToken,
-  saveUserId,
-  getStoredUserId,
-  removeStoredUserId,
-  removeStoredToken,
+  toLocalDateString,
+  visitToEvent,
   convertPlaceToRestaurant,
   convertPlacesToRestaurants,
   convertPlaceRowToRestaurant,
