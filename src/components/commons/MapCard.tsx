@@ -1,7 +1,6 @@
 import '@components/commons/RestaurantCard.scss';
 import { convertPlaceRowToRestaurant, getNumTypeToday } from '@lib/util';
-import { useModalDispatch } from '@src/context/ModalContext';
-import type { PlaceWithBookmark } from '@src/types';
+import type { PlaceWithBookmark, Restaurant } from '@src/types';
 import StarIcon from '@mui/icons-material/Star';
 import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
 import { useState } from 'react';
@@ -9,8 +8,9 @@ import { useState } from 'react';
 interface MapCardProps {
   restaurant: PlaceWithBookmark;
   visitDate?: string;
-  onBookmarkAdd?: (placeId: string, bookmarkData: PlaceWithBookmark) => Promise<void>;
-  onBookmarkRemove?: (placeId: string) => Promise<void>;
+  onBookmarkAdd?: (placeId: string, bookmarkData: PlaceWithBookmark) => Promise<boolean>;
+  onBookmarkRemove?: (placeId: string) => Promise<boolean>;
+  onAddVisit: (restaurant: Restaurant) => void;
 }
 
 const MapCard = ({
@@ -18,8 +18,8 @@ const MapCard = ({
   visitDate,
   onBookmarkAdd,
   onBookmarkRemove,
+  onAddVisit,
 }: MapCardProps) => {
-  const modalDispatch = useModalDispatch();
   const [isBookmarked, setIsBookmarked] = useState(restaurant.bookmarked);
 
   const getDiffDate = (visitDate: string): number => {
@@ -38,19 +38,23 @@ const MapCard = ({
   };
 
   const handleButtonClick = () => {
-    modalDispatch({ type: 'showModal', payload: convertPlaceRowToRestaurant(restaurant) });
+    onAddVisit(convertPlaceRowToRestaurant(restaurant));
   };
 
   const handleBookmarkClick = async () => {
     if (isBookmarked === 'N') {
       if (onBookmarkAdd) {
-        await onBookmarkAdd(restaurant.id, restaurant);
-        setIsBookmarked('Y');
+        const isSaved = await onBookmarkAdd(restaurant.id, restaurant);
+        if (isSaved) {
+          setIsBookmarked('Y');
+        }
       }
     } else {
       if (onBookmarkRemove) {
-        await onBookmarkRemove(restaurant.id);
-        setIsBookmarked('N');
+        const isRemoved = await onBookmarkRemove(restaurant.id);
+        if (isRemoved) {
+          setIsBookmarked('N');
+        }
       }
     }
   };
@@ -116,6 +120,7 @@ const MapCard = ({
           className="add-btn"
           onClick={handleButtonClick}
           data-restaurant={JSON.stringify({
+            id: restaurant.id,
             name: restaurant.place_name,
             tags: restaurant.category_name
               ? restaurant.category_name

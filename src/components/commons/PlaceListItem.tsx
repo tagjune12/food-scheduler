@@ -6,8 +6,8 @@ import '@components/commons/PlaceListItem.scss';
 
 type PlaceListItemProps = {
   place: PlaceWithBookmark;
-  onBookmarkAdd: (placeId: string, bookmarkData: PlaceWithBookmark) => Promise<void>;
-  onBookmarkRemove: (placeId: string) => Promise<void>;
+  onBookmarkAdd: (placeId: string, bookmarkData: PlaceWithBookmark) => Promise<boolean>;
+  onBookmarkRemove: (placeId: string) => Promise<boolean>;
   onSelect: (place: PlaceWithBookmark) => void;
 };
 
@@ -33,11 +33,15 @@ const PlaceListItem = ({
 
   const handleBookmarkClick = async () => {
     if (isBookmarked) {
-      await onBookmarkRemove(place.id);
-      setIsBookmarked(false);
+      const isRemoved = await onBookmarkRemove(place.id);
+      if (isRemoved) {
+        setIsBookmarked(false);
+      }
     } else {
-      await onBookmarkAdd(place.id, place);
-      setIsBookmarked(true);
+      const isSaved = await onBookmarkAdd(place.id, place);
+      if (isSaved) {
+        setIsBookmarked(true);
+      }
     }
   };
 

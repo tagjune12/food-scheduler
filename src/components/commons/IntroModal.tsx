@@ -26,7 +26,7 @@ const IntroModal: React.FC<IntroModalProps> = ({ open, onClose }) => {
         </Typography>
         <Typography variant="body2" color="text.secondary" paragraph>
           • 카카오맵을 활용하여 내 주변 및 원하는 지역의 맛집을 검색할 수 있습니다.<br />
-          • 구글 계정으로 로그인하고 북마크와 방문 일정을 캘린더에 연동해보세요.
+          • 구글 계정으로 로그인하고 북마크와 방문 일정을 관리해보세요.
         </Typography>
       </DialogContent>
       <DialogActions sx={{ justifyContent: 'space-between', padding: '8px 24px' }}>

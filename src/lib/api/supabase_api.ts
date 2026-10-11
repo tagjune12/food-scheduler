@@ -4,7 +4,9 @@ import { Database } from '@src/types/supabase';
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL as string;
 const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY as string;
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+  auth: { flowType: 'pkce' },
+});
 
 export const getRestaurants = async (categoryFilter?: string) => {
   try {
@@ -132,121 +134,18 @@ export const getRestaurantsWithPagination = async (
   }
 };
 
-// 방문일자 최신순으로 방문 기록 조회
-// order: 'asc' or 'desc'
-export const getHistory = async (userId: string, order: string) => {
+export const insertBookmark = async (placeId: string) => {
   try {
     if (!supabase) {
       throw new Error('Supabase client not initialized');
-    } else {
-      console.log('supabase client initialized');
     }
 
-    // const { data, error} = await supabase.from('history').select('*').eq('user_id', `${userId}`).order('visit_date', { ascending: order === 'asc' ? true : false});
-    const page = 1; // 현재 페이지 (1부터 시작)
-    const pageSize = 10; // 한 페이지에 몇 개씩 보여줄지
-
-    const from = (page - 1) * pageSize;
-    const to = from + pageSize - 1;
-
+    // user_id는 DB 기본값 auth.uid()로 채워진다
     const { data, error } = await supabase
-      .from('call_places_with_history')
-      .select('*')
-      // .eq('user_id', `${userId}`)
-      .order('visit_date', { ascending: false })
-      .range(from, to);
-
-    if (error) {
-      console.error('Supabase error:', error);
-      throw error;
-    }
-    return data;
-  } catch (error) {
-    console.error('Error in getRestaurants:', error);
-    return [];
-  }
-};
-
-export const insertHistory = async (
-  userId: string,
-  placeName: string,
-  visitDate: string,
-  eventId: string,
-  dayNight?: string,
-) => {
-  try {
-    if (!supabase) {
-      throw new Error('Supabase client not initialized');
-    } else {
-      console.log('supabase client initialized');
-    }
-
-    const { data, error } = await supabase
-      .from('history')
+      .from('user_bookmarks')
       .upsert(
-        {
-          user_id: userId,
-          event_id: eventId,
-          place_name: placeName,
-          visit_date: visitDate,
-          day_night: dayNight,
-        },
-        { onConflict: 'event_id,user_id' },
-      )
-      .select();
-
-    if (error) {
-      console.error('Supabase error:', error);
-      throw error;
-    }
-    return data;
-  } catch (error) {
-    console.error('Error in insertHistory:', error);
-    return [];
-  }
-};
-
-// export const updateHistory = async (userId: string, placeName: string, visitDate: string, eventId: string, dayNight?: string) => {
-//   try{
-//     if (!supabase) {
-//       throw new Error('Supabase client not initialized');
-//     }else{
-//       console.log('supabase client initialized');
-//     }
-
-//     const { data, error} = await supabase.from('history').update({
-//       place_name: placeName,
-//       visit_date: visitDate,
-//       day_night: dayNight
-//     }).eq('user_id', userId).eq('event_id', eventId).select();
-
-//     if (error) {
-//       console.error('Supabase error:', error);
-//       throw error;
-//     }
-//     return data;
-//   } catch (error) {
-//     console.error('Error in getRestaurants:', error);
-//     return [];
-//   }
-// }
-
-export const insertBookmark = async (userId: string, placeId: string) => {
-  try {
-    if (!supabase) {
-      throw new Error('Supabase client not initialized');
-    } else {
-      console.log('supabase client initialized');
-    }
-
-    const { data, error } = await supabase
-      .from('bookmarks')
-      .upsert(
-        {
-          user_id: userId,
-          id: placeId,
-        },
-        { onConflict: 'user_id,id' },
+        { place_id: placeId },
+        { onConflict: 'user_id,place_id', ignoreDuplicates: true },
       )
       .select();
 
@@ -257,49 +156,46 @@ export const insertBookmark = async (userId: string, placeId: string) => {
     return data;
   } catch (error) {
     console.error('Error in insertBookmark:', error);
-    return [];
+    return null;
   }
 };
 
-export const getBookmarks = async (userId: string) => {
+export const getBookmarks = async () => {
   try {
     if (!supabase) {
       throw new Error('Supabase client not initialized');
-    } else {
-      console.log('supabase client initialized');
     }
 
     const { data, error } = await supabase
-      .from('call_bookmarks_with_places')
+      .from('user_bookmarks')
       .select(
-        'id,address_name,category_group_code,category_group_name,category_name,latitude,longitude,phone,place_name,place_url,road_address_name',
+        'created_at, places(id,address_name,category_group_code,category_group_name,category_name,latitude,longitude,phone,place_name,place_url,road_address_name)',
       )
-      .eq('user_id', userId);
+      .order('created_at', { ascending: true });
 
     if (error) {
       console.error('Supabase error:', error);
       throw error;
     }
-    return data;
+    return (data ?? []).flatMap((bookmark) =>
+      bookmark.places ? [bookmark.places] : [],
+    );
   } catch (error) {
     console.error('Error in getBookmarks:', error);
     return [];
   }
 };
 
-export const deleteBookmark = async (userId: string, placeId: string) => {
+export const deleteBookmark = async (placeId: string) => {
   try {
     if (!supabase) {
       throw new Error('Supabase client not initialized');
-    } else {
-      console.log('supabase client initialized');
     }
 
     const { data, error } = await supabase
-      .from('bookmarks')
+      .from('user_bookmarks')
       .delete()
-      .eq('user_id', userId)
-      .eq('id', placeId)
+      .eq('place_id', placeId)
       .select();
 
     if (error) {
@@ -309,17 +205,12 @@ export const deleteBookmark = async (userId: string, placeId: string) => {
     return data;
   } catch (error) {
     console.error('Error in deleteBookmark:', error);
-    return [];
+    return null;
   }
 };
 
-export const getPlacesWithUserBookmarks = async (
-  userId: string,
-  categoryFilter?: string,
-) => {
-  const query = supabase.rpc('get_places_with_bookmarks', {
-    p_user_id: userId,
-  });
+export const getPlacesWithUserBookmarks = async (categoryFilter?: string) => {
+  const query = supabase.rpc('get_places_with_my_bookmarks');
 
   // 카테고리 필터 적용
   if (categoryFilter && categoryFilter !== 'all') {
@@ -337,13 +228,11 @@ export const getPlacesWithUserBookmarks = async (
 };
 
 export const getPlacesWithNameAndBookmarks = async (
-  userId: string,
   names: string[],
   categoryFilter?: string,
 ) => {
-  const query = supabase.rpc('get_places_with_name_and_bookmarks', {
+  const query = supabase.rpc('get_places_by_names_with_my_bookmarks', {
     p_place_names: names,
-    p_user_id: userId,
   });
 
   // 카테고리 필터 적용
@@ -359,59 +248,6 @@ export const getPlacesWithNameAndBookmarks = async (
   }
 
   return data;
-};
-
-export const getUserCalendar = async (userId: string) => {
-  try {
-    if (!supabase) {
-      throw new Error('Supabase client not initialized');
-    }
-    console.log(`Fetching calendar for user: ${userId}`);
-
-    const { data, error } = await supabase
-      .from('calendar')
-      .select('calendar_id')
-      .eq('user_id', userId);
-
-    if (error) {
-      console.error('Supabase error in getUserCalendar:', error);
-      throw error;
-    }
-    console.log(`Found ${data?.length} calendar entries`);
-    return data;
-  } catch (error) {
-    console.error('Error in getUserCalendar:', error);
-    return [];
-  }
-};
-
-export const setUserCalendar = async (userId: string, calendarId: string) => {
-  try {
-    if (!supabase) {
-      throw new Error('Supabase client not initialized');
-    }
-
-    const { data, error } = await supabase
-      .from('calendar')
-      .upsert(
-        {
-          user_id: userId,
-          calendar_id: calendarId,
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: 'user_id' },
-      )
-      .select();
-
-    if (error) {
-      console.error('Supabase error in setUserCalendar:', error);
-      throw error;
-    }
-    return data;
-  } catch (error) {
-    console.error('Error in setUserCalendar:', error);
-    return null;
-  }
 };
 
 // 해시태그(카테고리/태그) 기반 검색: #카페 한강 → 카테고리에 '카페' 포함 AND 상호명 '한강' 포함

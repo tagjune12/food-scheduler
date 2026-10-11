@@ -52,6 +52,7 @@ const MapContainer = ({ state, placeFilter = 'all', setPlaceFilter }: MapContain
   const didInitialMarkerLoadRef = useRef<boolean>(false);
   const prevFilterRef = useRef<PlaceFilter | null>(null);
   const prevUserIdRef = useRef<string | null>(null);
+  const latestLoadIdRef = useRef<number>(0);
 
   // Presentational 에 전달될 필터 옵션
   const filterOptions: FilterOption[] = [
@@ -99,13 +100,14 @@ const MapContainer = ({ state, placeFilter = 'all', setPlaceFilter }: MapContain
           visitDate={state.histories[restaurant.place_name]?.date}
           onBookmarkAdd={addBookmark}
           onBookmarkRemove={removeBookmark}
+          onAddVisit={(target) => modalDispatch({ type: 'showModal', payload: target })}
         />
       );
       cardContainer.render(cardContent);
 
       return overlay;
     },
-    [state.histories, addBookmark, removeBookmark],
+    [state.histories, addBookmark, removeBookmark, modalDispatch],
   );
 
   const createClustererOverlay = useCallback(
@@ -116,7 +118,6 @@ const MapContainer = ({ state, placeFilter = 'all', setPlaceFilter }: MapContain
         if (title) markerTitles.push(title);
       });
       const fetchedRestaurants = await getPlacesWithNameAndBookmarks(
-        userId,
         markerTitles,
         placeFilter,
       );
@@ -213,12 +214,20 @@ const MapContainer = ({ state, placeFilter = 'all', setPlaceFilter }: MapContain
   const loadRestaurantsAndCreateMarkers = useCallback(async () => {
     if (!mapRef.current || !markerClustererRef.current) return;
 
+    const loadId = ++latestLoadIdRef.current;
+
     try {
+      const restaurants = await getPlacesWithUserBookmarks(placeFilter);
+
+      // 로그인 직후처럼 로드가 겹치면 늦게 끝난 이전 로드가 마커를 중복 추가하지 않게 한다
+      if (loadId !== latestLoadIdRef.current || !markerClustererRef.current) {
+        return;
+      }
+
       markersRef.current.forEach(({ marker }) => marker.setMap(null));
       markersRef.current = [];
       markerClustererRef.current.clear();
 
-      const restaurants = await getPlacesWithUserBookmarks(userId, placeFilter);
       const newMarkers: kakao.maps.Marker[] = [];
       
       restaurants.forEach((restaurant) => {
