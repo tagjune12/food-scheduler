@@ -62,7 +62,7 @@ REACT_APP_SUPABASE_ANON_KEY=your_anon_key
 
 ### Supabase 설정
 
-1. **마이그레이션 적용**: `supabase/migrations/`의 SQL을 파일명 순서대로 적용합니다 (SQL Editor 또는 `npx supabase login` → `npx supabase link --project-ref <project-ref>` → `npx supabase db push`). SQL Editor로 적용한 경우, 나중에 CLI로 전환하기 전에 `npx supabase migration repair --status applied 20261006000001 20261006000002 20261011000003`로 적용 이력을 맞춰야 `db push`가 같은 SQL을 다시 실행하지 않습니다.
+1. **마이그레이션 적용**: `supabase/migrations/`의 SQL을 파일명 순서대로 적용합니다 (SQL Editor 또는 `npx supabase login` → `npx supabase link --project-ref <project-ref>` → `npx supabase db push`). SQL Editor로 적용한 경우, 나중에 CLI로 전환하기 전에 `npx supabase migration repair --status applied 20261006000001 20261006000002 20261011000003 20261011000004 20261011000005`로 적용 이력을 맞춰야 `db push`가 같은 SQL을 다시 실행하지 않습니다.
 2. **Google Cloud Console**: OAuth 클라이언트의 승인된 리디렉션 URI에 `https://<project-ref>.supabase.co/auth/v1/callback`을 추가합니다.
 3. **Supabase 대시보드 → Authentication → Providers → Google**: 활성화하고 클라이언트 ID와 시크릿을 입력합니다.
 4. **Supabase 대시보드 → Authentication → URL Configuration**: Site URL과 Redirect URLs에 `http://localhost:3000`과 운영 도메인을 등록합니다.
@@ -71,13 +71,14 @@ REACT_APP_SUPABASE_ANON_KEY=your_anon_key
 ### 설치 및 실행
 
 ```bash
-# @types/node는 이전 버전(^16)을 유지하므로 vite의 peer 범위와 충돌한다 — 항상 이 플래그로 설치한다
-npm install --legacy-peer-deps
+# 의존성 설치. @types/node(^18.19.1)가 vite 6의 peer 범위 안이라 --legacy-peer-deps는 필요 없다.
+# 이 플래그로 설치하면 peer 의존성(moment 등)이 package-lock.json에서 빠지므로 쓰지 않는다
+npm install
 
 # 개발 서버 실행 (http://localhost:3000)
 npm start
 
-# 단위 테스트
+# 단위 테스트 (vite.config.ts의 test.env로 Asia/Seoul 시간대에서 실행)
 npm test
 
 # 프로덕션 빌드
@@ -95,7 +96,8 @@ npm run preview
   - `/privacy`: 개인정보처리방침
 - 인증
   - 로그인 버튼이 `supabase.auth.signInWithOAuth`로 Google 로그인을 시작합니다(PKCE). 앱으로 돌아오면 supabase-js가 세션을 만들고 localStorage에 보관·갱신합니다.
-  - 로그인 상태는 `AuthContext`(`session`, `userId`, `isLogin`)로 전역 관리합니다.
+  - 로그인 상태는 `AuthContext`로 전역 관리합니다: `session`, `userId`(비로그인이면 빈 문자열), `isLogin`, `isAuthLoading`(저장된 세션 확인 중), `signInWithGoogle`, `signOut`.
+  - 로그인이 실패해 `?error=...`(또는 `#error=...`)로 돌아오면 알림을 띄우고 URL에서 오류 파라미터를 지웁니다.
   - 캘린더 버튼을 누르거나 일정을 저장할 때 미로그인이면 로그인 페이지로 안내합니다.
 
 ### 데이터 모델
@@ -107,7 +109,7 @@ npm run preview
 | `get_places_with_my_bookmarks()` | 지도용 식당 목록 + 내 북마크 여부 |
 | `get_places_by_names_with_my_bookmarks(p_place_names)` | 클러스터 목록용 식당 + 내 북마크 여부 |
 
-사용자 데이터는 RLS로 `auth.uid()`가 일치하는 행만 접근할 수 있습니다. 이전 Google Calendar 방식에서 쓰던 `history`, `calendar`, `bookmarks` 테이블과 관련 뷰·함수는 DB에 남아 있지만 앱에서 쓰지 않으며, 클라이언트(anon, authenticated) 접근 권한은 회수했습니다.
+사용자 데이터는 RLS로 `auth.uid()`가 일치하는 행만 접근할 수 있습니다. 이전 Google Calendar 방식에서 쓰던 `history`, `calendar`, `bookmarks` 테이블과 관련 뷰·함수는 삭제했습니다.
 
 ### 아키텍처
 

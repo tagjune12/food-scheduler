@@ -1,15 +1,18 @@
 import { createContext, Dispatch, useReducer, useContext } from 'react';
-import type { Restaurant } from '@src/types';
+import type { Restaurant, VisitWithPlace } from '@src/types';
+
+// 일정 추가 모달이 저장에 성공하면 새 방문 일정을 넘겨 호출한다 (캘린더에 바로 반영)
+type VisitAddedCallback = (visit: VisitWithPlace) => void;
 
 type ModalAction =
-  | { type: 'showModal'; payload: Restaurant; callbackFn?: (event?: unknown) => void }
+  | { type: 'showModal'; payload: Restaurant; callbackFn?: VisitAddedCallback }
   | { type: 'hideModal' };
 
-interface ModalState {
+type ModalState = {
   isVisible: boolean;
   target: Restaurant | null;
-  callbackFn?: (event?: unknown) => void;
-}
+  callbackFn?: VisitAddedCallback;
+};
 
 const initialState: ModalState = {
   isVisible: false,

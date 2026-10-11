@@ -3,23 +3,11 @@ import {
   useBookMarkActions,
   useBookMarkState,
 } from '@src/context/BookMarkContext';
-import { useEffect } from 'react';
-import {useAuth} from "@src/context/AuthContext";
 
+// 북마크 목록은 BookmarkProvider가 로그인 사용자가 바뀔 때 조회하므로 여기서는 상태만 읽는다
 export const Bookmark = () => {
   const { bookmarks } = useBookMarkState();
-  const { removeBookmark, fetchBookmarks } = useBookMarkActions();
-  const { isLogin } = useAuth();
-
-  useEffect(() => {
-    if(isLogin){
-      try{
-        fetchBookmarks();
-      }catch(e){
-        alert("북마크를 가져오는데 실패했습니다.")
-      }
-    }
-  }, [isLogin]);
+  const { removeBookmark } = useBookMarkActions();
 
   const handleBookmarkClick = async (restaurantId: string) => {
     await removeBookmark(restaurantId);

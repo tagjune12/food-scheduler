@@ -137,6 +137,70 @@ function convertPlaceRowToRestaurant(place: PlaceWithBookmark): Restaurant {
   };
 }
 
+const LEGACY_STORAGE_KEYS = ['access_token', 'token_expiry', 'user_id'];
+
+/**
+ * 이전(Google Calendar 연동) 버전이 localStorage에 남긴 Google 토큰과 사용자 키를 지웁니다.
+ * 현재 세션은 supabase-js가 별도 키(sb-*)로 관리하므로 영향이 없습니다.
+ * @param storage 키를 지울 저장소 (보통 window.localStorage)
+ */
+function removeLegacyStorageKeys(storage: Pick<Storage, 'removeItem'>): void {
+  try {
+    LEGACY_STORAGE_KEYS.forEach((key) => storage.removeItem(key));
+  } catch (error) {
+    console.error('Error in removeLegacyStorageKeys:', error);
+  }
+}
+
+const OAUTH_ERROR_PARAMS = ['error', 'error_code', 'error_description'];
+
+function hasOAuthErrorParam(params: URLSearchParams): boolean {
+  return OAUTH_ERROR_PARAMS.some((key) => params.has(key));
+}
+
+/**
+ * OAuth 로그인이 실패해 돌아온 URL의 query 또는 hash에서 오류 내용을 읽습니다.
+ * @param url 확인할 URL (보통 window.location.href)
+ * @returns 오류 설명(없으면 오류 코드), 오류가 없으면 null
+ */
+function getOAuthErrorFromUrl(url: string): string | null {
+  const { search, hash } = new URL(url);
+  for (const params of [new URLSearchParams(search), new URLSearchParams(hash.slice(1))]) {
+    if (hasOAuthErrorParam(params)) {
+      return (
+        params.get('error_description') ||
+        params.get('error_code') ||
+        params.get('error') ||
+        'unknown_error'
+      );
+    }
+  }
+  return null;
+}
+
+/**
+ * URL의 query와 hash에서 OAuth 오류 파라미터를 지웁니다. 오류 파라미터가 없는 부분은 건드리지 않습니다.
+ * @param url 정리할 URL (보통 window.location.href)
+ * @returns 정리된 URL
+ */
+function removeOAuthErrorParams(url: string): string {
+  const parsed = new URL(url);
+
+  const searchParams = new URLSearchParams(parsed.search);
+  if (hasOAuthErrorParam(searchParams)) {
+    OAUTH_ERROR_PARAMS.forEach((key) => searchParams.delete(key));
+    parsed.search = searchParams.toString();
+  }
+
+  const hashParams = new URLSearchParams(parsed.hash.slice(1));
+  if (hasOAuthErrorParam(hashParams)) {
+    OAUTH_ERROR_PARAMS.forEach((key) => hashParams.delete(key));
+    parsed.hash = hashParams.toString();
+  }
+
+  return parsed.toString();
+}
+
 export {
   getNumTypeToday,
   getStringDate,
@@ -146,4 +210,7 @@ export {
   convertPlacesToRestaurants,
   convertPlaceRowToRestaurant,
   getStringTypeToday,
+  removeLegacyStorageKeys,
+  getOAuthErrorFromUrl,
+  removeOAuthErrorParams,
 };

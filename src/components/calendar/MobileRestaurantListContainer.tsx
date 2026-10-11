@@ -3,11 +3,12 @@ import MobileRestaurantList from './MobileRestaurantList';
 import { getRestaurants } from '@lib/api/supabase_api';
 import { useModalDispatch } from '@src/context/ModalContext';
 import { convertPlaceToRestaurant } from '@lib/util';
+import type { VisitWithPlace } from '@src/types';
 
 export default function MobileRestaurantListContainer({
   callbackFn,
 }: {
-  callbackFn: (params: any) => void;
+  callbackFn: (visit: VisitWithPlace) => void;
 }) {
   const [restaurants, setRestaurants] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);

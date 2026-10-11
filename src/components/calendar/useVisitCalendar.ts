@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type {
   DatesSetArg,
   EventClickArg,
@@ -12,6 +12,13 @@ import type { VisitWithPlace } from '@src/types';
 export default function useVisitCalendar() {
   const [events, setEvents] = useState<EventInput[]>([]);
   const latestRequestIdRef = useRef<number>(0);
+
+  // 캘린더를 닫은 뒤 늦게 도착한 조회 결과(실패 alert 포함)를 무시하도록 진행 중인 요청을 무효화한다
+  useEffect(() => {
+    return () => {
+      latestRequestIdRef.current += 1;
+    };
+  }, []);
 
   const handleDatesSet = useCallback(async (dateInfo: DatesSetArg) => {
     const requestId = ++latestRequestIdRef.current;
