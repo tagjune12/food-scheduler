@@ -90,6 +90,7 @@ Thumbs.db
 GEMINI.md
 CLAUDE.md
 docs/
+supabase/migrations/
 *.png
 *ico
 *.txt
