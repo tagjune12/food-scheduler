@@ -5,9 +5,7 @@ import '@components/sidebar/SideBar.scss';
 import { AppStoreType } from '@src/types';
 import Skeleton from '@mui/material/Skeleton';
 import Divider from '@mui/material/Divider';
-import { useTodayRestaurantState } from '@src/context/TodayRestaurantContext';
 import { Bookmark } from '@components/sidebar/Bookmark';
-import { getStoredToken } from '@lib/util';
 import React from 'react';
 import { Box, Button, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
@@ -25,7 +23,6 @@ const SideBar = ({
 }) => {
   // const [isHistory, setIsHistory] = useState<boolean>(false);
   const sideBarRef = useRef<HTMLDivElement>(null);
-  // const todayRestaurantState = useTodayRestaurantState();
   const { isLogin } = useAuth();
   const navigate = useNavigate();
 

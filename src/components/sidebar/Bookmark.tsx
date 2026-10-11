@@ -9,7 +9,7 @@ import {useAuth} from "@src/context/AuthContext";
 export const Bookmark = () => {
   const { bookmarks } = useBookMarkState();
   const { removeBookmark, fetchBookmarks } = useBookMarkActions();
-  const { isLogin, setIsLogin } = useAuth();
+  const { isLogin } = useAuth();
 
   useEffect(() => {
     if(isLogin){

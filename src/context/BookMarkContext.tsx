@@ -4,12 +4,15 @@ import {
   useReducer,
   Dispatch,
   useEffect,
+  useMemo,
 } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   getBookmarks,
   insertBookmark,
   deleteBookmark,
 } from '@src/lib/api/supabase_api';
+import { useAuth } from '@src/context/AuthContext';
 
 // 북마크 아이템 타입 정의
 interface BookmarkItem {
@@ -46,19 +49,20 @@ type BookmarkAction =
   | { type: 'REMOVE_BOOKMARK_SUCCESS'; payload: string }
   | { type: 'REMOVE_BOOKMARK_ERROR'; payload: string };
 
-// 초기 상태 (userId는 Provider에서 설정됨)
-const createInitialState = (userId: string): BookmarkState => ({
+// 리듀서는 북마크 목록만 관리하고, userId는 AuthContext에서 매 렌더 가져온다
+type BookmarkReducerState = Omit<BookmarkState, 'userId'>;
+
+const initialState: BookmarkReducerState = {
   bookmarks: [],
   loading: false,
   error: null,
-  userId,
-});
+};
 
 // 리듀서 함수
 function bookmarkReducer(
-  prevState: BookmarkState,
+  prevState: BookmarkReducerState,
   action: BookmarkAction,
-): BookmarkState {
+): BookmarkReducerState {
   switch (action.type) {
     case 'FETCH_BOOKMARKS_START':
     case 'ADD_BOOKMARK_START':
@@ -120,26 +124,38 @@ const BookmarkDispatchContext = createContext<
 // Provider 컴포넌트
 export const BookmarkProvider = ({
   children,
-  userId,
 }: {
   children: React.ReactNode;
-  userId: string;
 }) => {
-  const [state, dispatch] = useReducer(
-    bookmarkReducer,
-    createInitialState(userId),
+  const { userId } = useAuth();
+  const [reducerState, dispatch] = useReducer(bookmarkReducer, initialState);
+  const state: BookmarkState = useMemo(
+    () => ({ ...reducerState, userId }),
+    [reducerState, userId],
   );
 
-  // 컴포넌트 마운트 시 북마크 목록 조회
+  // 로그인 사용자가 바뀔 때 북마크 목록 조회
   useEffect(() => {
-    const fetchBookmarks = async () => {
-      if (!userId) return;
+    // 로그아웃하면 이전 사용자의 북마크가 화면에 남지 않게 비운다
+    if (!userId) {
+      dispatch({ type: 'FETCH_BOOKMARKS_SUCCESS', payload: [] });
+      return;
+    }
 
+    // 응답 전에 로그아웃하거나 계정이 바뀌면 이전 사용자의 결과를 버린다
+    let isCancelled = false;
+    const fetchBookmarks = async () => {
       dispatch({ type: 'FETCH_BOOKMARKS_START' });
       try {
-        const bookmarks: BookmarkItem[] = await getBookmarks(userId);
+        const bookmarks: BookmarkItem[] = await getBookmarks();
+        if (isCancelled) {
+          return;
+        }
         dispatch({ type: 'FETCH_BOOKMARKS_SUCCESS', payload: bookmarks || [] });
       } catch (error) {
+        if (isCancelled) {
+          return;
+        }
         dispatch({
           type: 'FETCH_BOOKMARKS_ERROR',
           payload:
@@ -151,6 +167,9 @@ export const BookmarkProvider = ({
     };
 
     fetchBookmarks();
+    return () => {
+      isCancelled = true;
+    };
   }, [userId]);
 
   return (
@@ -183,13 +202,38 @@ export const useBookMarkActions = () => {
   }
 
   const { userId } = state;
+  const navigate = useNavigate();
 
-  // 북마크 추가 함수
-  const addBookmark = async (placeId: string, bookmarkData: BookmarkItem) => {
+  // 비로그인 상태에서는 RLS가 쓰기를 거부하므로 API를 부르지 않고 로그인으로 안내한다
+  const confirmLogin = () => {
+    if (window.confirm('로그인이 필요합니다. 로그인하시겠습니까?')) {
+      navigate('/login', { replace: true });
+    }
+  };
+
+  // 북마크 추가 함수. API가 오류 없이 응답했을 때만 true를 반환한다
+  const addBookmark = async (
+    placeId: string,
+    bookmarkData: BookmarkItem,
+  ): Promise<boolean> => {
+    if (!userId) {
+      confirmLogin();
+      return false;
+    }
+
     dispatch({ type: 'ADD_BOOKMARK_START' });
     try {
-      await insertBookmark(userId, placeId);
+      const result = await insertBookmark(placeId);
+      if (result === null) {
+        dispatch({
+          type: 'ADD_BOOKMARK_ERROR',
+          payload: '북마크 추가에 실패했습니다.',
+        });
+        alert('북마크 추가에 실패했습니다.');
+        return false;
+      }
       dispatch({ type: 'ADD_BOOKMARK_SUCCESS', payload: bookmarkData });
+      return true;
     } catch (error) {
       dispatch({
         type: 'ADD_BOOKMARK_ERROR',
@@ -198,15 +242,30 @@ export const useBookMarkActions = () => {
             ? error.message
             : '북마크 추가에 실패했습니다.',
       });
+      return false;
     }
   };
 
-  // 북마크 삭제 함수
-  const removeBookmark = async (placeId: string) => {
+  // 북마크 삭제 함수. API가 오류 없이 응답했을 때만 true를 반환한다
+  const removeBookmark = async (placeId: string): Promise<boolean> => {
+    if (!userId) {
+      confirmLogin();
+      return false;
+    }
+
     dispatch({ type: 'REMOVE_BOOKMARK_START' });
     try {
-      await deleteBookmark(userId, placeId);
+      const result = await deleteBookmark(placeId);
+      if (result === null) {
+        dispatch({
+          type: 'REMOVE_BOOKMARK_ERROR',
+          payload: '북마크 삭제에 실패했습니다.',
+        });
+        alert('북마크 삭제에 실패했습니다.');
+        return false;
+      }
       dispatch({ type: 'REMOVE_BOOKMARK_SUCCESS', payload: placeId });
+      return true;
     } catch (error) {
       dispatch({
         type: 'REMOVE_BOOKMARK_ERROR',
@@ -215,6 +274,7 @@ export const useBookMarkActions = () => {
             ? error.message
             : '북마크 삭제에 실패했습니다.',
       });
+      return false;
     }
   };
 
@@ -222,7 +282,7 @@ export const useBookMarkActions = () => {
   const fetchBookmarks = async () => {
     dispatch({ type: 'FETCH_BOOKMARKS_START' });
     try {
-      const bookmarks: BookmarkItem[] = await getBookmarks(userId);
+      const bookmarks: BookmarkItem[] = await getBookmarks();
       dispatch({ type: 'FETCH_BOOKMARKS_SUCCESS', payload: bookmarks || [] });
     } catch (error) {
       dispatch({
